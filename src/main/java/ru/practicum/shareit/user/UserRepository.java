@@ -1,9 +1,11 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.interfaces.UserRepositoryInterface;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository // планируется переход на работу с БД
 public class UserRepository implements UserRepositoryInterface {
@@ -16,17 +18,22 @@ public class UserRepository implements UserRepositoryInterface {
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return Optional.empty();
+    public boolean deleteUser(Long userId) {
+        return users.remove(userId);
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return users.stream()
+                .filter(user -> user.getUserId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 
     @Override
     public Collection<User> getAllUsers() {
-        return null;
-    }
-
-    @Override
-    public boolean deleteUser(Long userId) {
-        return true;
+        return users.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

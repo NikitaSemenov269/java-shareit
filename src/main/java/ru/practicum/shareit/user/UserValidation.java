@@ -8,9 +8,10 @@ import java.util.Optional;
 @Service
 public class UserValidation {
 
-    public void userValidation(User user) {
-        Long userId = Optional.ofNullable(user.getUserId())
-                .orElseThrow(() -> new ValidationException("ID пользователя не может быть null"));
+    public void userValidationId(Long userId) {
+        if (userId == null) {
+            throw new ValidationException("ID пользователя не может быть null");
+        }
         if (userId <= 0) {
             throw new ValidationException("ID пользователя не может быть меньше 0");
         }
