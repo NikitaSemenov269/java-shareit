@@ -4,7 +4,6 @@ import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
@@ -27,7 +26,6 @@ public class Item {
     private String description;
 
     LocalDate startDateBooking;
-
     LocalDate endDateBooking;
 
     private boolean status;
