@@ -3,8 +3,6 @@ package ru.practicum.shareit.user;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 
-import java.util.Optional;
-
 @Service
 public class UserValidation {
 
