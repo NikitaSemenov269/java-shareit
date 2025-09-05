@@ -6,7 +6,7 @@ import ru.practicum.shareit.user.UserDTO;
 public interface UserRepositoryInterface {
     boolean addUser(User newUSer);
 
-//    User getUserById(Long userId);
+//    User getUserDTOById(Long userId);
 
     UserDTO getUserDTOById(Long userId);
 

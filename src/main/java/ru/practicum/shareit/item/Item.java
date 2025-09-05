@@ -2,10 +2,13 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.constraints.*;
 import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Component
+import java.time.LocalDate;
+
+@Data
 @Builder(toBuilder = true)
 @RequiredArgsConstructor
 public class Item {
@@ -22,6 +25,10 @@ public class Item {
 
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     private String description;
+
+    LocalDate startDateBooking;
+
+    LocalDate endDateBooking;
 
     private boolean status;
 }

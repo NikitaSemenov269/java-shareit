@@ -5,13 +5,13 @@ import ru.practicum.shareit.user.UserDTO;
 
 public interface UserServiceInterface {
 
-    void createUser(User newUser);
+    User createUser(User newUser);
 
-    void updateUser(User updateUser);
+    User updateUser(User updateUser);
 
     void deleteUser(Long userId);
 
-   //User getUserById(Long userId);
+   //User getUserDTOById(Long userId);
 
     UserDTO getUserDTOById(Long userId);
 }
