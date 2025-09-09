@@ -25,8 +25,9 @@ public class Item {
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     private String description;
 
-    LocalDate startDateBooking;
-    LocalDate endDateBooking;
+    private LocalDate startDateBooking;
 
-    private boolean status;
+    private LocalDate endDateBooking;
+    //статус подтверждения брони
+    private boolean isBooked;
 }

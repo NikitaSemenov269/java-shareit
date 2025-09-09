@@ -16,13 +16,7 @@ public class User {
     @Size(max = 30, message = "Имя пользователя не может быть больше 30 символов.")
     private String name;
 
-//    @NotBlank(message = "Логин не может быть пустым полем.")
-//    private String login;
-
     @NotBlank(message = "Email не может быть пустой строкой.")
     @Email(message = "Некорректный формат email.")
     private String email;
-
-    @NotBlank(message = "Пароль не может быть пустым полем.")
-    private String password;
 }

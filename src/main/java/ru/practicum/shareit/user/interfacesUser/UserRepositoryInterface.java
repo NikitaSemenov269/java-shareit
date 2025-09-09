@@ -4,11 +4,15 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDTO;
 
 public interface UserRepositoryInterface {
-    boolean addUser(User newUSer);
+    void addUser(User newUSer);
 
-//    User getUserDTOById(Long userId);
+    User updateUser(Long userId, User user);
 
     UserDTO getUserDTOById(Long userId);
 
-    void deleteUser(Long userId);
+    void deleteUserById(Long userId);
+
+    boolean existsByUserId(Long userId);
+
+    boolean existsByEmailByUserId(String email, Long userId);
 }

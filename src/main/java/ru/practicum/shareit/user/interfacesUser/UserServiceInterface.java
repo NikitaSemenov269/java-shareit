@@ -7,11 +7,9 @@ public interface UserServiceInterface {
 
     User createUser(User newUser);
 
-    User updateUser(User updateUser);
+    User updateUser(Long userId, User updateUser);
 
     void deleteUser(Long userId);
-
-   //User getUserDTOById(Long userId);
 
     UserDTO getUserDTOById(Long userId);
 }
