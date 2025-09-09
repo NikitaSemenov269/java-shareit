@@ -66,9 +66,6 @@ public class UserService implements UserServiceInterface {
     public UserDTO getUserDTOById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);
         validation.userValidationId(userId);
-        if (!userRepositoryInterface.existsByUserId(userId)) {
-            throw new ValidationException("Пользователь с " + userId + " не существует");
-        }
         return Optional.ofNullable(userRepositoryInterface.getUserDTOById(userId))
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }

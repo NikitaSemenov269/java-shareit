@@ -4,9 +4,9 @@ import ru.practicum.shareit.item.Item;
 
 public interface ItemServiceInterface {
 
-    Item createItem(Item newItem);
+    Item createItem(Long ownerId, Item newItem);
 
-    Item updateItem(Item updateItem);
+    Item updateItem(Long ownerId, Item updateItem);
 
-
+    void deleteItem(Long ownerId, Item updateItem);
 }

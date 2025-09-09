@@ -4,11 +4,13 @@ import ru.practicum.shareit.item.Item;
 
 public interface ItemRepositoryInterface {
 
-    boolean addItem(Item item);
+    void addItem(Item item);
 
     Item getItemDTOById(Long itemId);
 
-    Item updateItem(Long ItemId);
+    Item updateItem(Item updateItem);
 
     void deleteItemById(Long itemId);
+
+    boolean existsByItemId(Long itemId);
 }

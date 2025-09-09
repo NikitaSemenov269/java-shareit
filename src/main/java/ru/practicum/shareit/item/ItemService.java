@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
 import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
+import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -15,33 +16,53 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ItemService implements ItemServiceInterface {
 
     private final ItemValidation itemValidation;
-    private final ItemRepositoryInterface itemRepositoryInt;
+    private final ItemRepositoryInterface itemRepositoryInterface;
+    private final UserRepositoryInterface userRepositoryInterface;
 
     private static final AtomicLong counter = new AtomicLong(1);
 
     @Override
-    public Item createItem(Item newItem) {
+    public Item createItem(Long ownerId, Item newItem) {
         newItem.setItemId(counter.getAndIncrement());
         Long id = newItem.getItemId();
         log.info("Попытка создания нового предмета.");
-        itemValidation.itemValidationId(id);
-        if (!itemRepositoryInt.addItem(newItem)) {
-            throw new ValidationException("Предмет с " + id + " уже существует");
+        itemValidation.itemValidationById(id);
+        itemValidation.itemValidationByOwnerId(ownerId);
+        if (!userRepositoryInterface.existsByUserId(ownerId)) {
+            throw new ValidationException("Владелец с " + ownerId + " не существует");
         }
+        newItem.setOwnerId(ownerId);
+        itemRepositoryInterface.addItem(newItem);
         log.info("Создан новый предмет с ID: {}", id);
         return newItem;
     }
 
     @Override
-    public Item updateItem(Item updateItem) {
-        itemValidation.itemValidationId(updateItem.getItemId());
+    public Item updateItem(Long ownerId, Item updateItem) {
+        itemValidation.itemValidationById(updateItem.getItemId());
+        itemValidation.itemValidationByOwnerId(ownerId);
+        if (!userRepositoryInterface.existsByUserId(ownerId)) {
+            throw new ValidationException("Владелец с " + ownerId + " не существует");
+        }
+        itemValidation.itemValidationBelongsByIdOwner(ownerId, updateItem);
         Long updateItemId = updateItem.getItemId();
         log.info("Попытка обновления данных предмета с ID: {}", updateItemId);
-        itemValidation.itemDateValidation(updateItem.getStartDateBooking(),updateItem.getEndDateBooking());
-        itemRepositoryInt.deleteItemById(updateItemId);
-        itemRepositoryInt.addItem(updateItem);
+        Item item = itemRepositoryInterface.updateItem(updateItem);
         log.info("Данные предмета с ID: {} успешно обновлены", updateItemId);
-        return updateItem;
+        return item;
+    }
+
+    @Override
+    public void deleteItem(Long ownerId, Item item) {
+        log.info("Попытка удаления предмета ID: {}", item.getItemId());
+        itemValidation.itemValidationById(item.getItemId());
+        itemValidation.itemValidationByOwnerId(ownerId);
+        if (!userRepositoryInterface.existsByUserId(ownerId)) {
+            throw new ValidationException("Владелец с " + ownerId + " не существует");
+        }
+        itemValidation.itemValidationBelongsByIdOwner(ownerId, item);
+
+        log.info("Успешное удаление предмета ID: {}", item.getItemId());
     }
 }
 

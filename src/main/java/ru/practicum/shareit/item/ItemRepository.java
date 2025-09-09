@@ -18,8 +18,8 @@ public class ItemRepository implements ItemRepositoryInterface {
 
 
     @Override
-    public boolean addItem(Item item) {
-
+    public void addItem(Item item) {
+        items.put(item.getItemId(), item);
     }
 
     @Override
@@ -28,13 +28,22 @@ public class ItemRepository implements ItemRepositoryInterface {
     }
 
     @Override
-    public Item updateItem(Long ItemId) {
-        return Optional.ofNullable(items.get(ItemId))
-                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + ItemId + " не найден"));
+    public Item updateItem(Item updateItem) {
+        Item item = items.get(updateItem.getItemId());
+        item.setTitle(updateItem.getTitle());
+        item.setDescription(updateItem.getDescription());
+        item.setAvailable(updateItem.isAvailable());
+        item.setRequest(updateItem.getRequest());
+        return item;
     }
 
     @Override
     public void deleteItemById(Long itemId) {
 
+    }
+
+    @Override
+    public boolean existsByItemId(Long itemId) {
+        return items.containsKey(itemId);
     }
 }
