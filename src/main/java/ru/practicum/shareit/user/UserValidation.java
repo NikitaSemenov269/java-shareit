@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 
 @Service
-public class UserValidation {
+class UserValidation {
 
-    public void userValidationId(Long userId) {
+    void userValidationId(Long userId) {
         if (userId == null) {
             throw new ValidationException("ID пользователя не может быть null");
         }

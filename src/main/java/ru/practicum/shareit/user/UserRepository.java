@@ -21,8 +21,12 @@ public class UserRepository implements UserRepositoryInterface {
     @Override
     public User updateUser(Long userId, User user) {
         User updateUser = users.get(userId);
-        updateUser.setName(user.getName());
-        updateUser.setEmail(user.getEmail());
+        if (user.getName() != null) {
+            updateUser.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            updateUser.setEmail(user.getEmail());
+        }
         return updateUser;
     }
 

@@ -2,18 +2,16 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
-
-import java.time.LocalDate;
+import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
 
 @Component
 @RequiredArgsConstructor
-public class ItemValidation {
+class ItemValidation {
     private final ItemRepository itemRepository;
+    private final UserRepositoryInterface userRepositoryInterface;
 
-    public void itemValidationById(Long itemId) {
+    void itemValidationById(Long itemId) {
         if (itemId == null) {
             throw new ValidationException("ID предмета не может быть null");
         }
@@ -22,7 +20,7 @@ public class ItemValidation {
         }
     }
 
-    public void itemValidationByOwnerId(Long ownerId) {
+    void itemValidationByOwnerId(Long ownerId) {
         if (ownerId == null) {
             throw new ValidationException("ID владельца не может быть null");
         }
@@ -31,10 +29,16 @@ public class ItemValidation {
         }
     }
 
-    public void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
+    void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
         Item item = itemRepository.getItemById(itemId);
         if (!ownerId.equals(item.getOwnerId())) {
             throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
+        }
+    }
+
+    void existsByUserId(Long ownerId) {
+        if (!userRepositoryInterface.existsByUserId(ownerId)) {
+            throw new ValidationException("Владелец с " + ownerId + " не существует");
         }
     }
 }

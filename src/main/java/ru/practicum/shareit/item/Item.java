@@ -4,8 +4,8 @@ import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDate;
+import ru.practicum.shareit.enums.BookingStatus;
+import static ru.practicum.shareit.enums.BookingStatus.*;
 
 @Data
 @Builder(toBuilder = true)
@@ -24,9 +24,11 @@ public class Item {
 
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     private String description;
+
     //статус подтверждения брони
-    private boolean available;
+    //AWAITING_A_REQUEST("Номинальный статус бронирования", true)
+    private BookingStatus available = AWAITING_A_REQUEST;
 
     //Ссылка на запрос аренды
-    private String request;
+    private Long request;
 }

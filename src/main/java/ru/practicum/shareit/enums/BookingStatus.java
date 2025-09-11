@@ -1,19 +1,21 @@
 package ru.practicum.shareit.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum BookingStatus {
 
-    WAITING("Новое бронирование, ожидает одобрения"),
-    APPROVED("Бронирование подтверждено владельцем"),
-    REJECTED("Бронирование отклонено владельцем"),
-    CANCELED("Бронирование отменено создателем");
+    AWAITING_A_REQUEST("Номинальный статус бронирования", true),
+    WAITING("Новое бронирование, ожидает одобрения", false),
+    APPROVED("Бронирование подтверждено владельцем", true),
+    REJECTED("Бронирование отклонено владельцем", false),
+    CANCELED("Бронирование отменено создателем", false);
 
     private final String description;
+    private final boolean status;
 
-    BookingStatus(String description) {
+    BookingStatus(String description, boolean status) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
+        this.status = status;
     }
 }

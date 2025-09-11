@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.interfacesBooking;
 
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.enums.BookingStatus;
 
 public interface BookingServiceInterface {
 
@@ -8,4 +9,7 @@ public interface BookingServiceInterface {
 
     Booking updateBooking(Long bookerId, Booking updateBooking);
 
+    void deleteBooking(Long bookerId, Long bookingId);
+
+    Booking updateAvailableStatusBooking(Long idOwner, Long bookingId, BookingStatus bookingStatus);
 }

@@ -13,24 +13,28 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public User createUser(@Valid
+                           @RequestBody User user) {
         return userService.createUser(user);
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserDTOById(@PathVariable @Min(1) Long id) {
+    public UserDTO getUserDTOById(@PathVariable
+                                  @Min(1) Long id) {
         return userService.getUserDTOById(id);
     }
 
     @PatchMapping
     public User updateUser(@Valid
-                           @PathVariable Long userId,
+                           @PathVariable
+                           @Min(1) Long userId,
                            @RequestBody User user) {
         return userService.updateUser(userId, user);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable @Min(1) Long userId) {
+    public void deleteUser(@PathVariable
+                           @Min(1) Long userId) {
         userService.deleteUser(userId);
     }
 }
