@@ -1,15 +1,17 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
 
 import java.time.LocalDate;
 
-@Service
+@Component
 @RequiredArgsConstructor
-
 public class ItemValidation {
+    private final ItemRepository itemRepository;
 
     public void itemValidationById(Long itemId) {
         if (itemId == null) {
@@ -29,25 +31,10 @@ public class ItemValidation {
         }
     }
 
-    public void itemValidationBelongsByIdOwner(Long ownerId, Item item) {
+    public void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
+        Item item = itemRepository.getItemById(itemId);
         if (!ownerId.equals(item.getOwnerId())) {
             throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
-        }
-    }
-
-    //перенести в другой валидатор
-    public void itemDateValidation(LocalDate startDateBooking, LocalDate endDateBooking) {
-        if (startDateBooking == null) {
-            throw new ValidationException("Время начала аренды не может быть null.");
-        }
-        if (endDateBooking == null) {
-            throw new ValidationException("Время окончания аренды не может быть null.");
-        }
-        if (startDateBooking.isBefore(LocalDate.now())) {
-            throw new ValidationException("Время начала аренды не может быть в прошлом.");
-        }
-        if (endDateBooking.isBefore(startDateBooking)) {
-            throw new ValidationException("Время окончания аренды не может наступить раньше начала аренды.");
         }
     }
 }

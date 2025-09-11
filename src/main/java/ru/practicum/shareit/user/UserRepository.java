@@ -11,7 +11,7 @@ import java.util.*;
 public class UserRepository implements UserRepositoryInterface {
 
     private final UserMapper userMapper;
-    private Map<Long, User> users = new HashMap();
+    private Map<Long, User> users = new HashMap<>();
 
     @Override
     public void addUser(User newUser) {
@@ -44,8 +44,7 @@ public class UserRepository implements UserRepositoryInterface {
     @Override
     public boolean existsByEmailByUserId(String email, Long userId) {
         return users.values().stream()
-                .filter(user -> !user.getUserId().equals(userId)) //исключаем самого пользователя из выборки
-                .map(User::getEmail)
+                .filter(user -> !user.getUserId().equals(userId)) //исключаем самого пользователя
                 .anyMatch(userEmail -> userEmail.equals(email));
     }
 }

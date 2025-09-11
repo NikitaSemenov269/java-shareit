@@ -22,7 +22,7 @@ public class UserController {
         return userService.getUserDTOById(id);
     }
 
-    @PutMapping
+    @PatchMapping
     public User updateUser(@Valid
                            @PathVariable Long userId,
                            @RequestBody User user) {

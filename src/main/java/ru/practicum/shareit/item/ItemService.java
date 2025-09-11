@@ -3,11 +3,13 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
 import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
 import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -44,7 +46,7 @@ public class ItemService implements ItemServiceInterface {
         if (!userRepositoryInterface.existsByUserId(ownerId)) {
             throw new ValidationException("Владелец с " + ownerId + " не существует");
         }
-        itemValidation.itemValidationBelongsByIdOwner(ownerId, updateItem);
+        itemValidation.itemValidationBelongsByIdOwner(ownerId, updateItem.getItemId());
         Long updateItemId = updateItem.getItemId();
         log.info("Попытка обновления данных предмета с ID: {}", updateItemId);
         Item item = itemRepositoryInterface.updateItem(updateItem);
@@ -53,16 +55,23 @@ public class ItemService implements ItemServiceInterface {
     }
 
     @Override
-    public void deleteItem(Long ownerId, Item item) {
-        log.info("Попытка удаления предмета ID: {}", item.getItemId());
-        itemValidation.itemValidationById(item.getItemId());
+    public void deleteItem(Long ownerId, Long itemId) {
+        log.info("Попытка удаления предмета ID: {}", itemId);
+        itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByOwnerId(ownerId);
         if (!userRepositoryInterface.existsByUserId(ownerId)) {
             throw new ValidationException("Владелец с " + ownerId + " не существует");
         }
-        itemValidation.itemValidationBelongsByIdOwner(ownerId, item);
+        itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
+        log.info("Успешное удаление предмета ID: {}", itemId);
+    }
 
-        log.info("Успешное удаление предмета ID: {}", item.getItemId());
+    @Override
+    public ItemDTO getItemDTOById(Long itemId) {
+        log.info("Попытка получения предмета по ID: {}", itemId);
+        itemValidation.itemValidationById(itemId);
+        return Optional.ofNullable(itemRepositoryInterface.getItemDTOById(itemId))
+                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден"));
     }
 }
 

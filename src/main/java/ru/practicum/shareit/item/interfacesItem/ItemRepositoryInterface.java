@@ -1,12 +1,13 @@
 package ru.practicum.shareit.item.interfacesItem;
 
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemDTO;
 
 public interface ItemRepositoryInterface {
 
     void addItem(Item item);
 
-    Item getItemDTOById(Long itemId);
+    ItemDTO getItemDTOById(Long itemId);
 
     Item updateItem(Item updateItem);
 
