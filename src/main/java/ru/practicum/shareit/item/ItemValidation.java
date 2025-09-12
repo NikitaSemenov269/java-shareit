@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
 
@@ -31,14 +32,14 @@ class ItemValidation {
 
     void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
         Item item = itemRepository.getItemById(itemId);
-        if (!ownerId.equals(item.getOwnerId())) {
-            throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
+        if (!ownerId.equals(item.getOwner())) {
+            throw new ValidationException("ID владельца не совпадает с ID пользователя.");
         }
     }
 
     void existsByUserId(Long ownerId) {
         if (!userRepositoryInterface.existsByUserId(ownerId)) {
-            throw new ValidationException("Владелец с " + ownerId + " не существует");
+            throw new NotFoundException("Владелец с " + ownerId + " не существует");
         }
     }
 }

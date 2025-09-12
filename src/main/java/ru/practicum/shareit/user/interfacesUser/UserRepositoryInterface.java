@@ -8,6 +8,8 @@ public interface  UserRepositoryInterface {
 
     User updateUser(Long userId, User user);
 
+    User getUserById(Long userId);
+
     UserDTO getUserDTOById(Long userId);
 
     void deleteUserById(Long userId);

@@ -15,7 +15,7 @@ public class UserRepository implements UserRepositoryInterface {
 
     @Override
     public void addUser(User newUser) {
-        users.put(newUser.getUserId(), newUser);
+        users.put(newUser.getId(), newUser);
     }
 
     @Override
@@ -28,6 +28,11 @@ public class UserRepository implements UserRepositoryInterface {
             updateUser.setEmail(user.getEmail());
         }
         return updateUser;
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return users.get(userId);
     }
 
     @Override
@@ -48,7 +53,7 @@ public class UserRepository implements UserRepositoryInterface {
     @Override
     public boolean existsByEmailByUserId(String email, Long userId) {
         return users.values().stream()
-                .filter(user -> !user.getUserId().equals(userId)) //исключаем самого пользователя
-                .anyMatch(userEmail -> userEmail.equals(email));
+                .filter(user -> !user.getId().equals(userId)) //исключаем самого пользователя
+                .anyMatch(userEmail -> userEmail.getEmail().equals(email));
     }
 }

@@ -23,8 +23,8 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public User createUser(User newUser) {
-        newUser.setUserId(counter.getAndIncrement());
-        Long userId = newUser.getUserId();
+        newUser.setId(counter.getAndIncrement());
+        Long userId = newUser.getId();
         log.info("Попытка создания нового пользователя.");
         validation.userValidationId(userId);
         if (userRepositoryInterface.existsByUserId(userId)) {
@@ -40,17 +40,17 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public User updateUser(Long userId, User updateUser) {
-        validation.userValidationId(userId);
-        log.info("Попытка обновления данных пользователя с ID: {}", userId);
-        if (!userRepositoryInterface.existsByUserId(userId)) {
-            throw new ValidationException("Пользователь с " + userId + " не существует");
+    public User updateUser(Long id, User updateUser) {
+        validation.userValidationId(id);
+        log.info("Попытка обновления данных пользователя с ID: {}", id);
+        if (!userRepositoryInterface.existsByUserId(id)) {
+            throw new NotFoundException("Пользователь с " + id + " не существует");
         }
-        if (userRepositoryInterface.existsByEmailByUserId(updateUser.getEmail(), userId)) {
+        if (userRepositoryInterface.existsByEmailByUserId(updateUser.getEmail(), id)) {
             throw new ValidationException("Пользователь с " + updateUser.getEmail() + " уже существует");
         }
-        User user = userRepositoryInterface.updateUser(userId, updateUser);
-        log.info("Данные пользователя с ID: {} успешно обновлены", userId);
+        User user = userRepositoryInterface.updateUser(id, updateUser);
+        log.info("Данные пользователя с ID: {} успешно обновлены", id);
         return user;
     }
 

@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.interfacesBooking.BookingRepositoryInterface;
 import ru.practicum.shareit.booking.interfacesBooking.BookingServiceInterface;
 import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
 
 import java.util.concurrent.atomic.AtomicLong;
+
+import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
 
 @Slf4j
 @Service
@@ -30,7 +33,7 @@ public class BookingService implements BookingServiceInterface {
         bookingValidator.bookingValidationById(id);
         bookingValidator.bookerValidationById(bookerId);
         bookingValidator.bookingValidationByIdItem(booking.getItemId());
-        bookingValidator.existsByBookingId(bookerId);
+        bookingValidator.existsByBookerId(bookerId);
         bookingValidator.bookingDateValidation(booking.getStartRent(), booking.getEndRent());
 
         booking.setBookerId(bookerId);
@@ -40,20 +43,32 @@ public class BookingService implements BookingServiceInterface {
     }
 
     @Override
-    public Booking updateBooking(Long bookerId, Booking updateBooking) {
+    public Booking updateBooking(Long bookingId, Long bookerId, Booking updateBooking) {
 
-        bookingValidator.bookingValidationById(updateBooking.getBookingId());
+        bookingValidator.bookingValidationById(bookingId);
         bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.existsByBookingId(bookerId);
+        bookingValidator.existsByBookerId(bookerId);
         bookingValidator.bookingValidationByIdItem(updateBooking.getItemId());
-        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, updateBooking.getBookingId());
+        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
         bookingValidator.bookingDateValidation(updateBooking.getStartRent(), updateBooking.getEndRent());
 
-        Long updateBookingId = updateBooking.getBookingId();
-        log.info("Попытка обновления данных предмета с ID: {}", updateBookingId);
+        log.info("Попытка обновления данных предмета с ID: {}", bookingId);
         Booking booking = bookingRepositoryInterface.updateBooking(updateBooking);
-        log.info("Данные предмета с ID: {} успешно обновлены", updateBookingId);
+        log.info("Данные предмета с ID: {} успешно обновлены", bookingId);
         return booking;
+    }
+
+    @Override
+    public void canceledBookingById(Long bookerId, Long bookingId) {
+        log.info("Попытка отмены брони с ID: {}", bookingId);
+
+        bookingValidator.bookingValidationById(bookingId);
+        bookingValidator.bookerValidationById(bookerId);
+        bookingValidator.existsByBookerId(bookerId);
+        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
+
+        bookingRepositoryInterface.canceledBookingById(bookingId);
+        log.info("Успешное отмена брони с ID: {}", bookingId);
     }
 
     @Override
@@ -62,17 +77,12 @@ public class BookingService implements BookingServiceInterface {
 
         bookingValidator.bookingValidationById(bookingId);
         bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.existsByBookingId(bookerId);
+        bookingValidator.existsByBookerId(bookerId);
         bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
 
         bookingRepositoryInterface.deleteBooking(bookingId);
         log.info("Успешное удаление брони с ID: {}", bookingId);
     }
-    /* Должно принимать значения и передавать их дальше в itemService для обновления статуса вещи и заявки.
-       Добавить в bookingRepository метод получения BookingDto и создать DTO, что бы можно было получить idItem.
-       Данную сущность может получать только автор заявки и владелец вещи? Может стоит создать
-       метод на получение только на получени idItem по idBooking ?
-     */
 
     @Override
     public Booking updateAvailableStatusBooking(Long ownerId, Long bookingId, BookingStatus bookingStatus) {
@@ -80,12 +90,18 @@ public class BookingService implements BookingServiceInterface {
 
         bookingValidator.bookingValidationById(bookingId);
         //допущение: вместо id автора заявки используется id владельца вещи.
-        bookingValidator.existsByBookingId(ownerId);
-//        //допущение: вместо id автора заявки используется id вещи.
-//        bookingValidator.bookingValidationByIdItem(bookingId);
-//        itemServiceInterface.updateItemAvailable(ownerId, ,bookingStatus);
+        bookingValidator.existsByBookerId(ownerId);
 
-        return bookingRepositoryInterface.updateAvailableStatusBooking(bookingId, bookingStatus);
+        Long itemId = bookingRepositoryInterface.getBookingById(bookingId).getItemId();
+        //только владелец может изменять статус брони
+        bookingValidator.bookingValidationOfTheItemOwner(ownerId, itemId);
+
+        if (!CANCELED.equals(bookingStatus)) {
+            itemServiceInterface.updateItemAvailable(ownerId, itemId, bookingStatus);
+            return bookingRepositoryInterface.updateAvailableStatusBooking(bookingId, bookingStatus);
+        } else {
+            throw new ValidationException("Закрытие брони доступно только инициатору бронирования.");
+        }
     }
 }
 

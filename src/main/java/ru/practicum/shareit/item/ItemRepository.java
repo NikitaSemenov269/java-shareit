@@ -17,7 +17,7 @@ public class ItemRepository implements ItemRepositoryInterface {
 
     @Override
     public void addItem(Item item) {
-        items.put(item.getItemId(), item);
+        items.put(item.getId(), item);
     }
 
     @Override
@@ -27,9 +27,9 @@ public class ItemRepository implements ItemRepositoryInterface {
 
     @Override
     public Item updateItem(Item updateItem) {
-        Item item = items.get(updateItem.getItemId());
-        if (updateItem.getTitle() != null) {
-            item.setTitle(updateItem.getTitle());
+        Item item = items.get(updateItem.getId());
+        if (updateItem.getName() != null) {
+            item.setName(updateItem.getName());
         }
         if (updateItem.getDescription() != null) {
             item.setDescription(updateItem.getDescription());
@@ -37,12 +37,12 @@ public class ItemRepository implements ItemRepositoryInterface {
         return item;
     }
 
-    // Требует доработки !!!
+    // Требует доработки в части статуса !!!
     @Override
     public Item updateItemAvailable(Long itemId, BookingStatus bookingStatus) {
         Item item = items.get(itemId);
-        if ( !bookingStatus.equals(item.getAvailable()) ) {
-            item.setAvailable(bookingStatus);
+        if (bookingStatus.isStatus() != item.isAvailable()) {
+            item.setAvailable(bookingStatus.isStatus());
         }
         return item;
     }
@@ -62,11 +62,11 @@ public class ItemRepository implements ItemRepositoryInterface {
         String searchText = text.toLowerCase();
         return items.values().stream()
                 .filter(item ->
-                        (item.getTitle().toLowerCase().contains(searchText)) ||
+                        (item.getName().toLowerCase().contains(searchText)) ||
                                 (item.getDescription() != null && item.getDescription()
                                         .toLowerCase().contains(searchText))
                 )
-                .filter(item -> item.getAvailable().isStatus())
+                .filter(Item::isAvailable)
                 .map(itemMapper::toItemDTO)
                 .collect(Collectors.toList());
     }
@@ -75,13 +75,13 @@ public class ItemRepository implements ItemRepositoryInterface {
     public Collection<ItemDTO> searchAllItemOfOwnerById(Long ownerId) {
         return items.values().stream()
                 .filter(Objects::nonNull)
-                .filter(item -> item.getOwnerId().equals(ownerId))
+                .filter(item -> item.getOwner().equals(ownerId))
                 .map(itemMapper::toItemDTO)
                 .collect(Collectors.toList());
     }
 
-    //служебный метод
-    protected Item getItemById(Long itemId) {
+    @Override
+    public Item getItemById(Long itemId) {
         return items.get(itemId);
     }
 }

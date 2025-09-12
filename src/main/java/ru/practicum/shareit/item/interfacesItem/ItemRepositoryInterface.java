@@ -23,4 +23,6 @@ public interface ItemRepositoryInterface {
     Collection<ItemDTO> searchAllItemOfOwnerById(Long ownerId);
 
     Item updateItemAvailable(Long itemId, BookingStatus bookingStatus);
+
+    Item getItemById(Long itemId);
 }

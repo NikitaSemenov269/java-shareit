@@ -16,21 +16,19 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public Item createItem(@Valid
-                           @RequestBody Item item,
-                           @RequestHeader("X-Owner-User-Id") Long ownerId) {
-        return itemService.createItem(ownerId, item);
+    public Item createItem(@Valid @RequestBody Item item,
+                           @RequestHeader("X-Sharer-User-Id") Long id) {
+        return itemService.createItem(id, item);
     }
 
-    @GetMapping("/{itemId}")
-    public ItemDTO getItemDTOById(@PathVariable
-                                  @Min(1) Long itemId) {
-        return itemService.getItemDTOById(itemId);
+    @GetMapping("/{id}")
+    public ItemDTO getItemDTOById(@PathVariable @Min(1) Long id) {
+        return itemService.getItemDTOById(id);
     }
 
     @GetMapping
     public Collection<ItemDTO> searchAllItemOfOwnerById(
-            @RequestHeader("X-Owner-User-Id") Long ownerId) {
+            @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return itemService.searchAllItemOfOwnerById(ownerId);
     }
 
@@ -42,18 +40,18 @@ public class ItemController {
         return itemService.searchItemDtoByText(text);
     }
 
-    @PatchMapping
-    public Item updateItem(@Valid
-                           @RequestBody Item updateItem,
-                           @RequestHeader("X-Owner-User-Id") Long ownerId) {
-        return itemService.updateItem(ownerId, updateItem);
+    @PatchMapping("/{id}")
+    public Item updateItem(@PathVariable @Min(1) Long id,
+                           @Valid @RequestBody Item item,
+                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+        return itemService.updateItem(id, owner, item);
     }
 
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable
-                           @Min(1) Long itemId,
-                           @RequestHeader("X-Owner-User-Id") Long ownerId) {
-        itemService.deleteItem(ownerId, itemId);
+                           @Min(1) Long id,
+                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+        itemService.deleteItem(owner, id);
     }
 }
 

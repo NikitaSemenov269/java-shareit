@@ -5,9 +5,11 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.interfacesBooking.BookingRepositoryInterface;
 import ru.practicum.shareit.enums.BookingStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,16 +43,23 @@ public class BookingRepository implements BookingRepositoryInterface {
     }
 
     @Override
+    public void canceledBookingById(Long bookingId) {
+        Booking booking = bookings.get(bookingId);
+        booking.setAvailableItem(CANCELED);
+    }
+
+    @Override
     public void deleteBooking(Long bookingId) {
         bookings.remove(bookingId);
     }
 
-    //служебные методы
-    protected Booking getBookingById(Long bookingId) {
+    @Override
+    public Booking getBookingById(Long bookingId) {
         return bookings.get(bookingId);
     }
 
-    protected boolean checkingBookingDates(LocalDate startRent, LocalDate endRent) {
+    @Override
+    public boolean checkingBookingDates(LocalDateTime startRent, LocalDateTime endRent) {
         return bookings.values().stream()
                 .noneMatch(b -> startRent.isBefore(b.getEndRent()) &&
                         endRent.isAfter(b.getStartRent()));

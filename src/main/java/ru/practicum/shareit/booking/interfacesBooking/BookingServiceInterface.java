@@ -7,7 +7,9 @@ public interface BookingServiceInterface {
 
     Booking createBooking(Long bookerId, Booking booking);
 
-    Booking updateBooking(Long bookerId, Booking updateBooking);
+    Booking updateBooking(Long bookingId, Long bookerId, Booking updateBooking);
+
+    void canceledBookingById(Long bookerId, Long bookingId);
 
     void deleteBooking(Long bookerId, Long bookingId);
 

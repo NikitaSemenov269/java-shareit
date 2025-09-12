@@ -2,13 +2,15 @@ package ru.practicum.shareit.booking;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.enums.BookingStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 @RequiredArgsConstructor
 public class Booking {
     @Min(value = 1, message = "Id заявки должно быть положительным числом.")
@@ -23,10 +25,10 @@ public class Booking {
     private Long bookerId;
 
     @NotNull(message = "Дата начала аренды не может быть null.")
-    private LocalDate startRent;
+    private LocalDateTime startRent;
 
     @NotNull(message = "Дата окончания аренды не может быть null.")
-    private LocalDate endRent;
+    private LocalDateTime endRent;
 
     @NotNull(message = "Статус бронирования обязательное поле.")
     private BookingStatus availableItem;

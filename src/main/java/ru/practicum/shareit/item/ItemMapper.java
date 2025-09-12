@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 public class ItemMapper {
     public ItemDTO toItemDTO(Item item) {
         return ItemDTO.builder()
-                .itemId(item.getItemId())
-                .title(item.getTitle())
+                .id(item.getId())
+                .name(item.getName())
                 .description(item.getDescription())
                 .build();
     }

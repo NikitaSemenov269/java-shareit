@@ -23,33 +23,32 @@ public class ItemService implements ItemServiceInterface {
     private static final AtomicLong counter = new AtomicLong(1);
 
     @Override
-    public Item createItem(Long ownerId, Item newItem) {
-        newItem.setItemId(counter.getAndIncrement());
-        Long id = newItem.getItemId();
+    public Item createItem(Long owner, Item newItem) {
+        newItem.setId(counter.getAndIncrement());
+        Long id = newItem.getId();
         log.info("Попытка создания нового предмета.");
 
         itemValidation.itemValidationById(id);
-        itemValidation.itemValidationByOwnerId(ownerId);
-        itemValidation.existsByUserId(ownerId);
+        itemValidation.itemValidationByOwnerId(owner);
+        itemValidation.existsByUserId(owner);
 
-        newItem.setOwnerId(ownerId);
+        newItem.setOwner(owner);
         itemRepositoryInterface.addItem(newItem);
         log.info("Создан новый предмет с ID: {}", id);
         return newItem;
     }
 
     @Override
-    public Item updateItem(Long ownerId, Item updateItem) {
+    public Item updateItem(Long itemId, Long ownerId, Item updateItem) {
 
-        itemValidation.itemValidationById(updateItem.getItemId());
+        itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
-        itemValidation.itemValidationBelongsByIdOwner(ownerId, updateItem.getItemId());
+        itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
-        Long updateItemId = updateItem.getItemId();
-        log.info("Попытка обновления данных предмета с ID: {}", updateItemId);
+        log.info("Попытка обновления данных предмета с ID: {}", itemId);
         Item item = itemRepositoryInterface.updateItem(updateItem);
-        log.info("Данные предмета с ID: {} успешно обновлены", updateItemId);
+        log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         return item;
     }
 

@@ -10,7 +10,7 @@ public interface ItemServiceInterface {
 
     Item createItem(Long ownerId, Item newItem);
 
-    Item updateItem(Long ownerId, Item updateItem);
+    Item updateItem(Long itemId, Long ownerId, Item updateItem);
 
     void deleteItem(Long ownerId, Long itemId);
 
