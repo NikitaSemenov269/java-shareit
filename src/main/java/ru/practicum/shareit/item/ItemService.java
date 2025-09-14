@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
 import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,17 +26,21 @@ public class ItemService implements ItemServiceInterface {
 
     @Override
     public Item createItem(Long owner, Item newItem) {
+        if (newItem.getAvailable() == null) {
+            throw new ValidationException("Поле available обязательно");
+        }
+
         newItem.setId(counter.getAndIncrement());
-        Long id = newItem.getId();
+        Long Id = newItem.getId();
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationById(id);
+        itemValidation.itemValidationById(Id);
         itemValidation.itemValidationByOwnerId(owner);
         itemValidation.existsByUserId(owner);
 
         newItem.setOwner(owner);
         itemRepositoryInterface.addItem(newItem);
-        log.info("Создан новый предмет с ID: {}", id);
+        log.info("Создан новый предмет с ID: {}", Id);
         return newItem;
     }
 
@@ -47,6 +53,8 @@ public class ItemService implements ItemServiceInterface {
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
         log.info("Попытка обновления данных предмета с ID: {}", itemId);
+        updateItem.setId(itemId);
+        updateItem.setOwner(ownerId);
         Item item = itemRepositoryInterface.updateItem(updateItem);
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         return item;
@@ -78,6 +86,9 @@ public class ItemService implements ItemServiceInterface {
     @Override
     public Collection<ItemDTO> searchItemDtoByText(String text) {
         log.info("Попытка поиска доступных предметов по ключевым словам: {}", text);
+        if (text == null || text.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
         return itemRepositoryInterface.searchItemDtoByText(text);
     }
 
@@ -100,6 +111,10 @@ public class ItemService implements ItemServiceInterface {
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
+
+        if (bookingStatus == null) {
+            throw new ValidationException("Статус бронирования не может быть null");
+        }
 
         return itemRepositoryInterface.updateItemAvailable(itemId, bookingStatus);
     }

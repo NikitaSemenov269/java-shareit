@@ -24,7 +24,7 @@ public class Item {
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     private String description;
 
-    private boolean available;
+    private Boolean available;
 
     //Ссылка на запрос аренды
     private Long request;

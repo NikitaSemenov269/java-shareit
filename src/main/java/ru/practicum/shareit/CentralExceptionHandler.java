@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit;
 
 import jakarta.validation.ValidationException;
@@ -61,4 +60,3 @@ public class CentralExceptionHandler {
         return new ErrorResponse("Внутренняя ошибка сервера.");
     }
 }
-*/

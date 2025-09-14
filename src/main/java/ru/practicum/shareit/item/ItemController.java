@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,17 +33,16 @@ public class ItemController {
         return itemService.searchAllItemOfOwnerById(ownerId);
     }
 
-    @GetMapping("/items/search?text={text}")
+    @GetMapping("/search")
     public Collection<ItemDTO> searchItemDTOByText(
-            @NotBlank(message = "Поиск по ключевым словам должен содержать минимум 1 символ")
-            @Min(1)
-            @PathVariable("text") String text) {
+            @RequestParam("text")
+            String text) {
         return itemService.searchItemDtoByText(text);
     }
 
     @PatchMapping("/{id}")
     public Item updateItem(@PathVariable @Min(1) Long id,
-                           @Valid @RequestBody Item item,
+                           @RequestBody Item item, // Убрали @Valid
                            @RequestHeader("X-Sharer-User-Id") Long owner) {
         return itemService.updateItem(id, owner, item);
     }

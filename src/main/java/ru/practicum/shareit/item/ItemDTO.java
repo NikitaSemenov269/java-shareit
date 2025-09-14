@@ -22,4 +22,7 @@ public class ItemDTO {
 
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     private String description;
+
+    @NotBlank(message = "Статус не может быть пустой строкой.")
+    private Boolean available;
 }

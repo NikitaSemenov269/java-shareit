@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
 
 import java.util.*;
@@ -28,21 +29,36 @@ public class ItemRepository implements ItemRepositoryInterface {
     @Override
     public Item updateItem(Item updateItem) {
         Item item = items.get(updateItem.getId());
+
         if (updateItem.getName() != null) {
             item.setName(updateItem.getName());
         }
         if (updateItem.getDescription() != null) {
             item.setDescription(updateItem.getDescription());
         }
+        if (updateItem.getAvailable() != null) {
+            item.setAvailable(updateItem.getAvailable());
+        }
+        if (updateItem.getRequest() != null) {
+            item.setRequest(updateItem.getRequest());
+        }
+
+        items.put(item.getId(), item);
         return item;
     }
 
-    // Требует доработки в части статуса !!!
     @Override
     public Item updateItemAvailable(Long itemId, BookingStatus bookingStatus) {
         Item item = items.get(itemId);
-        if (bookingStatus.isStatus() != item.isAvailable()) {
-            item.setAvailable(bookingStatus.isStatus());
+        if (item == null) {
+            throw new NotFoundException("Предмет с ID: " + itemId + " не найден");
+        }
+
+        Boolean currentAvailable = item.getAvailable();
+        boolean newStatus = bookingStatus.isStatus();
+
+        if (currentAvailable == null || currentAvailable != newStatus) {
+            item.setAvailable(newStatus);
         }
         return item;
     }
@@ -59,6 +75,10 @@ public class ItemRepository implements ItemRepositoryInterface {
 
     @Override
     public Collection<ItemDTO> searchItemDtoByText(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String searchText = text.toLowerCase();
         return items.values().stream()
                 .filter(item ->
@@ -66,7 +86,7 @@ public class ItemRepository implements ItemRepositoryInterface {
                                 (item.getDescription() != null && item.getDescription()
                                         .toLowerCase().contains(searchText))
                 )
-                .filter(Item::isAvailable)
+                .filter(item -> Boolean.TRUE.equals(item.getAvailable()))
                 .map(itemMapper::toItemDTO)
                 .collect(Collectors.toList());
     }
