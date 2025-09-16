@@ -103,5 +103,14 @@ public class BookingService implements BookingServiceInterface {
             throw new ValidationException("Закрытие брони доступно только инициатору бронирования.");
         }
     }
+
+    @Override
+    public Booking getBookingById(Long bookingId) {
+        log.info("Попытка получения брони с ID: {}", bookingId);
+
+        bookingValidator.bookingValidationById(bookingId);
+
+        return bookingRepositoryInterface.getBookingById(bookingId);
+    }
 }
 

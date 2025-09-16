@@ -3,8 +3,6 @@ package ru.practicum.shareit.item;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import static ru.practicum.shareit.enums.BookingStatus.*;
-
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor

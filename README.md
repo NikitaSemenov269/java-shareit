@@ -1,2 +1,1 @@
-# java-shareit
-Template repository for Shareit project.
+Учебный проект ФЗ №14 

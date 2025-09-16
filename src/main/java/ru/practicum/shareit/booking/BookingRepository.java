@@ -34,7 +34,6 @@ public class BookingRepository implements BookingRepositoryInterface {
         return booking;
     }
 
-    // Требует доработки !!!
     @Override
     public Booking updateAvailableStatusBooking(Long bookingId, BookingStatus bookingStatus) {
         Booking booking = bookings.get(bookingId);

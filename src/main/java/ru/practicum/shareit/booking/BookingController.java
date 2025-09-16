@@ -44,6 +44,13 @@ public class BookingController {
         bookingService.canceledBookingById(bookerId, bookingId);
     }
 
+    @GetMapping("/{bookingId}")
+    public Booking getBookingById(@PathVariable
+                                  @Min(1) Long bookingId,
+                                  @RequestHeader("X-Booker-User-Id") Long bookerId) {  // задел на будущее
+        return bookingService.getBookingById(bookingId);
+    }
+
     @DeleteMapping("/{bookingId}")
     public void deleteBookingById(@PathVariable
                                   @Min(1) Long bookingId,

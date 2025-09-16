@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import ru.practicum.shareit.request.interfacesRequest.ItemRequestRepositoryInterface;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class ItemRequestRepository implements ItemRequestRepositoryInterface {
 
     @Override
     public List<ItemRequest> findAll() {
-        return itemRequests.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(itemRequests.values());
     }
 
     @Override

@@ -102,7 +102,6 @@ public class ItemService implements ItemServiceInterface {
         return itemRepositoryInterface.searchAllItemOfOwnerById(ownerId);
     }
 
-    // Требует доработки !!!
     @Override
     public Item updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus) {
         log.info("Попытка обновления статуса брони предмета с ID: {}", itemId);

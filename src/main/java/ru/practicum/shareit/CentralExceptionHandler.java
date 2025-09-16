@@ -46,13 +46,6 @@ public class CentralExceptionHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.CONFLICT)
-//    public ErrorResponse handleDuplicateDataException(final DuplicatedDataException e) {
-//        log.warn("Конфликт данных: {}", e.getMessage(), e);
-//        return new ErrorResponse(e.getMessage());
-//    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalError(final Exception e) {
