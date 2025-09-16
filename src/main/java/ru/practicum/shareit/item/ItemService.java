@@ -118,6 +118,3 @@ public class ItemService implements ItemServiceInterface {
         return itemRepositoryInterface.updateItemAvailable(itemId, bookingStatus);
     }
 }
-
-
-
