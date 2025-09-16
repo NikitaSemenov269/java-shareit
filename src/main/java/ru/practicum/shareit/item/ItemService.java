@@ -31,16 +31,16 @@ public class ItemService implements ItemServiceInterface {
         }
 
         newItem.setId(counter.getAndIncrement());
-        Long Id = newItem.getId();
+        Long id = newItem.getId();
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationById(Id);
+        itemValidation.itemValidationById(id);
         itemValidation.itemValidationByOwnerId(owner);
         itemValidation.existsByUserId(owner);
 
         newItem.setOwner(owner);
         itemRepositoryInterface.addItem(newItem);
-        log.info("Создан новый предмет с ID: {}", Id);
+        log.info("Создан новый предмет с ID: {}", id);
         return newItem;
     }
 
