@@ -4,13 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
+import ru.practicum.shareit.item.interfaces.ItemRepository;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
 @Component
 @RequiredArgsConstructor
 class ItemValidation {
     private final ItemRepository itemRepository;
-    private final UserRepositoryInterface userRepositoryInterface;
+    private final UserRepository userRepository;
 
     void itemValidationById(Long itemId) {
         if (itemId == null) {
@@ -38,7 +39,7 @@ class ItemValidation {
     }
 
     void existsByUserId(Long ownerId) {
-        if (!userRepositoryInterface.existsByUserId(ownerId)) {
+        if (!userRepository.existsByUserId(ownerId)) {
             throw new NotFoundException("Владелец с " + ownerId + " не существует");
         }
     }

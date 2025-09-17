@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
-import ru.practicum.shareit.request.interfacesRequest.ItemRequestRepositoryInterface;
-import ru.practicum.shareit.request.interfacesRequest.ItemRequestServiceInterface;
+import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.request.interfaces.ItemRequestRepository;
+import ru.practicum.shareit.request.interfaces.ItemRequestService;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ItemRequestService implements ItemRequestServiceInterface {
-    ItemRequestValidation itemRequestValidation;
-    ItemRequestRepositoryInterface itemRequestRepositoryInterface;
+public class ItemRequestServiceImpl implements ItemRequestService {
+    private final ItemRequestValidation itemRequestValidation;
+    ItemRequestRepository itemRequestRepository;
 
 
-    private final ItemServiceInterface itemServiceInterface;
+    private final ItemService itemServiceInterface;
     private static final AtomicLong counter = new AtomicLong(1);
 
     @Override
@@ -31,7 +31,7 @@ public class ItemRequestService implements ItemRequestServiceInterface {
 
         itemRequestValidation.itemRequestValidationById(id);
 
-        itemRequestRepositoryInterface.save(itemRequest);
+        itemRequestRepository.save(itemRequest);
         log.info("Создана новая заявка c ID: {} ", id);
         return itemRequest;
     }
@@ -42,7 +42,7 @@ public class ItemRequestService implements ItemRequestServiceInterface {
 
         itemRequestValidation.itemRequestValidationById(requestId);
 
-        return Optional.ofNullable(itemRequestRepositoryInterface.findById(requestId))
+        return Optional.ofNullable(itemRequestRepository.findById(requestId))
                 .orElseThrow(() -> new NotFoundException("Заявка с ID: " + requestId + " не найдена."));
     }
 
@@ -52,14 +52,14 @@ public class ItemRequestService implements ItemRequestServiceInterface {
 
         itemRequestValidation.itemRequestValidationById(userId);
 
-        return itemRequestRepositoryInterface.findByRequesterId(userId);
+        return itemRequestRepository.findByRequesterId(userId);
     }
 
     @Override
     public List<ItemRequest> getAllRequests() {
         log.info("Попытка получения всех заявок пользователей");
 
-        return itemRequestRepositoryInterface.findAll();
+        return itemRequestRepository.findAll();
     }
 
     @Override
@@ -68,6 +68,6 @@ public class ItemRequestService implements ItemRequestServiceInterface {
 
         itemRequestValidation.itemRequestValidationById(userId);
 
-        return itemRequestRepositoryInterface.findAllExceptRequester(userId);
+        return itemRequestRepository.findAllExceptRequester(userId);
     }
 }

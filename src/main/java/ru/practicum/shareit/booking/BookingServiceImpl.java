@@ -3,11 +3,11 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.interfacesBooking.BookingRepositoryInterface;
-import ru.practicum.shareit.booking.interfacesBooking.BookingServiceInterface;
+import ru.practicum.shareit.booking.interfaces.BookingRepository;
+import ru.practicum.shareit.booking.interfaces.BookingService;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
+import ru.practicum.shareit.item.interfaces.ItemService;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,11 +16,11 @@ import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BookingService implements BookingServiceInterface {
+public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepositoryInterface bookingRepositoryInterface;
+    private final BookingRepository bookingRepository;
     private final BookingValidator bookingValidator;
-    private final ItemServiceInterface itemServiceInterface;
+    private final ItemService itemService;
 
     private static final AtomicLong counter = new AtomicLong(1);
 
@@ -37,7 +37,7 @@ public class BookingService implements BookingServiceInterface {
         bookingValidator.bookingDateValidation(booking.getStartRent(), booking.getEndRent());
 
         booking.setBookerId(bookerId);
-        bookingRepositoryInterface.addBooking(booking);
+        bookingRepository.addBooking(booking);
         log.info("Создана новая заявка бронирования c ID: {} для предмета с ID: {}", id, booking.getItemId());
         return booking;
     }
@@ -53,7 +53,7 @@ public class BookingService implements BookingServiceInterface {
         bookingValidator.bookingDateValidation(updateBooking.getStartRent(), updateBooking.getEndRent());
 
         log.info("Попытка обновления данных предмета с ID: {}", bookingId);
-        Booking booking = bookingRepositoryInterface.updateBooking(updateBooking);
+        Booking booking = bookingRepository.updateBooking(updateBooking);
         log.info("Данные предмета с ID: {} успешно обновлены", bookingId);
         return booking;
     }
@@ -67,7 +67,7 @@ public class BookingService implements BookingServiceInterface {
         bookingValidator.existsByBookerId(bookerId);
         bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
 
-        bookingRepositoryInterface.canceledBookingById(bookingId);
+        bookingRepository.canceledBookingById(bookingId);
         log.info("Успешное отмена брони с ID: {}", bookingId);
     }
 
@@ -80,7 +80,7 @@ public class BookingService implements BookingServiceInterface {
         bookingValidator.existsByBookerId(bookerId);
         bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
 
-        bookingRepositoryInterface.deleteBooking(bookingId);
+        bookingRepository.deleteBooking(bookingId);
         log.info("Успешное удаление брони с ID: {}", bookingId);
     }
 
@@ -92,13 +92,13 @@ public class BookingService implements BookingServiceInterface {
         //допущение: вместо id автора заявки используется id владельца вещи.
         bookingValidator.existsByBookerId(ownerId);
 
-        Long itemId = bookingRepositoryInterface.getBookingById(bookingId).getItemId();
+        Long itemId = bookingRepository.getBookingById(bookingId).getItemId();
         //только владелец может изменять статус брони
         bookingValidator.bookingValidationOfTheItemOwner(ownerId, itemId);
 
         if (!CANCELED.equals(bookingStatus)) {
-            itemServiceInterface.updateItemAvailable(ownerId, itemId, bookingStatus);
-            return bookingRepositoryInterface.updateAvailableStatusBooking(bookingId, bookingStatus);
+            itemService.updateItemAvailable(ownerId, itemId, bookingStatus);
+            return bookingRepository.updateAvailableStatusBooking(bookingId, bookingStatus);
         } else {
             throw new ValidationException("Закрытие брони доступно только инициатору бронирования.");
         }
@@ -110,7 +110,6 @@ public class BookingService implements BookingServiceInterface {
 
         bookingValidator.bookingValidationById(bookingId);
 
-        return bookingRepositoryInterface.getBookingById(bookingId);
+        return bookingRepository.getBookingById(bookingId);
     }
 }
-

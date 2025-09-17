@@ -2,8 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import ru.practicum.shareit.request.interfacesRequest.ItemRequestRepositoryInterface;
+import ru.practicum.shareit.request.interfaces.ItemRequestRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class ItemRequestRepository implements ItemRequestRepositoryInterface {
+public class ItemRequestRepositoryImpl implements ItemRequestRepository {
     private Map<Long, ItemRequest> itemRequests = new HashMap<>();
 
     @Override

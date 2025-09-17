@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
+import ru.practicum.shareit.item.interfaces.ItemRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class ItemRepository implements ItemRepositoryInterface {
+public class ItemRepositoryImpl implements ItemRepository {
 
     private final ItemMapper itemMapper;
     private Map<Long, Item> items = new HashMap<>();
@@ -22,8 +22,8 @@ public class ItemRepository implements ItemRepositoryInterface {
     }
 
     @Override
-    public ItemDTO getItemDTOById(Long itemId) {
-        return itemMapper.toItemDTO(items.get(itemId));
+    public ItemDto getItemDTOById(Long itemId) {
+        return itemMapper.itemToItemDto(items.get(itemId));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ItemRepository implements ItemRepositoryInterface {
     }
 
     @Override
-    public Collection<ItemDTO> searchItemDtoByText(String text) {
+    public Collection<ItemDto> searchItemDtoByText(String text) {
         if (text == null || text.trim().isEmpty()) {
             return Collections.emptyList();
         }
@@ -87,16 +87,16 @@ public class ItemRepository implements ItemRepositoryInterface {
                                         .toLowerCase().contains(searchText))
                 )
                 .filter(item -> Boolean.TRUE.equals(item.getAvailable()))
-                .map(itemMapper::toItemDTO)
+                .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<ItemDTO> searchAllItemOfOwnerById(Long ownerId) {
+    public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         return items.values().stream()
                 .filter(Objects::nonNull)
                 .filter(item -> item.getOwner().equals(ownerId))
-                .map(itemMapper::toItemDTO)
+                .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
     }
 

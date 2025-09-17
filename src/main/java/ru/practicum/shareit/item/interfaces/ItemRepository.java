@@ -1,16 +1,16 @@
-package ru.practicum.shareit.item.interfacesItem;
+package ru.practicum.shareit.item.interfaces;
 
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemDTO;
+import ru.practicum.shareit.item.ItemDto;
 
 import java.util.Collection;
 
-public interface ItemRepositoryInterface {
+public interface ItemRepository {
 
     void addItem(Item item);
 
-    ItemDTO getItemDTOById(Long itemId);
+    ItemDto getItemDTOById(Long itemId);
 
     Item updateItem(Item updateItem);
 
@@ -18,9 +18,9 @@ public interface ItemRepositoryInterface {
 
     boolean existsByItemId(Long itemId);
 
-    Collection<ItemDTO> searchItemDtoByText(String text);
+    Collection<ItemDto> searchItemDtoByText(String text);
 
-    Collection<ItemDTO> searchAllItemOfOwnerById(Long ownerId);
+    Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId);
 
     Item updateItemAvailable(Long itemId, BookingStatus bookingStatus);
 

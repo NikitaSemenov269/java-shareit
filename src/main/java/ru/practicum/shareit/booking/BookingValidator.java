@@ -2,20 +2,20 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.interfacesBooking.BookingRepositoryInterface;
+import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
-import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
+import ru.practicum.shareit.item.interfaces.ItemRepository;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 class BookingValidator {
-    private final BookingRepositoryInterface bookingRepositoryInterface;
-    private final UserRepositoryInterface userRepositoryInterface;
-    private final ItemRepositoryInterface itemRepositoryInterface;
+    private final BookingRepository bookingRepositoryInterface;
+    private final UserRepository userRepositoryInterface;
+    private final ItemRepository itemRepositoryInterface;
 
     void bookerValidationById(Long userId) {
         if (userId == null) {

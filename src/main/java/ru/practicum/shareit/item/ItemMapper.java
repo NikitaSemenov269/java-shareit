@@ -1,15 +1,8 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class ItemMapper {
-    public ItemDTO toItemDTO(Item item) {
-        return ItemDTO.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface ItemMapper {
+    ItemDto itemToItemDto(Item item);
 }

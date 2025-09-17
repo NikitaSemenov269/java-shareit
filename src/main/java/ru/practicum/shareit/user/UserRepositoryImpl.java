@@ -2,13 +2,13 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.util.*;
 
 @Repository // планируется переход на работу с БД
 @RequiredArgsConstructor
-public class UserRepository implements UserRepositoryInterface {
+public class UserRepositoryImpl implements UserRepository {
 
     private final UserMapper userMapper;
     private Map<Long, User> users = new HashMap<>();
@@ -36,8 +36,8 @@ public class UserRepository implements UserRepositoryInterface {
     }
 
     @Override
-    public UserDTO getUserDTOById(Long userId) {
-        return userMapper.toUserDTO(users.get(userId));
+    public UserDto getUserDTOById(Long userId) {
+        return userMapper.userToUserDto(users.get(userId));
     }
 
     @Override

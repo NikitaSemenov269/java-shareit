@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.interfacesUser.UserRepositoryInterface;
-import ru.practicum.shareit.user.interfacesUser.UserServiceInterface;
+import ru.practicum.shareit.user.interfaces.UserRepository;
+import ru.practicum.shareit.user.interfaces.UserService;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserServiceInterface {
+public class UserServiceImpl implements UserService {
 
-    private final UserRepositoryInterface userRepositoryInterface;
+    private final UserRepository userRepositoryInterface;
     private final UserValidation validation;
 
     private static final AtomicLong counter = new AtomicLong(1);
@@ -63,7 +63,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public UserDTO getUserDTOById(Long userId) {
+    public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);
         validation.userValidationId(userId);
         return Optional.ofNullable(userRepositoryInterface.getUserDTOById(userId))

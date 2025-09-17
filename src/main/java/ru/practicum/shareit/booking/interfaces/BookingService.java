@@ -1,9 +1,9 @@
-package ru.practicum.shareit.booking.interfacesBooking;
+package ru.practicum.shareit.booking.interfaces;
 
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.enums.BookingStatus;
 
-public interface BookingServiceInterface {
+public interface BookingService {
 
     Booking createBooking(Long bookerId, Booking booking);
 

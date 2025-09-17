@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.interfacesItem.ItemRepositoryInterface;
-import ru.practicum.shareit.item.interfacesItem.ItemServiceInterface;
+import ru.practicum.shareit.item.interfaces.ItemRepository;
+import ru.practicum.shareit.item.interfaces.ItemService;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ItemService implements ItemServiceInterface {
+public class ItemServiceImpl implements ItemService {
 
     private final ItemValidation itemValidation;
-    private final ItemRepositoryInterface itemRepositoryInterface;
+    private final ItemRepository itemRepository;
 
     private static final AtomicLong counter = new AtomicLong(1);
 
@@ -39,7 +39,7 @@ public class ItemService implements ItemServiceInterface {
         itemValidation.existsByUserId(owner);
 
         newItem.setOwner(owner);
-        itemRepositoryInterface.addItem(newItem);
+        itemRepository.addItem(newItem);
         log.info("Создан новый предмет с ID: {}", id);
         return newItem;
     }
@@ -55,7 +55,7 @@ public class ItemService implements ItemServiceInterface {
         log.info("Попытка обновления данных предмета с ID: {}", itemId);
         updateItem.setId(itemId);
         updateItem.setOwner(ownerId);
-        Item item = itemRepositoryInterface.updateItem(updateItem);
+        Item item = itemRepository.updateItem(updateItem);
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         return item;
     }
@@ -69,37 +69,37 @@ public class ItemService implements ItemServiceInterface {
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
-        itemRepositoryInterface.deleteItemById(itemId);
+        itemRepository.deleteItemById(itemId);
         log.info("Успешное удаление предмета ID: {}", itemId);
     }
 
     @Override
-    public ItemDTO getItemDTOById(Long itemId) {
+    public ItemDto getItemDTOById(Long itemId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
 
-        return Optional.ofNullable(itemRepositoryInterface.getItemDTOById(itemId))
+        return Optional.ofNullable(itemRepository.getItemDTOById(itemId))
                 .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден"));
     }
 
     @Override
-    public Collection<ItemDTO> searchItemDtoByText(String text) {
+    public Collection<ItemDto> searchItemDtoByText(String text) {
         log.info("Попытка поиска доступных предметов по ключевым словам: {}", text);
         if (text == null || text.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRepositoryInterface.searchItemDtoByText(text);
+        return itemRepository.searchItemDtoByText(text);
     }
 
     @Override
-    public Collection<ItemDTO> searchAllItemOfOwnerById(Long ownerId) {
+    public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        return itemRepositoryInterface.searchAllItemOfOwnerById(ownerId);
+        return itemRepository.searchAllItemOfOwnerById(ownerId);
     }
 
     @Override
@@ -115,6 +115,6 @@ public class ItemService implements ItemServiceInterface {
             throw new ValidationException("Статус бронирования не может быть null");
         }
 
-        return itemRepositoryInterface.updateItemAvailable(itemId, bookingStatus);
+        return itemRepository.updateItemAvailable(itemId, bookingStatus);
     }
 }

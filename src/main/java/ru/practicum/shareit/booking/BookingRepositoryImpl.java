@@ -2,7 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.booking.interfacesBooking.BookingRepositoryInterface;
+import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.enums.BookingStatus;
 
 import java.time.LocalDateTime;
@@ -13,7 +13,7 @@ import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
 
 @Repository
 @RequiredArgsConstructor
-public class BookingRepository implements BookingRepositoryInterface {
+public class BookingRepositoryImpl implements BookingRepository {
 
     private Map<Long, Booking> bookings = new HashMap<>();
 

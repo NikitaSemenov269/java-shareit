@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ItemDTO {
+public class ItemDto {
     @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 

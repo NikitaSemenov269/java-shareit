@@ -9,7 +9,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserDto {
     @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 

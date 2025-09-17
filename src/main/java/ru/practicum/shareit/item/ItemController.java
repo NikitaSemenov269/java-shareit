@@ -3,7 +3,9 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.interfaces.ItemService;
 
 import java.util.Collection;
 
@@ -15,41 +17,42 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public Item createItem(@Valid @RequestBody Item item,
-                           @RequestHeader("X-Sharer-User-Id") Long id) {
-        return itemService.createItem(id, item);
+    public ResponseEntity<Item> createItem(@Valid @RequestBody Item item,
+                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok().body(itemService.createItem(userId, item));
     }
 
     @GetMapping("/{id}")
-    public ItemDTO getItemDTOById(@PathVariable @Min(1) Long id) {
-        return itemService.getItemDTOById(id);
+    public ResponseEntity<ItemDto> getItemDTOById(@PathVariable @Min(1) Long id) {
+        return ResponseEntity.ok().body(itemService.getItemDTOById(id));
     }
 
     @GetMapping
-    public Collection<ItemDTO> searchAllItemOfOwnerById(
+    public ResponseEntity<Collection<ItemDto>> searchAllItemOfOwnerById(
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return itemService.searchAllItemOfOwnerById(ownerId);
+        return ResponseEntity.ok().body(itemService.searchAllItemOfOwnerById(ownerId));
     }
 
     @GetMapping("/search")
-    public Collection<ItemDTO> searchItemDTOByText(
+    public ResponseEntity<Collection<ItemDto>> searchItemDTOByText(
             @RequestParam("text")
             String text) {
-        return itemService.searchItemDtoByText(text);
+        return ResponseEntity.ok().body(itemService.searchItemDtoByText(text));
     }
 
     @PatchMapping("/{id}")
-    public Item updateItem(@PathVariable @Min(1) Long id,
-                           @RequestBody Item item, // Убрали @Valid
-                           @RequestHeader("X-Sharer-User-Id") Long owner) {
-        return itemService.updateItem(id, owner, item);
+    public ResponseEntity<Item> updateItem(@PathVariable @Min(1) Long id,
+                                           @RequestBody Item item, // Убрали @Valid
+                                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+        return ResponseEntity.ok().body(itemService.updateItem(id, owner, item));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable
-                           @Min(1) Long id,
-                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+    public ResponseEntity<Void> deleteItem(@PathVariable
+                                           @Min(1) Long id,
+                                           @RequestHeader("X-Sharer-User-Id") Long owner) {
         itemService.deleteItem(owner, id);
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
 }
 
