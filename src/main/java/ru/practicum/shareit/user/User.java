@@ -3,11 +3,13 @@ package ru.practicum.shareit.user;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Data
-@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
+@Entity
 public class User {
+    @Id
     @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 
