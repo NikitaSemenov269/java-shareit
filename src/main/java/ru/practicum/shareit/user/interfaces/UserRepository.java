@@ -1,12 +1,15 @@
 package ru.practicum.shareit.user.interfaces;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDto;
 
-public interface UserRepository {
-    void addUser(User newUSer);
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    User updateUser(Long userId, User user);
+    User findByUserId(Long userId);
+
+    boolean existsByEmailAndIdNot(String email, Long userId);
+
+    /*
 
     User getUserById(Long userId);
 
@@ -14,7 +17,8 @@ public interface UserRepository {
 
     void deleteUserById(Long userId);
 
-    boolean existsByUserId(Long userId);
+    boolean existsByUserId(Long userId); // удалится
 
-    boolean existsByEmailByUserId(String email, Long userId);
+    boolean existsByEmailByUserId(String email, Long userId); // удалится
+    */
 }
