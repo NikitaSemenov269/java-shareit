@@ -1,9 +1,11 @@
+/*
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.interfaces.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
 
 import java.util.*;
@@ -104,4 +106,4 @@ public class ItemRepositoryImpl implements ItemRepository {
     public Item getItemById(Long itemId) {
         return items.get(itemId);
     }
-}
+}*/

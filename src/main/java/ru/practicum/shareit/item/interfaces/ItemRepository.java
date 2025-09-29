@@ -1,14 +1,12 @@
 package ru.practicum.shareit.item.interfaces;
 
-import ru.practicum.shareit.enums.BookingStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemDto;
 
-import java.util.Collection;
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
-public interface ItemRepository {
 
-    void addItem(Item item);
+   /* void addItem(Item item);
 
     ItemDto getItemDTOById(Long itemId);
 
@@ -24,5 +22,5 @@ public interface ItemRepository {
 
     Item updateItemAvailable(Long itemId, BookingStatus bookingStatus);
 
-    Item getItemById(Long itemId);
+    Item getItemById(Long itemId);*/
 }

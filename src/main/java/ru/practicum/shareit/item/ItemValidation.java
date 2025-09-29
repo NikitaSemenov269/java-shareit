@@ -32,15 +32,15 @@ class ItemValidation {
     }
 
     void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
-        Item item = itemRepository.getItemById(itemId);
+        Item item = itemRepository.findById(itemId).;
         if (!ownerId.equals(item.getOwner())) {
             throw new ValidationException("ID владельца не совпадает с ID пользователя.");
         }
     }
 
     void existsByUserId(Long ownerId) {
-        if (!userRepository.existsByUserId(ownerId)) {
-            throw new NotFoundException("Владелец с " + ownerId + " не существует");
+        if (!userRepository.existsById(ownerId)) {
+            throw new NotFoundException("Владелец с " + ownerId + " не найден.");
         }
     }
 }

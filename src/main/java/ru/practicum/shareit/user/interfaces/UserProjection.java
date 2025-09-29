@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.user.interfaces;
 
 public interface UserProjection {
@@ -8,3 +9,4 @@ public interface UserProjection {
     String getEmail();
 
 }
+*/

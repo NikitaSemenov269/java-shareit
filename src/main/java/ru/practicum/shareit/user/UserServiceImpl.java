@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -9,11 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DataIntegrityException;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.interfaces.UserMapper;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 import ru.practicum.shareit.user.interfaces.UserService;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -23,19 +20,20 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserValidation validation;
+    private final UserMapper mapper;
 
     /*
-     * Оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
+     * В методе createUser оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
      * обращений к БД.
      */
     @Transactional
     @Override
-    public User createUser(User newUser) {
+    public UserDto createUser(User newUser) {
         log.info("Попытка создания нового пользователя.");
         try {
             User user = userRepository.save(newUser);
             log.info("Создан новый пользователь c id: {}", user.getId());
-            return user;
+            return mapper.userToUserDto(user);
         } catch (DataIntegrityViolationException ex) {
             if (isEmailConflict(ex)) {
                 log.error("Попытка создания пользователя с существующим email: {}", newUser.getEmail());
@@ -48,21 +46,27 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    // переделать метод обновления
     @Transactional
     @Override
-    public User updateUser(Long id, User updateUser) {
+    public UserDto updateUser(Long id, UserDto updateUser) {
         validation.userValidationId(id);
         log.info("Попытка обновления данных пользователя с ID: {}", id);
-        if (userRepository.findByUserId(id) == null) {
-            throw new NotFoundException("Пользователь с " + id + " не существует");
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с " + id +
+                " не существует"));
+        if (updateUser.getEmail() != null && !updateUser.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmailAndIdNot(updateUser.getEmail(), id)) {
+                throw new EmailAlreadyExistsException("Email: " + updateUser.getEmail() +
+                        " уже занят другим пользователем.");
+            } else {
+                user.setEmail(updateUser.getEmail());
+            }
         }
-        if (userRepository.existsByEmailAndIdNot(updateUser.getEmail(), id)) {
-            throw new ValidationException("Email: " + updateUser.getEmail() + " уже занят другим пользователем.");
+        if (updateUser.getName() != null && !updateUser.getName().equals(user.getName())) {
+            user.setName(updateUser.getName());
         }
-        User user = userRepository.updateUser(id, updateUser);
         log.info("Данные пользователя с ID: {} успешно обновлены", id);
-        return user;
+        // Изменения сохранятся при коммите транзакции
+        return mapper.userToUserDto(user);
     }
 
     @Transactional
@@ -70,15 +74,16 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         log.info("Попытка удаления пользователя по ID.");
         validation.userValidationId(userId);
-        userRepository.deleteUserById(userId);
+        userRepository.deleteById(userId);
         log.info("Успешное удаления пользователя с ID: {}", userId);
+
     }
 
     @Override
     public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);
         validation.userValidationId(userId);
-        return Optional.ofNullable(userRepository.getUserDTOById(userId))
+        return userRepository.findById(userId).map(mapper::userToUserDto)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 

@@ -15,7 +15,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody User user) {
         return ResponseEntity.ok().body(userService.createUser(user));
     }
 
@@ -25,14 +25,14 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable @Min(1) Long id,
-                           @RequestBody User user) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable @Min(1) Long id,
+                           @RequestBody UserDto user) {
         return ResponseEntity.ok().body(userService.updateUser(id, user));
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable @Min(1) Long userId) {
-        userService.deleteUser(userId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable @Min(1) Long id) {
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 }
