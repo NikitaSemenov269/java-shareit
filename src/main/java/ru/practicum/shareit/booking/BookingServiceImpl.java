@@ -9,8 +9,6 @@ import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfaces.ItemService;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
 
 @Slf4j
@@ -22,19 +20,17 @@ public class BookingServiceImpl implements BookingService {
     private final BookingValidator bookingValidator;
     private final ItemService itemService;
 
-    private static final AtomicLong counter = new AtomicLong(1);
 
     @Override
     public Booking createBooking(Long bookerId, Booking booking) {
-        booking.setBookingId(counter.getAndIncrement());
-        Long id = booking.getBookingId();
-        log.info("Попытка создания новой брони с ID: {} для предмета с ID: {}", id, booking.getItemId());
 
-        bookingValidator.bookingValidationById(id);
         bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.bookingValidationByIdItem(booking.getItemId());
         bookingValidator.existsByBookerId(bookerId);
-        bookingValidator.bookingDateValidation(booking.getStartRent(), booking.getEndRent());
+        bookingValidator.bookingDateValidation(booking.getStart(), booking.getEnd());
+
+        log.info("Попытка создания новой брони для предмета с ID: {}", booking.getItemId());
+
+
 
         booking.setBookerId(bookerId);
         bookingRepository.addBooking(booking);

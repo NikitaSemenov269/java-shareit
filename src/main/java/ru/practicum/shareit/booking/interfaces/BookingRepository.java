@@ -1,13 +1,16 @@
 package ru.practicum.shareit.booking.interfaces;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.enums.BookingStatus;
 
 import java.time.LocalDateTime;
 
-public interface BookingRepository {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    void addBooking(Booking booking);
+
+
+/*    void addBooking(Booking booking);
 
     Booking updateBooking(Booking updateBooking);
 
@@ -20,4 +23,5 @@ public interface BookingRepository {
     Booking getBookingById(Long bookingId);
 
     boolean checkingBookingDates(LocalDateTime startRent, LocalDateTime endRent);
+}*/
 }

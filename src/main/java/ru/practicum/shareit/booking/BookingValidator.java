@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 class BookingValidator {
-    private final BookingRepository bookingRepositoryInterface;
-    private final UserRepository userRepositoryInterface;
-    private final ItemRepository itemRepositoryInterface;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     void bookerValidationById(Long userId) {
         if (userId == null) {
@@ -36,43 +37,44 @@ class BookingValidator {
     }
 
     void bookingValidationBelongsByIdBooker(Long bookerId, Long bookingId) {
-        Booking booking = bookingRepositoryInterface.getBookingById(bookingId);
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+        );
         if (!bookerId.equals(booking.getBookerId())) {
             throw new ValidationException("ID инициатора брони не cовпадает с ID пользователя.");
         }
     }
 
-    void bookingDateValidation(LocalDateTime startRent, LocalDateTime endRent) {
-        if (startRent == null) {
+    void bookingDateValidation(LocalDateTime start, LocalDateTime end) {
+        if (start == null) {
             throw new ValidationException("Время начала аренды не может быть null.");
         }
-        if (endRent == null) {
+        if (end == null) {
             throw new ValidationException("Время окончания аренды не может быть null.");
         }
-        if (endRent.isBefore(startRent)) {
+        if (end.isBefore(start)) {
             throw new ValidationException("Время окончания аренды не может наступить раньше начала аренды.");
         }
-        if (!bookingRepositoryInterface.checkingBookingDates(startRent, endRent)) {
+        if (!bookingRepository. (start, end)){
             throw new ValidationException("Бронирование на данный период не возможно т.к. даты уже заняты.");
         }
     }
 
     void existsByBookerId(Long bookerId) {
-        if (!userRepositoryInterface.existsByUserId(bookerId)) {
+        if (!userRepository.existsByUserId(bookerId)) {
             throw new ValidationException("Пользователь с " + bookerId + " не существует");
         }
     }
 
     void bookingValidationByIdItem(Long itemId) {
-        if (!itemRepositoryInterface.existsByItemId(itemId)) {
+        if (!itemRepository.existsByItemId(itemId)) {
             throw new ValidationException("Предмета с " + itemId + " не существует");
         }
     }
 
     void bookingValidationOfTheItemOwner(Long ownerId, Long itemId) {
-        Item item = itemRepositoryInterface.getItemById(itemId);
+        Item item = itemRepository.getItemById(itemId);
         if (!ownerId.equals(item.getOwner())) {
             throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
         }
     }
-}
+}*/

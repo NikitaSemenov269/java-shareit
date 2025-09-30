@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @RequiredArgsConstructor
 public class ItemRequest {
-    private Long requestId;
+    private Long id;
 
     @NotBlank
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")

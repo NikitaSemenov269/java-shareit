@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
@@ -63,4 +64,4 @@ public class BookingRepositoryImpl implements BookingRepository {
                 .noneMatch(b -> startRent.isBefore(b.getEndRent()) &&
                         endRent.isAfter(b.getStartRent()));
     }
-}
+}*/

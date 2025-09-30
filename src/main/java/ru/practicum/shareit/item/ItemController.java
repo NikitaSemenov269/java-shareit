@@ -17,18 +17,18 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<Item> createItem(@Valid @RequestBody Item item,
-                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody Item item,
+                                               @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.createItem(userId, item));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemDto> getItemDTOById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<ItemWithBookingDto> getItemDTOById(@PathVariable @Min(1) Long id) {
         return ResponseEntity.ok().body(itemService.getItemDTOById(id));
     }
 
     @GetMapping
-    public ResponseEntity<Collection<ItemDto>> searchAllItemOfOwnerById(
+    public ResponseEntity<Collection<ItemWithBookingDto>> searchAllItemOfOwnerById(
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return ResponseEntity.ok().body(itemService.searchAllItemOfOwnerById(ownerId));
     }
@@ -41,9 +41,9 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Item> updateItem(@PathVariable @Min(1) Long id,
-                                           @RequestBody Item item, // Убрали @Valid
-                                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+    public ResponseEntity<ItemDto> updateItem(@PathVariable @Min(1) Long id,
+                                               @RequestBody Item item,
+                                               @RequestHeader("X-Sharer-User-Id") Long owner) {
         return ResponseEntity.ok().body(itemService.updateItem(id, owner, item));
     }
 

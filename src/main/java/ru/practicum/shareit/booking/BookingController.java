@@ -18,7 +18,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Booking> createBooking(@Valid
                                                  @RequestBody Booking booking,
-                                                 @RequestHeader("X-Booker-User-Id") Long bookerId) {
+                                                 @RequestHeader("X-Owner-User-Id") Long bookerId) {
         return ResponseEntity.ok().body(bookingService.createBooking(bookerId, booking));
     }
 
@@ -27,7 +27,7 @@ public class BookingController {
                                                  @Min(1) Long bookingId,
                                                  @Valid
                                                  @RequestBody Booking booking,
-                                                 @RequestHeader("X-Booker-User-Id") Long bookerId) {
+                                                 @RequestHeader("X-Owner-User-Id") Long bookerId) {
         return ResponseEntity.ok().body(bookingService.updateBooking(bookingId, bookerId, booking));
     }
 

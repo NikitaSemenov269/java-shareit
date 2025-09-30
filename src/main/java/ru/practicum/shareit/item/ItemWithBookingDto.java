@@ -8,10 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDto {
+public class ItemWithBookingDto  {
     @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 
@@ -24,4 +26,10 @@ public class ItemDto {
 
     @NotNull(message = "Статус не может быть null.")
     private Boolean available;
+
+    @NotNull(message = "Дата начала аренды не может быть null.")
+    private LocalDateTime start;
+
+    @NotNull(message = "Дата окончания аренды не может быть null.")
+    private LocalDateTime end;
 }

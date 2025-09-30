@@ -3,49 +3,52 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.interfaces.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
 import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemValidation itemValidation;
     private final ItemRepository itemRepository;
-
-    private static final AtomicLong counter = new AtomicLong(1);
+    private final UserRepository userRepository;
+    private final ItemMapper itemMapper;
 
     @Override
-    public Item createItem(Long owner, Item newItem) {
+    @Transactional
+    public ItemDto createItem(Long ownerId, Item newItem) {
         if (newItem.getAvailable() == null) {
             throw new ValidationException("Поле available обязательно");
         }
 
-        newItem.setId(counter.getAndIncrement());
-        Long id = newItem.getId();
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationById(id);
-        itemValidation.itemValidationByOwnerId(owner);
-        itemValidation.existsByUserId(owner);
+        itemValidation.itemValidationByOwnerId(ownerId);
+
+        User owner = userRepository.findById(ownerId).orElseThrow(
+                () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
 
         newItem.setOwner(owner);
-        itemRepository.addItem(newItem);
-        log.info("Создан новый предмет с ID: {}", id);
-        return newItem;
+        itemRepository.save(newItem);
+        log.info("Создан новый предмет с ID: {}", newItem.getId());
+        return itemMapper.itemToItemDto(newItem);
     }
 
     @Override
-    public Item updateItem(Long itemId, Long ownerId, Item updateItem) {
+    public ItemDto updateItem(Long itemId, Long ownerId, Item updateItem) {
 
         itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByOwnerId(ownerId);
@@ -53,57 +56,72 @@ public class ItemServiceImpl implements ItemService {
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
         log.info("Попытка обновления данных предмета с ID: {}", itemId);
-        updateItem.setId(itemId);
-        updateItem.setOwner(ownerId);
-        Item item = itemRepository.updateItem(updateItem);
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new NotFoundException("Предмет с id: " + itemId + " не найден.")
+        );
+
+        if (updateItem.getName() != null && !updateItem.getName().equals(item.getName())) {
+            item.setName(updateItem.getName());
+        }
+        if (updateItem.getDescription() != null && !updateItem.getDescription().equals(item.getDescription())) {
+            item.setDescription(updateItem.getDescription());
+        }
+        if (updateItem.getAvailable() != null && !updateItem.getAvailable().equals(item.getAvailable())) {
+            // подумать / почитать, что в новой версии приходит на вход контроллера и с чем работаем
+        }
+
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
-        return item;
+        // Изменения сохранятся при коммите транзакции
+        return itemMapper.itemToItemDto(item);
     }
 
     @Override
     public void deleteItem(Long ownerId, Long itemId) {
-        log.info("Попытка удаления предмета ID: {}", itemId);
+        log.info("Попытка удаления предмета ID: {} пользователем с ID: {}", itemId, ownerId);
 
         itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
-        itemRepository.deleteItemById(itemId);
-        log.info("Успешное удаление предмета ID: {}", itemId);
+        itemRepository.deleteById(itemId);
+        log.info("Успешное удаление предмета ID: {} пользователем с ID: {}", itemId, ownerId);
     }
 
     @Override
-    public ItemDto getItemDTOById(Long itemId) {
+    public ItemWithBookingDto getItemDTOById(Long itemId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
 
-        return Optional.ofNullable(itemRepository.getItemDTOById(itemId))
-                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден"));
+        return itemMapper.itemWithBookingDto(itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден")));
     }
 
     @Override
     public Collection<ItemDto> searchItemDtoByText(String text) {
         log.info("Попытка поиска доступных предметов по ключевым словам: {}", text);
+
         if (text == null || text.trim().isEmpty()) {
+            log.info("Поиска доступных предметов не дал результата.");
             return Collections.emptyList();
         }
-        return itemRepository.searchItemDtoByText(text);
+        return itemRepository.findAllByText(text.trim());
     }
 
     @Override
-    public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
+    public Collection<ItemWithBookingDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        return itemRepository.searchAllItemOfOwnerById(ownerId);
+        return itemRepository.findAllByOwnerId(ownerId);
     }
 
     @Override
-    public Item updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus) {
+    public void updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus) {
         log.info("Попытка обновления статуса брони предмета с ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
@@ -115,6 +133,12 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Статус бронирования не может быть null");
         }
 
-        return itemRepository.updateItemAvailable(itemId, bookingStatus);
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Предмет с id: " + itemId + " не найден."));
+
+        item.setAvailable(bookingStatus.isStatus());
+
+        itemRepository.save(item);
+        log.info("Успешное обновление статуса брони предмета с ID: {}", itemId);
     }
 }

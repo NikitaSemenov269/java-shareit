@@ -3,8 +3,11 @@ package ru.practicum.shareit.item;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
+
+import static ru.practicum.shareit.enums.BookingStatus.*;
 
 @Setter
 @Getter
@@ -22,18 +25,20 @@ public class Item {
     @Column(name = "name", nullable = false, length = 45)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
-
     @NotBlank
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
     @Column(name = "description", nullable = false, length = 200)
     private String description;
 
-    // нужна аннотация
-    private Boolean available;
+    @NotNull(message = "Статус бронирования обязательное поле.")
+    @Column(name = "available", nullable = false)
+    private BookingStatus available = AWAITING_A_REQUEST;
 
-    // какой тип связи?
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 }

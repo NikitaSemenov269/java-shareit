@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         log.info("Попытка обновления данных пользователя с ID: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с " + id +
                 " не существует"));
-        if (updateUser.getEmail() != null && !updateUser.getEmail().equals(user.getEmail())) {
+        if (updateUser.getEmail() != null && !updateUser.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userRepository.existsByEmailAndIdNot(updateUser.getEmail(), id)) {
                 throw new EmailAlreadyExistsException("Email: " + updateUser.getEmail() +
                         " уже занят другим пользователем.");

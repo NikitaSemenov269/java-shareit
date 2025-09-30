@@ -3,22 +3,23 @@ package ru.practicum.shareit.item.interfaces;
 import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
+import ru.practicum.shareit.item.ItemWithBookingDto;
 
 import java.util.Collection;
 
 public interface ItemService {
 
-    Item createItem(Long ownerId, Item newItem);
+    ItemDto createItem(Long ownerId, Item newItem);
 
-    Item updateItem(Long itemId, Long ownerId, Item updateItem);
+    ItemDto updateItem(Long itemId, Long ownerId, Item updateItem);
 
     void deleteItem(Long ownerId, Long itemId);
 
-    ItemDto getItemDTOById(Long itemId);
+    ItemWithBookingDto getItemDTOById(Long itemId);
 
     Collection<ItemDto> searchItemDtoByText(String text);
 
-    Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId);
+    Collection<ItemWithBookingDto> searchAllItemOfOwnerById(Long ownerId);
 
-    Item updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus);
+    void updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus);
 }
