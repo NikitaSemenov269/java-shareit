@@ -17,9 +17,9 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(@Valid
-                                                 @RequestBody Booking booking,
+                                                 @RequestBody BookingRequestDto bookingRequestDto,
                                                  @RequestHeader("X-Owner-User-Id") Long bookerId) {
-        return ResponseEntity.ok().body(bookingService.createBooking(bookerId, booking));
+        return ResponseEntity.ok().body(bookingService.createBooking(bookerId, bookingRequestDto));
     }
 
     @PatchMapping("/{bookingId}")
@@ -34,13 +34,13 @@ public class BookingController {
     @PatchMapping("/status/{bookingId}")
     public ResponseEntity<Booking> updateAvailableStatusBooking(@PathVariable
                                                                 @Min(1) Long bookingId,
-                                                                @RequestBody BookingStatus bookingStatus,
+                                                                @RequestBody boolean bookingStatus,
                                                                 @RequestHeader("X-Owner-User-Id") Long ownerId) {
         return ResponseEntity.ok().body(bookingService.updateAvailableStatusBooking(ownerId, bookingId, bookingStatus));
     }
 
     @PatchMapping("/cancel/{bookingId}")
-    public ResponseEntity<Void> canceledBookingById(@PathVariable
+    public ResponseEntity<BookingDto> canceledBookingById(@PathVariable
                                                     @Min(1) Long bookingId,
                                                     @RequestHeader("X-Booker-User-Id") Long bookerId) {
         bookingService.canceledBookingById(bookerId, bookingId);
@@ -48,10 +48,10 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable
+    public ResponseEntity<BookingDto> getBookingById(@PathVariable
                                                   @Min(1) Long bookingId,
-                                                  @RequestHeader("X-Booker-User-Id") Long bookerId) {  // задел на будущее
-        return ResponseEntity.ok().body(bookingService.getBookingById(bookingId));
+                                                  @RequestHeader("X-Booker-Or-Owner-User-Id") Long userId) {
+        return ResponseEntity.ok().body(bookingService.getBookingById(userId, bookingId));
     }
 
     @DeleteMapping("/{bookingId}")

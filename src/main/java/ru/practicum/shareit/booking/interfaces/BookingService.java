@@ -1,19 +1,27 @@
 package ru.practicum.shareit.booking.interfaces;
 
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.booking.BookingDto;
+import ru.practicum.shareit.booking.BookingRequestDto;
+import ru.practicum.shareit.enums.State;
+
+import java.util.Collection;
+
 
 public interface BookingService {
 
-    Booking createBooking(Long bookerId, Booking booking);
+    Booking createBooking(Long bookerId, BookingRequestDto bookingRequestDto);
 
-    Booking updateBooking(Long bookingId, Long bookerId, Booking updateBooking);
+    BookingDto canceledBookingById(Long bookerId, Long bookingId);
 
-    void canceledBookingById(Long bookerId, Long bookingId);
+    /* void deleteBooking(Long bookerId, Long bookingId);*/
 
-    void deleteBooking(Long bookerId, Long bookingId);
+    BookingDto updateAvailableStatusBooking(Long idOwner, Long bookingId, Boolean approved);
 
-    Booking updateAvailableStatusBooking(Long idOwner, Long bookingId, BookingStatus bookingStatus);
+    BookingDto getBookingById(Long userId, Long bookingId);
 
-    Booking getBookingById(Long bookingId);
+    Collection<BookingDto> getAllBookingByBookerId(Long bookerId, State state);
+
+    Collection<BookingDto> getAllBookingByOwnerId(Long ownerId, State state);
 }
+

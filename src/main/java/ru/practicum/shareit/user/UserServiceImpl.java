@@ -37,8 +37,7 @@ public class UserServiceImpl implements UserService {
         } catch (DataIntegrityViolationException ex) {
             if (isEmailConflict(ex)) {
                 log.error("Попытка создания пользователя с существующим email: {}", newUser.getEmail());
-                throw new EmailAlreadyExistsException("Пользователь с email " + newUser.getEmail()
-                        + " уже существует.");
+                throw new EmailAlreadyExistsException("Пользователь с таким email уже существует.");
             } else {
                 log.error("Неизвестная ошибка целостности данных: {}", ex.getMessage());
                 throw new DataIntegrityException("Ошибка сохранения данных");
@@ -55,8 +54,7 @@ public class UserServiceImpl implements UserService {
                 " не существует"));
         if (updateUser.getEmail() != null && !updateUser.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userRepository.existsByEmailAndIdNot(updateUser.getEmail(), id)) {
-                throw new EmailAlreadyExistsException("Email: " + updateUser.getEmail() +
-                        " уже занят другим пользователем.");
+                throw new EmailAlreadyExistsException("Email уже занят другим пользователем.");
             } else {
                 user.setEmail(updateUser.getEmail());
             }

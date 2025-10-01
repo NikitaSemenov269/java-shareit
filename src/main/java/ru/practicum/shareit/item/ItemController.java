@@ -23,8 +23,8 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemWithBookingDto> getItemDTOById(@PathVariable @Min(1) Long id) {
-        return ResponseEntity.ok().body(itemService.getItemDTOById(id));
+    public ResponseEntity<ItemDto> getItemById(@PathVariable @Min(1) Long id) {
+        return ResponseEntity.ok().body(itemService.getItemById(id));
     }
 
     @GetMapping

@@ -4,17 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.enums.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.interfaces.CommentRepository;
 import ru.practicum.shareit.item.interfaces.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
 import ru.practicum.shareit.item.interfaces.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
 
 @Slf4j
 @Service
@@ -25,6 +27,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemValidation itemValidation;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
 
     @Override
@@ -48,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(Long itemId, Long ownerId, Item updateItem) {
 
         itemValidation.itemValidationById(itemId);
@@ -77,6 +81,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void deleteItem(Long ownerId, Long itemId) {
         log.info("Попытка удаления предмета ID: {} пользователем с ID: {}", itemId, ownerId);
 
@@ -90,12 +95,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemWithBookingDto getItemDTOById(Long itemId) {
+    public ItemDto getItemById(Long itemId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
 
-        return itemMapper.itemWithBookingDto(itemRepository.findById(itemId)
+        return itemMapper.itemToItemDto(itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден")));
     }
 
@@ -117,17 +122,21 @@ public class ItemServiceImpl implements ItemService {
         itemValidation.itemValidationByOwnerId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        return itemRepository.findAllByOwnerId(ownerId);
+        Collection<ItemWithBookingDto> resultCollection = itemRepository.findByOwnerIdWithBookings(ownerId);
+
+        if (!resultCollection.isEmpty()) {
+            return resultCollection;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
-    public void updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus) {
+    @Transactional
+    public void updateItemAvailable(Long itemId, Boolean bookingStatus) {
         log.info("Попытка обновления статуса брони предмета с ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
-        itemValidation.existsByUserId(ownerId);
-        itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
         if (bookingStatus == null) {
             throw new ValidationException("Статус бронирования не может быть null");
@@ -136,9 +145,16 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Предмет с id: " + itemId + " не найден."));
 
-        item.setAvailable(bookingStatus.isStatus());
+        if (!bookingStatus.equals(item.getAvailable())) {
+            item.setAvailable(bookingStatus);
+            itemRepository.save(item);
+            log.info("Успешное обновление статуса брони предмета с ID: {}", itemId);
+        }
+    }
 
-        itemRepository.save(item);
-        log.info("Успешное обновление статуса брони предмета с ID: {}", itemId);
+    @Override
+    @Transactional
+    public CommentDto addNewComment(Long userId, Long itemId, String comment) {
+
     }
 }
