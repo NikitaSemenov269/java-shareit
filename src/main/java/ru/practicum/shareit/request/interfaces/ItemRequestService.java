@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request.interfaces;
 
 import ru.practicum.shareit.request.ItemRequest;
@@ -16,3 +17,4 @@ public interface ItemRequestService {
 
     List<ItemRequest> getOtherUserRequests(Long userId);
 }
+*/

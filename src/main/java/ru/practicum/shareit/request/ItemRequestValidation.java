@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
@@ -17,3 +18,4 @@ public class ItemRequestValidation {
         }
     }
 }
+*/

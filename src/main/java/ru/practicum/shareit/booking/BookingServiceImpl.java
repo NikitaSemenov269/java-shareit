@@ -70,13 +70,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDto updateAvailableStatusBooking(Long ownerId, Long bookingId, Boolean approved) {
-        log.info("Попытка обновления статуса брони с ID: {} владельцем вещи.", bookingId);
+    public BookingDto updateAvailableStatusBooking(Long ownerId, Long id, Boolean approved) {
+        log.info("Попытка обновления статуса брони с ID: {} владельцем вещи.", id);
 
-        bookingValidator.bookingValidationById(bookingId);
+        bookingValidator.bookingValidationById(id);
         bookingValidator.userValidationById(ownerId);
 
-        Booking booking = bookingRepository.findByIdWithItemAndOwner(bookingId).orElseThrow(() ->
+        Booking booking = bookingRepository.findByIdWithItemAndOwner(id).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено."));
 
         if (!ownerId.equals(booking.getItem().getOwner().getId())) {
