@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import jakarta.validation.constraints.Min;
@@ -22,3 +23,4 @@ public class ItemRequest {
 
     private LocalDateTime created;
 }
+*/

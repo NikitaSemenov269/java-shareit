@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import jakarta.validation.Valid;
@@ -40,4 +41,4 @@ public class ItemRequestController {
     public ResponseEntity<List<ItemRequest>> getOtherUserRequests(Long userId) {
         return ResponseEntity.ok().body(itemRequestService.getOtherUserRequests(userId));
     }
-}
+}*/

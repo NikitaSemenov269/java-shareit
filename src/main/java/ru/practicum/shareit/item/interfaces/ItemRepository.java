@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("SELECT new ItemDto(i.id, i.name, i.description, i.available) " +
+    @Query("SELECT new ru.practicum.shareit.item.ItemDto(i.id, i.name, i.description, i.available) " +
             "FROM Item i " +
             "WHERE (LOWER(i.name) LIKE LOWER(CONCAT('%', :text, '%')) " +
             "OR LOWER(i.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +

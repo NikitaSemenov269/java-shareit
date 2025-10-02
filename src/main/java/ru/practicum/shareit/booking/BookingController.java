@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import jakarta.validation.Valid;
@@ -60,4 +61,4 @@ public class BookingController {
         bookingService.deleteBooking(bookerId, bookingId);
         return ResponseEntity.noContent().build();
     }
-}
+}*/

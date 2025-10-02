@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
-
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    boolean existsByBookingIdAndBookerId(Long bookingId, Long bookerId);
+    boolean existsByIdAndBookerId(Long id, Long bookerId);
 
     boolean existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(Long itemId, LocalDateTime end, LocalDateTime start);
 
@@ -29,92 +28,80 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByIdForAuthorOrOwner(@Param("bookingId") Long bookingId,
                                                @Param("userId") Long userId);
 
-
-    @Query("SELECT NEW BookingDto(" +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b " +
-            "WHERE b.booker.id = :bookerId " +
+            "FROM Booking b WHERE b.booker.id = :bookerId " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    // текущие брони
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
             "FROM Booking b WHERE b.booker.id = :bookerId " +
             "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllCurrentBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    // завершенные брони
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.booker.id = :bookerId " +
-            "AND b.end < CURRENT_TIMESTAMP " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.booker.id = :bookerId AND b.end < CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllPastBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    // будущие брони
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.booker.id = :bookerId " +
-            "AND b.start > CURRENT_TIMESTAMP " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.booker.id = :bookerId AND b.start > CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllFutureBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    // ожидающие подтверждения
-    @Query("SELECT NEW BookingDto(" +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b " +
-            "WHERE b.booker.id = :bookerId " +
-            "AND b.status = WAITING " +
+            "FROM Booking b WHERE b.booker.id = :bookerId AND b.status = WAITING " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllWaitingBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    //отклоненные брони
-    @Query("SELECT NEW BookingDto(" +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b " +
-            "WHERE b.booker.id = :bookerId " +
-            "AND b.status = REJECTED " +
+            "FROM Booking b WHERE b.booker.id = :bookerId AND b.status = REJECTED " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllRejectedBookingByBookerId(@Param("bookerId") Long bookerId);
 
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId ORDER BY b.start DESC")
     Collection<BookingDto> findAllBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    // текущие брони владельца
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId " +
             "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllCurrentBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    // завершенные брони владельца
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.item.owner.id = :ownerId " +
-            "AND b.end < CURRENT_TIMESTAMP " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.end < CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllPastBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    // будущие брони владельца
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.item.owner.id = :ownerId " +
-            "AND b.start > CURRENT_TIMESTAMP " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.start > CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllFutureBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    // ожидающие подтверждения владельца
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.item.owner.id = :ownerId " +
-            "AND b.status = WAITING " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.status = WAITING " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllWaitingBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    // отклоненные брони владельца
-    @Query("SELECT NEW BookingDto(b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
-            "FROM Booking b WHERE b.item.owner.id = :ownerId " +
-            "AND b.status = REJECTED " +
+    @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
+            "b.id, b.start, b.end, b.status, b.item.id, b.booker.id) " +
+            "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.status = REJECTED " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllRejectedBookingByOwnerId(@Param("ownerId") Long ownerId);
 
+    // Проверка существования завершенной брони для пользователя и предмета
     @Query("SELECT COUNT(b) > 0 FROM Booking b " +
             "WHERE b.booker.id = :userId " +
             "AND b.item.id = :itemId " +
@@ -122,5 +109,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.end < CURRENT_TIMESTAMP")
     boolean existsCompletedBookingByUserAndItem(@Param("userId") Long userId,
                                                 @Param("itemId") Long itemId);
-
 }
