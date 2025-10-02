@@ -22,12 +22,12 @@ class ItemValidation {
         }
     }
 
-    void itemValidationByOwnerId(Long ownerId) {
+    void itemValidationByUserId(Long ownerId) {
         if (ownerId == null) {
-            throw new ValidationException("ID владельца не может быть null");
+            throw new ValidationException("ID пользователя не может быть null");
         }
         if (ownerId <= 0) {
-            throw new ValidationException("ID владельца не может быть меньше 0");
+            throw new ValidationException("ID пользователя не может быть меньше 0");
         }
     }
 

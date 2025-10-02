@@ -23,12 +23,12 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemDto> getItemById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<ItemWithCommentsDto> getItemById(@PathVariable @Min(1) Long id) {
         return ResponseEntity.ok().body(itemService.getItemById(id));
     }
 
     @GetMapping
-    public ResponseEntity<Collection<ItemWithBookingDto>> searchAllItemOfOwnerById(
+    public ResponseEntity<Collection<ItemWithBookingAndCommentsDto>> searchAllItemOfOwnerById(
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return ResponseEntity.ok().body(itemService.searchAllItemOfOwnerById(ownerId));
     }

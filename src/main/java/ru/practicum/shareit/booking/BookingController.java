@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.interfaces.BookingService;
-import ru.practicum.shareit.enums.BookingStatus;
 
 @RestController
 @RequestMapping(path = "/bookings")

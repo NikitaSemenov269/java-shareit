@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
@@ -44,3 +45,4 @@ public class ItemRequestRepositoryImpl implements ItemRequestRepository {
                 .collect(Collectors.toList());
     }
 }
+*/

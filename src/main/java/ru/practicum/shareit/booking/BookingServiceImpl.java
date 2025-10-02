@@ -178,7 +178,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL -> {
-                return bookingRepository.findAllRejectedBookingByOwnerId(ownerId);
+                return bookingRepository.findAllBookingByBookerId(ownerId);
             }
             case CURRENT -> {
                 return bookingRepository.findAllCurrentBookingByOwnerId(ownerId);
@@ -193,7 +193,7 @@ public class BookingServiceImpl implements BookingService {
                 return bookingRepository.findAllWaitingBookingByOwnerId(ownerId);
             }
             case REJECTED -> {
-                return bookingRepository.findAllRejectedBookingByBookerId(ownerId);
+                return bookingRepository.findAllRejectedBookingByOwnerId(ownerId);
             }
         }
         return new ArrayList<>();

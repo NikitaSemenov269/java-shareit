@@ -114,4 +114,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.status = REJECTED " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllRejectedBookingByOwnerId(@Param("ownerId") Long ownerId);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b " +
+            "WHERE b.booker.id = :userId " +
+            "AND b.item.id = :itemId " +
+            "AND b.status = APPROVED " +
+            "AND b.end < CURRENT_TIMESTAMP")
+    boolean existsCompletedBookingByUserAndItem(@Param("userId") Long userId,
+                                                @Param("itemId") Long itemId);
+
 }

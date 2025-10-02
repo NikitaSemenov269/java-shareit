@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.ItemWithBookingDto;
+import ru.practicum.shareit.item.ItemWithBookingAndCommentsDto;
 
 import java.util.Collection;
 
@@ -35,6 +35,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                     "  ORDER BY start_rent ASC LIMIT 1" +
                     ") next_b ON true " +
                     "WHERE i.owner_id = ?1")
-    Collection<ItemWithBookingDto> findByOwnerIdWithBookings(Long ownerId);
-}
+    Collection<ItemWithBookingAndCommentsDto> findByOwnerIdWithBookings(Long ownerId);
+    }
 

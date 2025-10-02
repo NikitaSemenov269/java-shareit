@@ -1,12 +1,11 @@
 package ru.practicum.shareit.request.interfaces;
 
-import ru.practicum.shareit.request.ItemRequest;
+import org.apache.coyote.Request;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+public interface ItemRequestRepository extends JpaRepository<Request, Long> {
 
-public interface ItemRequestRepository {
-
-    void save(ItemRequest itemRequest);
+    /*void save(ItemRequest itemRequest);
 
     ItemRequest findById(Long itemRequestId);
 
@@ -14,5 +13,5 @@ public interface ItemRequestRepository {
 
     List<ItemRequest> findAll();
 
-    List<ItemRequest> findAllExceptRequester(Long requesterId);
+    List<ItemRequest> findAllExceptRequester(Long requesterId);*/
 }

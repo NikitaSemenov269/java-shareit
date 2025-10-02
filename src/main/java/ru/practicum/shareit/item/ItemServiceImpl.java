@@ -4,18 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.interfaces.CommentRepository;
-import ru.practicum.shareit.item.interfaces.ItemMapper;
-import ru.practicum.shareit.item.interfaces.ItemRepository;
-import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.item.interfaces.*;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -28,7 +26,9 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
     private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
@@ -39,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
 
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
 
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
@@ -55,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(Long itemId, Long ownerId, Item updateItem) {
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
@@ -71,9 +71,6 @@ public class ItemServiceImpl implements ItemService {
         if (updateItem.getDescription() != null && !updateItem.getDescription().equals(item.getDescription())) {
             item.setDescription(updateItem.getDescription());
         }
-        if (updateItem.getAvailable() != null && !updateItem.getAvailable().equals(item.getAvailable())) {
-            // подумать / почитать, что в новой версии приходит на вход контроллера и с чем работаем
-        }
 
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         // Изменения сохранятся при коммите транзакции
@@ -86,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Попытка удаления предмета ID: {} пользователем с ID: {}", itemId, ownerId);
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
@@ -95,13 +92,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Long itemId) {
+    public ItemWithCommentsDto getItemById(Long itemId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
 
-        return itemMapper.itemToItemDto(itemRepository.findById(itemId)
+        ItemWithCommentsDto itemWithCommentsDto = itemMapper.itemDtoWithComments(itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден")));
+
+        itemWithCommentsDto.setComments(commentRepository.findCommentByItemId(itemId));
+        return itemWithCommentsDto;
     }
 
     @Override
@@ -116,15 +116,30 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemWithBookingDto> searchAllItemOfOwnerById(Long ownerId) {
+    public Collection<ItemWithBookingAndCommentsDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        Collection<ItemWithBookingDto> resultCollection = itemRepository.findByOwnerIdWithBookings(ownerId);
+        Collection<ItemWithBookingAndCommentsDto> resultCollection = itemRepository
+                .findByOwnerIdWithBookings(ownerId);
 
         if (!resultCollection.isEmpty()) {
+            List<Long> itemIdcollection = resultCollection.stream()
+                    .map(ItemWithBookingAndCommentsDto::getId)
+                    .collect(Collectors.toList());
+
+            Map<Long, List<CommentDto>> commentsByItemId = commentRepository
+                    .findCommentsByItemId(itemIdcollection)
+                    .stream()
+                    .collect(Collectors.groupingBy(CommentDto::getItemId));
+
+            resultCollection.forEach(item -> {
+                List<CommentDto> comments = commentsByItemId.getOrDefault(item.getId(), new ArrayList<>());
+                item.setComments(comments);
+            });
+
             return resultCollection;
         } else {
             return new ArrayList<>();
@@ -156,5 +171,23 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addNewComment(Long userId, Long itemId, String comment) {
 
+        itemValidation.itemValidationById(itemId);
+        itemValidation.itemValidationByUserId(userId);
+
+        if (!bookingRepository.existsCompletedBookingByUserAndItem(userId, itemId)) {
+            throw new ValidationException("Пользователь не арендовал эту вещь или аренда еще не завершена.");
+        }
+
+        Comment newComment = new Comment();
+        newComment.setUser(userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь не найден.")));
+        newComment.setItem(itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Предмет не найден.")));
+        newComment.setComment(comment);
+        newComment.setDate(LocalDateTime.now());
+
+        commentRepository.save(newComment);
+
+        return commentMapper.commentToCommentDto(newComment);
     }
 }

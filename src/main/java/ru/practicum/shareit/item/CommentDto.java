@@ -19,7 +19,7 @@ public class CommentDto {
 
     @NotBlank
     @Size(max = 200, message = "Комментарий не может превышать 200 символов.")
-    private String text;
+    private String comment;
 
     @NotNull
     Long itemId;
