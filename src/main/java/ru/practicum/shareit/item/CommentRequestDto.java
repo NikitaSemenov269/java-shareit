@@ -1,27 +1,26 @@
-/*
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.item;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDto {
-    private Long id;
-
+public class CommentRequestDto {
     @NotBlank
-    private String descriptionRequest;
+    @Size(max = 200, message = "Комментарий не может превышать 200 символов.")
+    private String comment;
 
     @NotNull
-    private Long requesterId;
+    Long itemId;
 
     @NotNull
-    private LocalDateTime created;
+    private Long userId;
 }
-*/

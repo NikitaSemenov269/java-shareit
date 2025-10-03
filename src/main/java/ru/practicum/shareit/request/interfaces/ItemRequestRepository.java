@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request.interfaces;
 
 import org.apache.coyote.Request;
@@ -9,3 +10,4 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
@@ -66,3 +67,4 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestRepository.findAllExceptRequester(userId);
     }
 }
+*/

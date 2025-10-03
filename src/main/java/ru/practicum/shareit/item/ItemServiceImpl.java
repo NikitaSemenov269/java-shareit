@@ -32,8 +32,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto createItem(Long ownerId, ItemDto newItemDto) {
-        if (newItemDto.getAvailable() == null) {
+    public ItemDto createItem(Long ownerId, ItemRequestDto ItemRequestDto) {
+        if (ItemRequestDto.getAvailable() == null) {
             throw new ValidationException("Поле available обязательно");
         }
 
@@ -44,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
 
-        Item item = itemMapper.toItem(newItemDto);
+        Item item = itemMapper.toItem(ItemRequestDto);
         item.setOwner(owner);
 
         log.info("Создан новый предмет.");
@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto updateItem(Long itemId, Long ownerId, ItemDto updateItemDto) {
+    public ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto) {
 
         itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByUserId(ownerId);
@@ -66,11 +66,14 @@ public class ItemServiceImpl implements ItemService {
                 () -> new NotFoundException("Предмет с id: " + itemId + " не найден.")
         );
 
-        if (updateItemDto.getName() != null && !updateItemDto.getName().equals(item.getName())) {
-            item.setName(updateItemDto.getName());
+        if (itemRequestDto.getName() != null && !itemRequestDto.getName().equals(item.getName())) {
+            item.setName(itemRequestDto.getName());
         }
-        if (updateItemDto.getDescription() != null && !updateItemDto.getDescription().equals(item.getDescription())) {
-            item.setDescription(updateItemDto.getDescription());
+        if (itemRequestDto.getDescription() != null && !itemRequestDto.getDescription().equals(item.getDescription())) {
+            item.setDescription(itemRequestDto.getDescription());
+        }
+        if (itemRequestDto.getAvailable() != null && !itemRequestDto.getAvailable().equals(item.getAvailable())) {
+            item.setAvailable(itemRequestDto.getAvailable());
         }
 
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
@@ -117,17 +120,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemWithBookingAndCommentsDto> searchAllItemOfOwnerById(Long ownerId) {
+    public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
         itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        Collection<ItemWithBookingAndCommentsDto> resultCollection = itemRepository
-                .findByOwnerIdWithBookings(ownerId);
+        Collection<ItemDto> resultCollection = itemRepository
+                .findByOwnerId(ownerId)
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
 
         if (!resultCollection.isEmpty()) {
-            List<Long> itemIdcollection = resultCollection.stream()
+          /*  List<Long> itemIdcollection = resultCollection.stream()
                     .map(ItemWithBookingAndCommentsDto::getId)
                     .collect(Collectors.toList());
 
@@ -139,8 +145,7 @@ public class ItemServiceImpl implements ItemService {
             resultCollection.forEach(item -> {
                 List<CommentDto> comments = commentsByItemId.getOrDefault(item.getId(), new ArrayList<>());
                 item.setComments(comments);
-            });
-
+            });*/
             return resultCollection;
         } else {
             return new ArrayList<>();
@@ -170,8 +175,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto addNewComment(Long userId, Long itemId, String comment) {
-        if (comment == null || !comment.isBlank()) {
+    public CommentDto addComment(Long userId, Long itemId, String comment) {
+        if (comment != null && !comment.isBlank()) {
             itemValidation.itemValidationById(itemId);
             itemValidation.itemValidationByUserId(userId);
 

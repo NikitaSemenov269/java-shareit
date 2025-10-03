@@ -2,18 +2,14 @@ package ru.practicum.shareit.item.interfaces;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.ItemWithBookingAndCommentsDto;
-import ru.practicum.shareit.item.ItemWithCommentsDto;
+import ru.practicum.shareit.item.*;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
     ItemDto toItemDto(Item item);
 
-    @Mapping(target = "id", ignore = true)
-    Item toItem(ItemDto itemDto);
+    Item toItem(ItemRequestDto ItemRequestDto);
 
     @Mapping(target = "comments", ignore = true)
     ItemWithCommentsDto itemDtoWithComments(Item item);

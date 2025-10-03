@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.interfaces.BookerMapper;
+import ru.practicum.shareit.booking.interfaces.BookingMapper;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.booking.interfaces.BookingService;
 import ru.practicum.shareit.enums.State;
@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final ItemService itemService;
-    private final BookerMapper mapper;
+    private final BookingMapper mapper;
 
 
     @Override
@@ -65,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Создана новая заявка на бронирование c ID: {} для предмета с ID: {}", booking.getId(),
                 item.getId());
 
-        return mapper.bookerToBookerDto(booking);
+        return mapper.toBookingDto(booking);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
             itemService.updateItemAvailable(booking.getItem().getId(), REJECTED.isStatus()); // true - бронь отклонена
             log.info("Бронирование отклонено.");
         }
-        return mapper.bookerToBookerDto(booking);
+        return mapper.toBookingDto(booking);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdForAuthorOrOwner(bookingId, userId).orElseThrow(() ->
                 new NotFoundException("Бронь не найдена."));
 
-        return mapper.bookerToBookerDto(booking);
+        return mapper.toBookingDto(booking);
     }
 
     @Override

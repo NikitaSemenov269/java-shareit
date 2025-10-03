@@ -36,5 +36,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                     ") next_b ON true " +
                     "WHERE i.owner_id = ?1")
     Collection<ItemWithBookingAndCommentsDto> findByOwnerIdWithBookings(Long ownerId);
+
+    Collection<Item> findByOwnerId(Long ownerId);
     }
 

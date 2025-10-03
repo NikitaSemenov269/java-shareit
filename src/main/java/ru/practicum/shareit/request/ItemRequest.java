@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import jakarta.persistence.*;
@@ -32,3 +33,4 @@ public class ItemRequest {
     @Column(name = "created_date")
     private LocalDateTime created;
 }
+*/

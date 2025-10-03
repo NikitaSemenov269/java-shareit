@@ -6,9 +6,9 @@ import java.util.Collection;
 
 public interface ItemService {
 
-    ItemDto createItem(Long ownerId, ItemDto newItemDto);
+    ItemDto createItem(Long ownerId, ItemRequestDto ItemRequestDto);
 
-    ItemDto updateItem(Long itemId, Long ownerId, ItemDto updateItemDto);
+    ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto);
 
     void deleteItem(Long ownerId, Long itemId);
 
@@ -16,9 +16,9 @@ public interface ItemService {
 
     Collection<ItemDto> searchItemDtoByText(String text);
 
-    Collection<ItemWithBookingAndCommentsDto> searchAllItemOfOwnerById(Long ownerId);
+    Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId);
 
     void updateItemAvailable(Long itemId, Boolean bookingStatus);
 
-    CommentDto addNewComment(Long userId, Long itemId, String comment);
+    CommentDto addComment(Long userId, Long itemId, String comment);
 }

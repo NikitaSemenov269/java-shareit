@@ -28,15 +28,15 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public UserDto createUser(UserDto newUserDto) {
+    public UserDto createUser(UserRequestDto userRequestDto) {
         log.info("Попытка создания нового пользователя.");
         try {
-            User user = userRepository.save(mapper.userDtoToUser(newUserDto));
+            User user = userRepository.save(mapper.toUser(userRequestDto));
             log.info("Создан новый пользователь c id: {}", user.getId());
-            return mapper.userToUserDto(user);
+            return mapper.toUserDto(user);
         } catch (DataIntegrityViolationException ex) {
             if (isEmailConflict(ex)) {
-                log.error("Попытка создания пользователя с существующим email: {}", newUserDto.getEmail());
+                log.error("Попытка создания пользователя с существующим email: {}", userRequestDto.getEmail());
                 throw new EmailAlreadyExistsException("Пользователь с таким email уже существует.");
             } else {
                 log.error("Неизвестная ошибка целостности данных: {}", ex.getMessage());
@@ -47,24 +47,24 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto updateUser(Long id, UserDto updateUser) {
+    public UserDto updateUser(Long id, UserRequestDto userRequestDto) {
         validation.userValidationId(id);
         log.info("Попытка обновления данных пользователя с ID: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с " + id +
                 " не существует"));
-        if (updateUser.getEmail() != null && !updateUser.getEmail().equalsIgnoreCase(user.getEmail())) {
-            if (userRepository.existsByEmailAndIdNot(updateUser.getEmail(), id)) {
+        if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmailAndIdNot(userRequestDto.getEmail(), id)) {
                 throw new EmailAlreadyExistsException("Email уже занят другим пользователем.");
             } else {
-                user.setEmail(updateUser.getEmail());
+                user.setEmail(userRequestDto.getEmail());
             }
         }
-        if (updateUser.getName() != null && !updateUser.getName().equals(user.getName())) {
-            user.setName(updateUser.getName());
+        if (userRequestDto.getName() != null && !userRequestDto.getName().equals(user.getName())) {
+            user.setName(userRequestDto.getName());
         }
         log.info("Данные пользователя с ID: {} успешно обновлены", id);
         // Изменения сохранятся при коммите транзакции
-        return mapper.userToUserDto(user);
+        return mapper.toUserDto(user);
     }
 
     @Transactional
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);
         validation.userValidationId(userId);
-        return userRepository.findById(userId).map(mapper::userToUserDto)
+        return userRepository.findById(userId).map(mapper::toUserDto)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 

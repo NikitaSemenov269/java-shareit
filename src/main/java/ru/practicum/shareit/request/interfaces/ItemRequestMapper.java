@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request.interfaces;
 
 import org.mapstruct.Mapper;
@@ -7,3 +8,4 @@ public interface ItemRequestMapper {
 
 
 }
+*/

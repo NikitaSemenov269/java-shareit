@@ -17,18 +17,20 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody ItemDto itemDto,
-                                              @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(itemService.createItem(userId, itemDto));
+    public ResponseEntity<ItemDto> createItem(
+            @Valid @RequestBody ItemRequestDto itemRequestDto,
+            @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok().body(itemService.createItem(userId, itemRequestDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemWithCommentsDto> getItemById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<ItemWithCommentsDto> getItemById(
+            @PathVariable @Min(1) Long id) {
         return ResponseEntity.ok().body(itemService.getItemById(id));
     }
 
     @GetMapping
-    public ResponseEntity<Collection<ItemWithBookingAndCommentsDto>> searchAllItemOfOwnerById(
+    public ResponseEntity<Collection<ItemDto>> searchAllItemOfOwnerById(
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return ResponseEntity.ok().body(itemService.searchAllItemOfOwnerById(ownerId));
     }
@@ -40,23 +42,26 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ItemDto> updateItem(@PathVariable @Min(1) Long id,
-                                              @RequestBody ItemDto itemDto,
-                                              @RequestHeader("X-Sharer-User-Id") Long owner) {
-        return ResponseEntity.ok().body(itemService.updateItem(id, owner, itemDto));
+    public ResponseEntity<ItemDto> updateItem(
+            @PathVariable @Min(1) Long id,
+            @RequestBody ItemRequestDto itemRequestDto,
+            @RequestHeader("X-Sharer-User-Id") Long owner) {
+        return ResponseEntity.ok().body(itemService.updateItem(id, owner, itemRequestDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable @Min(1) Long id,
-                                           @RequestHeader("X-Sharer-User-Id") Long owner) {
+    public ResponseEntity<Void> deleteItem(
+            @PathVariable @Min(1) Long id,
+            @RequestHeader("X-Sharer-User-Id") Long owner) {
         itemService.deleteItem(owner, id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<CommentDto> addComment(@PathVariable @Min(1) Long itemId,
-                                                 @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @Valid @RequestBody String comment) {
-        return ResponseEntity.ok().body(itemService.addNewComment(userId, itemId, comment));
+    public ResponseEntity<CommentDto> addComment(
+            @PathVariable @Min(1) Long itemId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody String comment) {
+        return ResponseEntity.ok().body(itemService.addComment(userId, itemId, comment));
     }
 }
