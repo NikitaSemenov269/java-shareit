@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,12 +8,10 @@ import ru.practicum.shareit.enums.BookingStatus;
 
 import java.time.LocalDateTime;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingDto {
-    @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 
     @NotNull(message = "Дата начала аренды не может быть null.")

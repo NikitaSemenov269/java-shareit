@@ -32,8 +32,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto createItem(Long ownerId, Item newItem) {
-        if (newItem.getAvailable() == null) {
+    public ItemDto createItem(Long ownerId, ItemDto newItemDto) {
+        if (newItemDto.getAvailable() == null) {
             throw new ValidationException("Поле available обязательно");
         }
 
@@ -44,15 +44,16 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
 
-        newItem.setOwner(owner);
-        itemRepository.save(newItem);
-        log.info("Создан новый предмет с ID: {}", newItem.getId());
-        return itemMapper.itemToItemDto(newItem);
+        Item item = itemMapper.toItem(newItemDto);
+        item.setOwner(owner);
+
+        log.info("Создан новый предмет.");
+        return (itemMapper.toItemDto(itemRepository.save(item)));
     }
 
     @Override
     @Transactional
-    public ItemDto updateItem(Long itemId, Long ownerId, Item updateItem) {
+    public ItemDto updateItem(Long itemId, Long ownerId, ItemDto updateItemDto) {
 
         itemValidation.itemValidationById(itemId);
         itemValidation.itemValidationByUserId(ownerId);
@@ -65,16 +66,16 @@ public class ItemServiceImpl implements ItemService {
                 () -> new NotFoundException("Предмет с id: " + itemId + " не найден.")
         );
 
-        if (updateItem.getName() != null && !updateItem.getName().equals(item.getName())) {
-            item.setName(updateItem.getName());
+        if (updateItemDto.getName() != null && !updateItemDto.getName().equals(item.getName())) {
+            item.setName(updateItemDto.getName());
         }
-        if (updateItem.getDescription() != null && !updateItem.getDescription().equals(item.getDescription())) {
-            item.setDescription(updateItem.getDescription());
+        if (updateItemDto.getDescription() != null && !updateItemDto.getDescription().equals(item.getDescription())) {
+            item.setDescription(updateItemDto.getDescription());
         }
 
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         // Изменения сохранятся при коммите транзакции
-        return itemMapper.itemToItemDto(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
@@ -170,24 +171,26 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addNewComment(Long userId, Long itemId, String comment) {
+        if (comment == null || !comment.isBlank()) {
+            itemValidation.itemValidationById(itemId);
+            itemValidation.itemValidationByUserId(userId);
 
-        itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByUserId(userId);
+            if (!bookingRepository.existsCompletedBookingByUserAndItem(userId, itemId)) {
+                throw new ValidationException("Пользователь не арендовал эту вещь или аренда еще не завершена.");
+            }
 
-        if (!bookingRepository.existsCompletedBookingByUserAndItem(userId, itemId)) {
-            throw new ValidationException("Пользователь не арендовал эту вещь или аренда еще не завершена.");
+            Comment newComment = new Comment();
+
+            newComment.setComment(comment);
+            newComment.setUser(userRepository.findById(userId).orElseThrow(() ->
+                    new NotFoundException("Пользователь не найден.")));
+            newComment.setItem(itemRepository.findById(itemId).orElseThrow(() ->
+                    new NotFoundException("Предмет не найден.")));
+            newComment.setDate(LocalDateTime.now());
+
+            return commentMapper.toCommentDto(commentRepository.save(newComment));
+        } else {
+            throw new ValidationException("Комментарий не может быть пустой строкой.");
         }
-
-        Comment newComment = new Comment();
-        newComment.setUser(userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден.")));
-        newComment.setItem(itemRepository.findById(itemId).orElseThrow(() ->
-                new NotFoundException("Предмет не найден.")));
-        newComment.setComment(comment);
-        newComment.setDate(LocalDateTime.now());
-
-        commentRepository.save(newComment);
-
-        return commentMapper.commentToCommentDto(newComment);
     }
 }

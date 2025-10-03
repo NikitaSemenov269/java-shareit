@@ -17,9 +17,9 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody Item item,
-                                               @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(itemService.createItem(userId, item));
+    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody ItemDto itemDto,
+                                              @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok().body(itemService.createItem(userId, itemDto));
     }
 
     @GetMapping("/{id}")
@@ -35,24 +35,28 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Collection<ItemDto>> searchItemDTOByText(
-            @RequestParam("text")
-            String text) {
+            @RequestParam("text") String text) {
         return ResponseEntity.ok().body(itemService.searchItemDtoByText(text));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ItemDto> updateItem(@PathVariable @Min(1) Long id,
-                                               @RequestBody Item item,
-                                               @RequestHeader("X-Sharer-User-Id") Long owner) {
-        return ResponseEntity.ok().body(itemService.updateItem(id, owner, item));
+                                              @RequestBody ItemDto itemDto,
+                                              @RequestHeader("X-Sharer-User-Id") Long owner) {
+        return ResponseEntity.ok().body(itemService.updateItem(id, owner, itemDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable
-                                           @Min(1) Long id,
+    public ResponseEntity<Void> deleteItem(@PathVariable @Min(1) Long id,
                                            @RequestHeader("X-Sharer-User-Id") Long owner) {
         itemService.deleteItem(owner, id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public ResponseEntity<CommentDto> addComment(@PathVariable @Min(1) Long itemId,
+                                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                 @Valid @RequestBody String comment) {
+        return ResponseEntity.ok().body(itemService.addNewComment(userId, itemId, comment));
     }
 }
-

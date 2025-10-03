@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -9,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-    @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 
     @NotBlank(message = "Имя не может быть пустым полем.")

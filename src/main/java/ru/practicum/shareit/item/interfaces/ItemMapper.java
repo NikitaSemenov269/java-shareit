@@ -10,7 +10,10 @@ import ru.practicum.shareit.item.ItemWithCommentsDto;
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
-    ItemDto itemToItemDto(Item item);
+    ItemDto toItemDto(Item item);
+
+    @Mapping(target = "id", ignore = true)
+    Item toItem(ItemDto itemDto);
 
     @Mapping(target = "comments", ignore = true)
     ItemWithCommentsDto itemDtoWithComments(Item item);

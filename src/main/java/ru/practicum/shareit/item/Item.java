@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import static ru.practicum.shareit.enums.BookingStatus.*;
@@ -30,13 +31,13 @@ public class Item {
 
     @NotNull(message = "Статус бронирования обязательное поле.")
     @Column(name = "available", nullable = false)
-    private Boolean available = AWAITING_A_REQUEST.isStatus(); // true
+    private Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
- /*   @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
-    private ItemRequest request;*/
+    private ItemRequest request;
 }

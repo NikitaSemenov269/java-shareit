@@ -28,15 +28,15 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public UserDto createUser(User newUser) {
+    public UserDto createUser(UserDto newUserDto) {
         log.info("Попытка создания нового пользователя.");
         try {
-            User user = userRepository.save(newUser);
+            User user = userRepository.save(mapper.userDtoToUser(newUserDto));
             log.info("Создан новый пользователь c id: {}", user.getId());
             return mapper.userToUserDto(user);
         } catch (DataIntegrityViolationException ex) {
             if (isEmailConflict(ex)) {
-                log.error("Попытка создания пользователя с существующим email: {}", newUser.getEmail());
+                log.error("Попытка создания пользователя с существующим email: {}", newUserDto.getEmail());
                 throw new EmailAlreadyExistsException("Пользователь с таким email уже существует.");
             } else {
                 log.error("Неизвестная ошибка целостности данных: {}", ex.getMessage());

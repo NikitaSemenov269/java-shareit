@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.interfaces;
 
-import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.booking.BookingRequestDto;
 import ru.practicum.shareit.enums.State;
@@ -10,9 +9,9 @@ import java.util.Collection;
 
 public interface BookingService {
 
-    Booking createBooking(Long bookerId, BookingRequestDto bookingRequestDto);
+    BookingDto createBooking(Long bookerId, BookingRequestDto bookingRequestDto);
 
-    BookingDto canceledBookingById(Long bookerId, Long bookingId);
+    void canceledBookingById(Long bookerId, Long bookingId);
 
     /* void deleteBooking(Long bookerId, Long bookingId);*/
 

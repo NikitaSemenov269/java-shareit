@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
@@ -11,30 +10,25 @@ import ru.practicum.shareit.request.interfaces.ItemRequestService;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
+
     private final ItemRequestValidation itemRequestValidation;
-    ItemRequestRepository itemRequestRepository;
-
-
-    private final ItemService itemServiceInterface;
-    private static final AtomicLong counter = new AtomicLong(1);
+    private final ItemRequestRepository itemRequestRepository;
+    private final ItemService itemService;
 
     @Override
     public ItemRequest createRequest(ItemRequest itemRequest) {
-        itemRequest.setRequestId(counter.getAndIncrement());
-        Long id = itemRequest.getRequestId();
-        log.info("Попытка создания новой заявки с ID: {}", id);
 
-        itemRequestValidation.itemRequestValidationById(id);
+        log.info("Попытка создания новой заявки.");
 
-        itemRequestRepository.save(itemRequest);
-        log.info("Создана новая заявка c ID: {} ", id);
-        return itemRequest;
+        ItemRequest newItemRequest = itemRequestRepository.save(itemRequest);
+
+        log.info("Создана новая заявка.");
+        return ;
     }
 
     @Override
@@ -72,4 +66,3 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestRepository.findAllExceptRequester(userId);
     }
 }
-*/
