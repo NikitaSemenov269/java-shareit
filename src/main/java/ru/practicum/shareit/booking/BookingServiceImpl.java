@@ -37,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking createBooking(Long bookerId, BookingRequestDto bookingRequestDto) {
+    public BookingDto createBooking(Long bookerId, BookingRequestDto bookingRequestDto) {
 
         bookingValidator.userValidationById(bookerId);
         bookingValidator.existsByUserId(bookerId);
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Попытка создания новой брони для предмета с ID: {}", item.getId());
 
-        Booking booking = mapper.bookingRequestDtoToBooking(bookingRequestDto);
+        Booking booking = mapper.toBooking(bookingRequestDto);
 
         booking.setItem(item);
         booking.setBooker(userRepository.findById(bookerId).orElseThrow(() ->
@@ -65,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Создана новая заявка на бронирование c ID: {} для предмета с ID: {}", booking.getId(),
                 item.getId());
 
-        return booking;
+        return mapper.bookerToBookerDto(booking);
     }
 
     @Override
@@ -91,12 +91,12 @@ public class BookingServiceImpl implements BookingService {
             itemService.updateItemAvailable(booking.getItem().getId(), REJECTED.isStatus()); // true - бронь отклонена
             log.info("Бронирование отклонено.");
         }
-        return mapper.bookerMapperToBookerMapperDto(booking);
+        return mapper.bookerToBookerDto(booking);
     }
 
     @Override
     @Transactional
-    public BookingDto canceledBookingById(Long bookerId, Long bookingId) {
+    public void canceledBookingById(Long bookerId, Long bookingId) {
         log.info("Попытка отмены брони с ID: {} автором.", bookingId);
 
         bookingValidator.bookingValidationById(bookingId);
@@ -111,22 +111,7 @@ public class BookingServiceImpl implements BookingService {
             itemService.updateItemAvailable(booking.getItem().getId(), CANCELED.isStatus()); // true
         }
         log.info("Успешное отмена брони с ID: {}", bookingId);
-        return mapper.bookerMapperToBookerMapperDto(booking);
     }
-
-  /*  @Override
-    public void deleteBooking(Long bookerId, Long bookingId) {
-        log.info("Попытка удаления брони с ID: {}", bookingId);
-
-        bookingValidator.bookingValidationById(bookingId);
-        bookingValidator.userValidationById(bookerId);
-        bookingValidator.existsByUserId(bookerId);
-        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
-
-        bookingRepository.deleteBooking(bookingId);
-        log.info("Успешное удаление брони с ID: {}", bookingId);
-    }*/
-
 
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
@@ -139,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdForAuthorOrOwner(bookingId, userId).orElseThrow(() ->
                 new NotFoundException("Бронь не найдена."));
 
-        return mapper.bookerMapperToBookerMapperDto(booking);
+        return mapper.bookerToBookerDto(booking);
     }
 
     @Override
@@ -178,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL -> {
-                return bookingRepository.findAllBookingByBookerId(ownerId);
+                return bookingRepository.findAllBookingByOwnerId(ownerId);
             }
             case CURRENT -> {
                 return bookingRepository.findAllCurrentBookingByOwnerId(ownerId);
@@ -198,5 +183,4 @@ public class BookingServiceImpl implements BookingService {
         }
         return new ArrayList<>();
     }
-
 }

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,11 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static ru.practicum.shareit.enums.BookingStatus.AWAITING_A_REQUEST;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
-    @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long id;
 
     @NotBlank(message = "Название не может быть пустой строкой.")
@@ -23,5 +23,5 @@ public class ItemDto {
     private String description;
 
     @NotNull(message = "Статус не может быть null.")
-    private Boolean available;
+    private Boolean available = AWAITING_A_REQUEST.isStatus(); // true
 }

@@ -6,9 +6,9 @@ import java.util.Collection;
 
 public interface ItemService {
 
-    ItemDto createItem(Long ownerId, Item newItem);
+    ItemDto createItem(Long ownerId, ItemDto newItemDto);
 
-    ItemDto updateItem(Long itemId, Long ownerId, Item updateItem);
+    ItemDto updateItem(Long itemId, Long ownerId, ItemDto updateItemDto);
 
     void deleteItem(Long ownerId, Long itemId);
 
