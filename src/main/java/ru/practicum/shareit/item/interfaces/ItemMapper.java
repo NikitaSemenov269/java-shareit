@@ -12,9 +12,6 @@ public interface ItemMapper {
     Item toItem(ItemRequestDto ItemRequestDto);
 
     @Mapping(target = "comments", ignore = true)
-    ItemWithCommentsDto itemDtoWithComments(Item item);
-
-    @Mapping(target = "comments", ignore = true)
     ItemWithBookingAndCommentsDto itemDtoWithBookingAndComments(Item item);
 
 }

@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.LastBookingDto;
+import ru.practicum.shareit.booking.NextBookingDto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -16,11 +17,9 @@ import java.util.Collection;
 @EqualsAndHashCode(callSuper = true)
 public class ItemWithBookingAndCommentsDto extends ItemDto {
 
-    private LocalDateTime lastStart;
-    private LocalDateTime lastEnd;
+    private LastBookingDto lastBooking;
 
-    private LocalDateTime nextStart;
-    private LocalDateTime nextEnd;
+    private NextBookingDto nextBooking;
 
     private Collection<CommentDto> comments = new ArrayList<>();
 }

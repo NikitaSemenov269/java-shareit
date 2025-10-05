@@ -49,7 +49,7 @@ class BookingValidator {
         if (end.equals(start)) {
             throw new ValidationException("Время начала и окончания аренды не могут совпадать.");
         }
-        if (bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, end, start)) {
+        if (bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end)) {
             throw new ValidationException("Бронирование на данный период невозможно поскольку даты уже заняты.");
         }
     }

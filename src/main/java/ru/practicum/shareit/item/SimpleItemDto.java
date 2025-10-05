@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimpleItemDto {
-    private Long itemId;
+
+    private Long id;
+
     private String name;
-    //запускаю коммит
 }

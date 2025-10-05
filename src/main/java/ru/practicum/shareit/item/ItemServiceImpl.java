@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.interfaces.BookingMapper;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -29,6 +30,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
@@ -96,16 +98,32 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemWithCommentsDto getItemById(Long itemId) {
+    public ItemWithBookingAndCommentsDto getItemById(Long itemId, Long userId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
+        itemValidation.itemValidationByUserId(userId);
+        itemValidation.existsByUserId(userId);
 
-        ItemWithCommentsDto itemWithCommentsDto = itemMapper.itemDtoWithComments(itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден")));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден"));
 
-        itemWithCommentsDto.setComments(commentRepository.findCommentByItemId(itemId));
-        return itemWithCommentsDto;
+        ItemWithBookingAndCommentsDto itemDto =
+                itemMapper.itemDtoWithBookingAndComments(item);
+
+        itemDto.setComments(commentRepository.findCommentByItemId(item.getId()));
+
+        if (userId.equals(item.getOwner().getId())) {
+
+            itemDto.setLastBooking(
+                    bookingRepository.findLastBookingDto(item.getId(), LocalDateTime.now()));
+
+            itemDto.setNextBooking(
+                    bookingRepository.findNextBookingDto(item.getId(), LocalDateTime.now())
+            );
+        }
+
+        return itemDto;
     }
 
     @Override
@@ -133,19 +151,6 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
 
         if (!resultCollection.isEmpty()) {
-          /*  List<Long> itemIdcollection = resultCollection.stream()
-                    .map(ItemWithBookingAndCommentsDto::getId)
-                    .collect(Collectors.toList());
-
-            Map<Long, List<CommentDto>> commentsByItemId = commentRepository
-                    .findCommentsByItemId(itemIdcollection)
-                    .stream()
-                    .collect(Collectors.groupingBy(CommentDto::getItemId));
-
-            resultCollection.forEach(item -> {
-                List<CommentDto> comments = commentsByItemId.getOrDefault(item.getId(), new ArrayList<>());
-                item.setComments(comments);
-            });*/
             return resultCollection;
         } else {
             return new ArrayList<>();
@@ -186,7 +191,7 @@ public class ItemServiceImpl implements ItemService {
 
             Comment newComment = new Comment();
 
-            newComment.setComment(comment);
+            newComment.setText(comment);
             newComment.setUser(userRepository.findById(userId).orElseThrow(() ->
                     new NotFoundException("Пользователь не найден.")));
             newComment.setItem(itemRepository.findById(itemId).orElseThrow(() ->

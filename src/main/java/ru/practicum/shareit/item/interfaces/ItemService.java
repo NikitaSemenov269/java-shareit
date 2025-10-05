@@ -12,7 +12,7 @@ public interface ItemService {
 
     void deleteItem(Long ownerId, Long itemId);
 
-    ItemWithCommentsDto getItemById(Long itemId);
+    ItemWithBookingAndCommentsDto getItemById(Long itemId, Long userId);
 
     Collection<ItemDto> searchItemDtoByText(String text);
 

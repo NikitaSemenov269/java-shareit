@@ -24,9 +24,10 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemWithCommentsDto> getItemById(
-            @PathVariable @Min(1) Long id) {
-        return ResponseEntity.ok().body(itemService.getItemById(id));
+    public ResponseEntity<ItemWithBookingAndCommentsDto> getItemById(
+            @PathVariable @Min(1) Long id,
+            @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok().body(itemService.getItemById(id, userId));
     }
 
     @GetMapping
@@ -61,7 +62,7 @@ public class ItemController {
     public ResponseEntity<CommentDto> addComment(
             @PathVariable @Min(1) Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody String comment) {
-        return ResponseEntity.ok().body(itemService.addComment(userId, itemId, comment));
+            @Valid @RequestBody CommentTextDto commentDto) {
+        return ResponseEntity.ok().body(itemService.addComment(userId, itemId, commentDto.getText()));
     }
 }

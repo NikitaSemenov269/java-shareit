@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.item.SimpleItemDto;
+import ru.practicum.shareit.user.SimpleUserDto;
 
 import java.time.LocalDateTime;
 
@@ -23,9 +25,7 @@ public class BookingDto {
     @NotNull(message = "Статус бронирования обязательное поле.")
     private BookingStatus status;
 
-    @NotNull
-    private Long itemId;
+    private SimpleItemDto item;
 
-    @NotNull
-    private Long bookerId;
+    private SimpleUserDto booker;
 }

@@ -16,15 +16,9 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private Long id;
 
-    @NotBlank
-    @Size(max = 200, message = "Комментарий не может превышать 200 символов.")
-    private String comment;
+    private String text;
 
-    @NotNull
-    Long itemId;
+    private String authorName;
 
-    @NotNull
-    private Long userId;
-
-    LocalDateTime date;
+    private LocalDateTime created;
 }

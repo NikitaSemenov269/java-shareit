@@ -23,8 +23,8 @@ public class Comment {
     private Long id;
 
     @Size(max = 200, message = "Комментарий не может превышать 200 символов.")
-    @Column(name = "comment", nullable = false, length = 200)
-    private String comment;
+    @Column(name = "comment_text", nullable = false, length = 200)
+    private String text;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +37,6 @@ public class Comment {
     private User user;
 
     @NotNull
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "date", nullable = false)
     LocalDateTime date;
 }
