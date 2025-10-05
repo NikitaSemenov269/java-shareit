@@ -23,5 +23,5 @@ public class ItemDto {
     private String description;
 
     @NotNull(message = "Статус не может быть null.")
-    private Boolean available;
+    private Boolean available = AWAITING_A_REQUEST.isStatus(); // true
 }
