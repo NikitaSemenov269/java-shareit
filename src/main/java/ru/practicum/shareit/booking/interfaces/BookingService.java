@@ -13,8 +13,6 @@ public interface BookingService {
 
     void canceledBookingById(Long bookerId, Long bookingId);
 
-    /* void deleteBooking(Long bookerId, Long bookingId);*/
-
     BookingDto updateAvailableStatusBooking(Long idOwner, Long bookingId, Boolean approved);
 
     BookingDto getBookingById(Long userId, Long bookingId);

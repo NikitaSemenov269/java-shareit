@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.request;
 
 import jakarta.persistence.*;
@@ -10,13 +9,13 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
-@Table(name = "item_request")
-public class ItemRequest {
+@Getter
+@Setter
+@Table(name = "requests")
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,10 +26,10 @@ public class ItemRequest {
     private String descriptionRequest;
 
     @NotNull
-    @Column(name = "requester", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
     @Column(name = "created_date")
     private LocalDateTime created;
 }
-*/

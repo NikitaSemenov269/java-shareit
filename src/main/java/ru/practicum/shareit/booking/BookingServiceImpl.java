@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import static ru.practicum.shareit.enums.BookingStatus.*;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor

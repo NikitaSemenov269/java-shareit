@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.request;
 
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDto {
+public class RequestDto {
     private Long id;
 
     @NotBlank
@@ -24,4 +23,3 @@ public class ItemRequestDto {
     @NotNull
     private LocalDateTime created;
 }
-*/

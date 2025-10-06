@@ -3,9 +3,8 @@ package ru.practicum.shareit.item;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.user.User;
-
-import static ru.practicum.shareit.enums.BookingStatus.*;
 
 @Setter
 @Getter
@@ -36,7 +35,7 @@ public class Item {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-   /* @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
-    private ItemRequest request;*/
+    private Request request;
 }
