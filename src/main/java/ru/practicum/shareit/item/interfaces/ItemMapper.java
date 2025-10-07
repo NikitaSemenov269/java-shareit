@@ -9,7 +9,7 @@ public interface ItemMapper {
 
     ItemDto toItemDto(Item item);
 
-    Item toItem(ItemRequestDto ItemRequestDto);
+    Item toItem(ItemRequestDto itemRequestDto);
 
     @Mapping(target = "comments", ignore = true)
     ItemWithBookingAndCommentsDto itemDtoWithBookingAndComments(Item item);

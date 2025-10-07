@@ -34,8 +34,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto createItem(Long ownerId, ItemRequestDto ItemRequestDto) {
-        if (ItemRequestDto.getAvailable() == null) {
+    public ItemDto createItem(Long ownerId, ItemRequestDto itemRequestDto) {
+        if (itemRequestDto.getAvailable() == null) {
             throw new ValidationException("Поле available обязательно");
         }
 
@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
 
-        Item item = itemMapper.toItem(ItemRequestDto);
+        Item item = itemMapper.toItem(itemRequestDto);
         item.setOwner(owner);
 
         log.info("Создан новый предмет.");

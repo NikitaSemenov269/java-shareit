@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface ItemService {
 
-    ItemDto createItem(Long ownerId, ItemRequestDto ItemRequestDto);
+    ItemDto createItem(Long ownerId, ItemRequestDto itemRequestDto);
 
     ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto);
 
