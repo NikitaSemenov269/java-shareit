@@ -21,5 +21,8 @@ public class RequestDto {
     private Long requesterId;
 
     @NotNull
+    private Long itemId;
+
+    @NotNull
     private LocalDateTime created;
 }

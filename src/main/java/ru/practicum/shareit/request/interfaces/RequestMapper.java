@@ -9,5 +9,6 @@ import ru.practicum.shareit.request.RequestDto;
 public interface RequestMapper {
 
     @Mapping(target = "requesterId", source = "requester.id")
+    @Mapping(target = "itemId", source = "item.id")
     RequestDto toDto(Request request);
 }

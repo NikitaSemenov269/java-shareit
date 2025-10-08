@@ -29,7 +29,7 @@ public class Comment {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
-    Item item;
+    private Item item;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,5 +38,5 @@ public class Comment {
 
     @NotNull
     @Column(name = "date", nullable = false)
-    LocalDateTime date;
+    private LocalDateTime date;
 }
