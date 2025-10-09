@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.CommentDto;
+import ru.practicum.shareit.item.ItemDto;
 
 import java.util.Collection;
 import java.util.List;

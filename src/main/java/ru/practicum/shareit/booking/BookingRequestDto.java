@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,9 @@ public class BookingRequestDto {
     @Min(value = 1, message = "Id должно быть положительным числом.")
     private Long itemId;
     @NotNull
+    @FutureOrPresent
     private LocalDateTime start;
     @NotNull
+    @Future
     private LocalDateTime end;
 }

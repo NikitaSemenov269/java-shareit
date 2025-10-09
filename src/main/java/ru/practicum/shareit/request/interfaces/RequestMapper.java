@@ -4,11 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.request.RequestDto;
+import ru.practicum.shareit.request.ResponseRequestDto;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
 
+    @Mapping(target = "items", ignore = true)
     @Mapping(target = "requesterId", source = "requester.id")
-    @Mapping(target = "itemId", source = "item.id")
-    RequestDto toDto(Request request);
+    ResponseRequestDto toDto(Request request);
+
 }

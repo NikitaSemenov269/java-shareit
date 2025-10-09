@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.interfaces.*;
+import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.request.interfaces.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
@@ -30,7 +32,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
-    private final BookingMapper bookingMapper;
+    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -48,6 +50,14 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toItem(itemRequestDto);
         item.setOwner(owner);
+
+        if (itemRequestDto.getRequestId() != null) {
+            Request request = requestRepository.findById(itemRequestDto.getRequestId())
+                    .orElseThrow(
+                            () -> new NotFoundException("Запрос с ID " + itemRequestDto.getRequestId() + " не найден")
+                    );
+            item.setRequest(request);
+        }
 
         log.info("Создан новый предмет.");
         return (itemMapper.toItemDto(itemRepository.save(item)));

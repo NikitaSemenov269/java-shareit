@@ -1,18 +1,23 @@
 package ru.practicum.shareit.request.interfaces;
 
+import ru.practicum.shareit.item.ItemDto;
 import ru.practicum.shareit.request.RequestDto;
+import ru.practicum.shareit.request.ResponseRequestDto;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface RequestService {
 
-    RequestDto createRequest(RequestDto requestDto, Long userId);
+    ResponseRequestDto createRequest(RequestDto requestDto, Long userId);
 
-    RequestDto getRequestById(Long requestId, Long userId);
+    ResponseRequestDto getRequestById(Long requestId, Long userId);
 
-    List<RequestDto> getUserRequests(Long userId);
+    ResponseRequestDto updateItemOfRequest(Long requestId, ItemDto itemDto);
 
-    List<RequestDto> getAllRequests(Long userId);
+    Collection<ResponseRequestDto> getUserRequests(Long userId);
 
-    List<RequestDto> getOtherUserRequests(Long userId, Integer from, Integer size);
+    Collection<ResponseRequestDto> getAllRequests(Long userId);
+
+    Collection<ResponseRequestDto> getOtherUserRequests(Long userId, Integer from, Integer size);
+
 }

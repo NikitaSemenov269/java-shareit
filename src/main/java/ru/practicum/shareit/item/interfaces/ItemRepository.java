@@ -5,13 +5,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
+import ru.practicum.shareit.item.ItemDtoForRequester;
 import ru.practicum.shareit.item.ItemWithBookingAndCommentsDto;
+import ru.practicum.shareit.request.Request;
 
 import java.util.Collection;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("SELECT new ru.practicum.shareit.item.ItemDto(i.id, i.name, i.description, i.available) " +
+    @Query("SELECT new ru.practicum.shareit.item.ItemDto(i.id, i.name, i.description, i.available, i.requestId) " +
             "FROM Item i " +
             "WHERE (LOWER(i.name) LIKE LOWER(CONCAT('%', :text, '%')) " +
             "OR LOWER(i.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
@@ -38,5 +40,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Collection<ItemWithBookingAndCommentsDto> findByOwnerIdWithBookings(Long ownerId);
 
     Collection<Item> findByOwnerId(Long ownerId);
-    }
+
+    Collection<Item> findByRequestIn(Collection<Request> requests);
+}
 
