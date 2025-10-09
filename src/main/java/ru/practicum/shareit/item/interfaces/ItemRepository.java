@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.ItemDto;
 import ru.practicum.shareit.item.ItemDtoForRequester;
 import ru.practicum.shareit.item.ItemWithBookingAndCommentsDto;
 import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.request.ResponseRequestDto;
 
 import java.util.Collection;
 

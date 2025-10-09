@@ -12,5 +12,4 @@ public interface RequestMapper {
     @Mapping(target = "items", ignore = true)
     @Mapping(target = "requesterId", source = "requester.id")
     ResponseRequestDto toDto(Request request);
-
 }

@@ -96,7 +96,6 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public Collection<ResponseRequestDto> getAllRequests(Long userId) {
         log.info("Попытка получения всех заявок пользователем ID: {}", userId);
@@ -116,9 +115,27 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден."));
 
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
+        Collection<Request> requestsExceptUser = requestRepository.findAllRequestsExceptUser(userId);
 
-        return
+        Collection<Item> items = itemRepository.findByRequestIn(requestsExceptUser);
+
+        return requestsExceptUser.stream()
+                .map(request -> {
+                    List<ItemDtoForRequester> itemDtos = items.stream()
+                            .filter(item -> item.getRequest().getId().equals(request.getId()))
+                            .map(item ->
+                                    new ItemDtoForRequester(item.getId(), item.getName(), item.getOwner().getId()))
+                            .collect(Collectors.toList());
+
+                    return new ResponseRequestDto(
+                            request.getId(),
+                            request.getRequester().getId(),
+                            request.getDescriptionRequest(),
+                            request.getCreated(),
+                            itemDtos
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
