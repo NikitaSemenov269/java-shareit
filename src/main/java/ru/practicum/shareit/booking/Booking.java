@@ -1,35 +1,46 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.constraints.Min;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-@Data
+import static ru.practicum.shareit.enums.BookingStatus.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
+@Entity
+@Table(name = "bookings")
 public class Booking {
-    @Min(value = 1, message = "Id заявки должно быть положительным числом.")
-    private Long bookingId;
-
-    @NotNull
-    @Min(value = 1, message = "Id вещи должно быть положительным числом.")
-    private Long itemId;
-
-    @NotNull
-    @Min(value = 1, message = "Id арендатора должно быть положительным числом.")
-    private Long bookerId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull(message = "Дата начала аренды не может быть null.")
-    private LocalDateTime startRent;
+    @Column(name = "start_rent", nullable = false)
+    private LocalDateTime start;
 
     @NotNull(message = "Дата окончания аренды не может быть null.")
-    private LocalDateTime endRent;
+    @Column(name = "end_rent", nullable = false)
+    private LocalDateTime end;
 
     @NotNull(message = "Статус бронирования обязательное поле.")
-    private BookingStatus availableItem;
+    @Column(name = "status", nullable = false)
+    private BookingStatus status = WAITING; // true
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booker_id")
+    private User booker;
 }

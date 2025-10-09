@@ -6,10 +6,10 @@ import lombok.Getter;
 public enum BookingStatus {
 
     AWAITING_A_REQUEST("Номинальный статус бронирования", true),
-    WAITING("Новое бронирование, ожидает одобрения", false),
-    APPROVED("Бронирование подтверждено владельцем", true),
-    REJECTED("Бронирование отклонено владельцем", false),
-    CANCELED("Бронирование отменено создателем", false);
+    WAITING("Новое бронирование, ожидает одобрения", true),
+    APPROVED("Бронирование подтверждено владельцем", false),
+    REJECTED("Бронирование отклонено владельцем", true),
+    CANCELED("Бронирование отменено создателем", true);
 
     private final String description;
     private final boolean status;

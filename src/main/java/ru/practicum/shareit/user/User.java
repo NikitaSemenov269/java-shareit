@@ -1,21 +1,28 @@
 package ru.practicum.shareit.user;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
-@Data
-@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
+@Entity
+@Table(name = "users")
 public class User {
-    @Min(value = 1, message = "Id должно быть положительным числом.")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Имя не может быть пустой строкой.")
-    @Size(max = 30, message = "Имя пользователя не может быть больше 30 символов.")
+    @Length(max = 30, message = "Имя пользователя не может быть больше 30 символов.")
+    @Column(name = "name", nullable = false, length = 30)
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Email не может быть пустой строкой.")
     @Email(message = "Некорректный формат email.")
+    @Column(name = "email", nullable = false, length = 45, unique = true)
     private String email;
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
@@ -13,11 +14,11 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 class BookingValidator {
-    private final BookingRepository bookingRepositoryInterface;
-    private final UserRepository userRepositoryInterface;
-    private final ItemRepository itemRepositoryInterface;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
-    void bookerValidationById(Long userId) {
+    void userValidationById(Long userId) {
         if (userId == null) {
             throw new ValidationException("ID пользователя не может быть null");
         }
@@ -35,44 +36,43 @@ class BookingValidator {
         }
     }
 
-    void bookingValidationBelongsByIdBooker(Long bookerId, Long bookingId) {
-        Booking booking = bookingRepositoryInterface.getBookingById(bookingId);
-        if (!bookerId.equals(booking.getBookerId())) {
-            throw new ValidationException("ID инициатора брони не cовпадает с ID пользователя.");
-        }
-    }
-
-    void bookingDateValidation(LocalDateTime startRent, LocalDateTime endRent) {
-        if (startRent == null) {
+    void bookingDateValidation(Long itemId, LocalDateTime start, LocalDateTime end) {
+        if (start == null) {
             throw new ValidationException("Время начала аренды не может быть null.");
         }
-        if (endRent == null) {
+        if (end == null) {
             throw new ValidationException("Время окончания аренды не может быть null.");
         }
-        if (endRent.isBefore(startRent)) {
+        if (end.isBefore(start)) {
             throw new ValidationException("Время окончания аренды не может наступить раньше начала аренды.");
         }
-        if (!bookingRepositoryInterface.checkingBookingDates(startRent, endRent)) {
-            throw new ValidationException("Бронирование на данный период не возможно т.к. даты уже заняты.");
+        if (end.equals(start)) {
+            throw new ValidationException("Время начала и окончания аренды не могут совпадать.");
+        }
+        if (bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end)) {
+            throw new ValidationException("Бронирование на данный период невозможно поскольку даты уже заняты.");
         }
     }
 
-    void existsByBookerId(Long bookerId) {
-        if (!userRepositoryInterface.existsByUserId(bookerId)) {
-            throw new ValidationException("Пользователь с " + bookerId + " не существует");
+    void existsByUserId(Long bookerId) {
+        if (!userRepository.existsById(bookerId)) {
+            throw new NotFoundException("Пользователь с " + bookerId + " не найден.");
         }
     }
 
-    void bookingValidationByIdItem(Long itemId) {
-        if (!itemRepositoryInterface.existsByItemId(itemId)) {
-            throw new ValidationException("Предмета с " + itemId + " не существует");
+    void existsByItemId(Long itemId) {
+        if (!itemRepository.existsById(itemId)) {
+            throw new NotFoundException("Предмета с " + itemId + " не найден.");
         }
     }
 
     void bookingValidationOfTheItemOwner(Long ownerId, Long itemId) {
-        Item item = itemRepositoryInterface.getItemById(itemId);
-        if (!ownerId.equals(item.getOwner())) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Предмета с " + itemId + " не найден."));
+
+        if (!ownerId.equals(item.getOwner().getId())) {
             throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
         }
     }
 }
+

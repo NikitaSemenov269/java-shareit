@@ -1,29 +1,41 @@
 package ru.practicum.shareit.item;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.user.User;
 
-@Data
-@Builder(toBuilder = true)
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "items")
 public class Item {
-    @Min(value = 1, message = "Id вещи должно быть положительным числом.")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Название не может быть пустой строкой.")
     @Size(max = 45, message = "Название вещи не может превышать 45 символов.")
+    @Column(name = "name", nullable = false, length = 45)
     private String name;
-
-    @Min(value = 1, message = "Id владельца должно быть положительным числом.")
-    private Long owner;
 
     @NotBlank
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
+    @Column(name = "description", nullable = false, length = 200)
     private String description;
 
+    @NotNull(message = "Статус бронирования обязательное поле.")
+    @Column(name = "available", nullable = false)
     private Boolean available;
 
-    //Ссылка на запрос аренды
-    private Long request;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id")
+    private Request request;
 }

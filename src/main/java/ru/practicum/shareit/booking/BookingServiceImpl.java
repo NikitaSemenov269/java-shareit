@@ -3,113 +3,183 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.interfaces.BookingMapper;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.booking.interfaces.BookingService;
-import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.shareit.enums.State;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.interfaces.ItemRepository;
 import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import static ru.practicum.shareit.enums.BookingStatus.CANCELED;
+import static ru.practicum.shareit.enums.BookingStatus.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingValidator bookingValidator;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
     private final ItemService itemService;
+    private final BookingMapper mapper;
 
-    private static final AtomicLong counter = new AtomicLong(1);
 
     @Override
-    public Booking createBooking(Long bookerId, Booking booking) {
-        booking.setBookingId(counter.getAndIncrement());
-        Long id = booking.getBookingId();
-        log.info("Попытка создания новой брони с ID: {} для предмета с ID: {}", id, booking.getItemId());
+    @Transactional
+    public BookingDto createBooking(Long bookerId, BookingRequestDto bookingRequestDto) {
+
+        bookingValidator.userValidationById(bookerId);
+        bookingValidator.existsByUserId(bookerId);
+
+        Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() ->
+                new NotFoundException("Предмета с " + bookingRequestDto.getItemId() + " не найден."));
+
+        if (!item.getAvailable()) {
+            throw new ValidationException("Предмет недоступен для бронирования");
+        }
+        if (bookerId.equals(item.getOwner().getId())) {
+            throw new ValidationException("Владелец не может бронировать собственные вещи.");
+        }
+        bookingValidator.bookingDateValidation(item.getId(), bookingRequestDto.getStart(), bookingRequestDto.getEnd());
+
+        log.info("Попытка создания новой брони для предмета с ID: {}", item.getId());
+
+        Booking booking = mapper.toBooking(bookingRequestDto);
+
+        booking.setItem(item);
+        booking.setBooker(userRepository.findById(bookerId).orElseThrow(() ->
+                new NotFoundException("Пользователь с ID: " + bookerId + " не найден.")));
+        bookingRepository.save(booking);
+
+        log.info("Создана новая заявка на бронирование c ID: {} для предмета с ID: {}", booking.getId(),
+                item.getId());
+
+        return mapper.toBookingDto(booking);
+    }
+
+    @Override
+    @Transactional
+    public BookingDto updateAvailableStatusBooking(Long ownerId, Long id, Boolean approved) {
+        log.info("Попытка обновления статуса брони с ID: {} владельцем вещи.", id);
 
         bookingValidator.bookingValidationById(id);
-        bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.bookingValidationByIdItem(booking.getItemId());
-        bookingValidator.existsByBookerId(bookerId);
-        bookingValidator.bookingDateValidation(booking.getStartRent(), booking.getEndRent());
+        bookingValidator.userValidationById(ownerId);
 
-        booking.setBookerId(bookerId);
-        bookingRepository.addBooking(booking);
-        log.info("Создана новая заявка бронирования c ID: {} для предмета с ID: {}", id, booking.getItemId());
-        return booking;
+        Booking booking = bookingRepository.findByIdWithItemAndOwner(id).orElseThrow(() ->
+                new NotFoundException("Бронирование не найдено."));
+
+        if (!ownerId.equals(booking.getItem().getOwner().getId())) {
+            throw new ValidationException("Пользователь не является владельцем вещи. В изменении статуса отказано.");
+        }
+        if (approved) {
+            booking.setStatus(APPROVED);
+            itemService.updateItemAvailable(booking.getItem().getId(), APPROVED.isStatus()); // false - предмет забронирован
+            log.info("Бронирование подтверждено.");
+        } else {
+            booking.setStatus(REJECTED);
+            itemService.updateItemAvailable(booking.getItem().getId(), REJECTED.isStatus()); // true - бронь отклонена
+            log.info("Бронирование отклонено.");
+        }
+        return mapper.toBookingDto(booking);
     }
 
     @Override
-    public Booking updateBooking(Long bookingId, Long bookerId, Booking updateBooking) {
-
-        bookingValidator.bookingValidationById(bookingId);
-        bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.existsByBookerId(bookerId);
-        bookingValidator.bookingValidationByIdItem(updateBooking.getItemId());
-        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
-        bookingValidator.bookingDateValidation(updateBooking.getStartRent(), updateBooking.getEndRent());
-
-        log.info("Попытка обновления данных предмета с ID: {}", bookingId);
-        Booking booking = bookingRepository.updateBooking(updateBooking);
-        log.info("Данные предмета с ID: {} успешно обновлены", bookingId);
-        return booking;
-    }
-
-    @Override
+    @Transactional
     public void canceledBookingById(Long bookerId, Long bookingId) {
-        log.info("Попытка отмены брони с ID: {}", bookingId);
+        log.info("Попытка отмены брони с ID: {} автором.", bookingId);
 
         bookingValidator.bookingValidationById(bookingId);
-        bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.existsByBookerId(bookerId);
-        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
+        bookingValidator.userValidationById(bookerId);
+        bookingValidator.existsByUserId(bookerId);
 
-        bookingRepository.canceledBookingById(bookingId);
+        Booking booking = bookingRepository.findByIdAndBooker(bookingId, bookerId).orElseThrow(() ->
+                new NotFoundException("Бронирование не найдено."));
+
+        if (booking.getStatus() == WAITING || booking.getStatus() == APPROVED) {
+            booking.setStatus(CANCELED);
+            itemService.updateItemAvailable(booking.getItem().getId(), CANCELED.isStatus()); // true
+        }
         log.info("Успешное отмена брони с ID: {}", bookingId);
     }
 
     @Override
-    public void deleteBooking(Long bookerId, Long bookingId) {
-        log.info("Попытка удаления брони с ID: {}", bookingId);
+    public BookingDto getBookingById(Long userId, Long bookingId) {
+        log.info("Попытка получения информации о брони с ID: {}", bookingId);
 
         bookingValidator.bookingValidationById(bookingId);
-        bookingValidator.bookerValidationById(bookerId);
-        bookingValidator.existsByBookerId(bookerId);
-        bookingValidator.bookingValidationBelongsByIdBooker(bookerId, bookingId);
+        bookingValidator.userValidationById(userId);
+        bookingValidator.existsByUserId(userId);
 
-        bookingRepository.deleteBooking(bookingId);
-        log.info("Успешное удаление брони с ID: {}", bookingId);
+        Booking booking = bookingRepository.findByIdForAuthorOrOwner(bookingId, userId).orElseThrow(() ->
+                new NotFoundException("Бронь не найдена."));
+
+        return mapper.toBookingDto(booking);
     }
 
     @Override
-    public Booking updateAvailableStatusBooking(Long ownerId, Long bookingId, BookingStatus bookingStatus) {
-        log.info("Попытка обновления статуса брони с ID: {}", bookingId);
+    public Collection<BookingDto> getAllBookingByBookerId(Long bookerId, State state) {
+        // по умолчанию state = all
+        bookingValidator.userValidationById(bookerId);
+        bookingValidator.existsByUserId(bookerId);
 
-        bookingValidator.bookingValidationById(bookingId);
-        //допущение: вместо id автора заявки используется id владельца вещи.
-        bookingValidator.existsByBookerId(ownerId);
-
-        Long itemId = bookingRepository.getBookingById(bookingId).getItemId();
-        //только владелец может изменять статус брони
-        bookingValidator.bookingValidationOfTheItemOwner(ownerId, itemId);
-
-        if (!CANCELED.equals(bookingStatus)) {
-            itemService.updateItemAvailable(ownerId, itemId, bookingStatus);
-            return bookingRepository.updateAvailableStatusBooking(bookingId, bookingStatus);
-        } else {
-            throw new ValidationException("Закрытие брони доступно только инициатору бронирования.");
+        switch (state) {
+            case ALL -> {
+                return bookingRepository.findAllBookingByBookerId(bookerId);
+            }
+            case CURRENT -> {
+                return bookingRepository.findAllCurrentBookingByBookerId(bookerId);
+            }
+            case PAST -> {
+                return bookingRepository.findAllPastBookingByBookerId(bookerId);
+            }
+            case FUTURE -> {
+                return bookingRepository.findAllFutureBookingByBookerId(bookerId);
+            }
+            case WAITING -> {
+                return bookingRepository.findAllWaitingBookingByBookerId(bookerId);
+            }
+            case REJECTED -> {
+                return bookingRepository.findAllRejectedBookingByBookerId(bookerId);
+            }
         }
+        return new ArrayList<>();
     }
 
     @Override
-    public Booking getBookingById(Long bookingId) {
-        log.info("Попытка получения брони с ID: {}", bookingId);
+    public Collection<BookingDto> getAllBookingByOwnerId(Long ownerId, State state) {
+        bookingValidator.userValidationById(ownerId);
+        bookingValidator.existsByUserId(ownerId);
 
-        bookingValidator.bookingValidationById(bookingId);
-
-        return bookingRepository.getBookingById(bookingId);
+        switch (state) {
+            case ALL -> {
+                return bookingRepository.findAllBookingByOwnerId(ownerId);
+            }
+            case CURRENT -> {
+                return bookingRepository.findAllCurrentBookingByOwnerId(ownerId);
+            }
+            case PAST -> {
+                return bookingRepository.findAllPastBookingByOwnerId(ownerId);
+            }
+            case FUTURE -> {
+                return bookingRepository.findAllFutureBookingByOwnerId(ownerId);
+            }
+            case WAITING -> {
+                return bookingRepository.findAllWaitingBookingByOwnerId(ownerId);
+            }
+            case REJECTED -> {
+                return bookingRepository.findAllRejectedBookingByOwnerId(ownerId);
+            }
+        }
+        return new ArrayList<>();
     }
 }

@@ -3,118 +3,204 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.enums.BookingStatus;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.interfaces.BookingMapper;
+import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.interfaces.ItemRepository;
-import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.item.interfaces.*;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.interfaces.UserRepository;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemValidation itemValidation;
     private final ItemRepository itemRepository;
-
-    private static final AtomicLong counter = new AtomicLong(1);
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
+    private final BookingMapper bookingMapper;
 
     @Override
-    public Item createItem(Long owner, Item newItem) {
-        if (newItem.getAvailable() == null) {
+    @Transactional
+    public ItemDto createItem(Long ownerId, ItemRequestDto itemRequestDto) {
+        if (itemRequestDto.getAvailable() == null) {
             throw new ValidationException("Поле available обязательно");
         }
 
-        newItem.setId(counter.getAndIncrement());
-        Long id = newItem.getId();
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationById(id);
-        itemValidation.itemValidationByOwnerId(owner);
-        itemValidation.existsByUserId(owner);
+        itemValidation.itemValidationByUserId(ownerId);
 
-        newItem.setOwner(owner);
-        itemRepository.addItem(newItem);
-        log.info("Создан новый предмет с ID: {}", id);
-        return newItem;
+        User owner = userRepository.findById(ownerId).orElseThrow(
+                () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
+
+        Item item = itemMapper.toItem(itemRequestDto);
+        item.setOwner(owner);
+
+        log.info("Создан новый предмет.");
+        return (itemMapper.toItemDto(itemRepository.save(item)));
     }
 
     @Override
-    public Item updateItem(Long itemId, Long ownerId, Item updateItem) {
+    @Transactional
+    public ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto) {
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
         log.info("Попытка обновления данных предмета с ID: {}", itemId);
-        updateItem.setId(itemId);
-        updateItem.setOwner(ownerId);
-        Item item = itemRepository.updateItem(updateItem);
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new NotFoundException("Предмет с id: " + itemId + " не найден.")
+        );
+
+        if (itemRequestDto.getName() != null && !itemRequestDto.getName().equals(item.getName())) {
+            item.setName(itemRequestDto.getName());
+        }
+        if (itemRequestDto.getDescription() != null && !itemRequestDto.getDescription().equals(item.getDescription())) {
+            item.setDescription(itemRequestDto.getDescription());
+        }
+        if (itemRequestDto.getAvailable() != null && !itemRequestDto.getAvailable().equals(item.getAvailable())) {
+            item.setAvailable(itemRequestDto.getAvailable());
+        }
+
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
-        return item;
+        // Изменения сохранятся при коммите транзакции
+        return itemMapper.toItemDto(item);
     }
 
     @Override
+    @Transactional
     public void deleteItem(Long ownerId, Long itemId) {
-        log.info("Попытка удаления предмета ID: {}", itemId);
+        log.info("Попытка удаления предмета ID: {} пользователем с ID: {}", itemId, ownerId);
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
-        itemRepository.deleteItemById(itemId);
-        log.info("Успешное удаление предмета ID: {}", itemId);
+        itemRepository.deleteById(itemId);
+        log.info("Успешное удаление предмета ID: {} пользователем с ID: {}", itemId, ownerId);
     }
 
     @Override
-    public ItemDto getItemDTOById(Long itemId) {
+    public ItemWithBookingAndCommentsDto getItemById(Long itemId, Long userId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
+        itemValidation.itemValidationByUserId(userId);
+        itemValidation.existsByUserId(userId);
 
-        return Optional.ofNullable(itemRepository.getItemDTOById(itemId))
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет с ID: " + itemId + " не найден"));
+
+        ItemWithBookingAndCommentsDto itemDto =
+                itemMapper.itemDtoWithBookingAndComments(item);
+
+        itemDto.setComments(commentRepository.findCommentByItemId(item.getId()));
+
+        if (userId.equals(item.getOwner().getId())) {
+
+            itemDto.setLastBooking(
+                    bookingRepository.findLastBookingDto(item.getId(), LocalDateTime.now()));
+
+            itemDto.setNextBooking(
+                    bookingRepository.findNextBookingDto(item.getId(), LocalDateTime.now())
+            );
+        }
+
+        return itemDto;
     }
 
     @Override
     public Collection<ItemDto> searchItemDtoByText(String text) {
         log.info("Попытка поиска доступных предметов по ключевым словам: {}", text);
+
         if (text == null || text.trim().isEmpty()) {
+            log.info("Поиска доступных предметов не дал результата.");
             return Collections.emptyList();
         }
-        return itemRepository.searchItemDtoByText(text);
+        return itemRepository.findAllByText(text.trim());
     }
 
     @Override
     public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
-        itemValidation.itemValidationByOwnerId(ownerId);
+        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
-        return itemRepository.searchAllItemOfOwnerById(ownerId);
+        Collection<ItemDto> resultCollection = itemRepository
+                .findByOwnerId(ownerId)
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+
+        if (!resultCollection.isEmpty()) {
+            return resultCollection;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
-    public Item updateItemAvailable(Long ownerId, Long itemId, BookingStatus bookingStatus) {
+    @Transactional
+    public void updateItemAvailable(Long itemId, Boolean bookingStatus) {
         log.info("Попытка обновления статуса брони предмета с ID: {}", itemId);
 
         itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByOwnerId(ownerId);
-        itemValidation.existsByUserId(ownerId);
-        itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
         if (bookingStatus == null) {
             throw new ValidationException("Статус бронирования не может быть null");
         }
 
-        return itemRepository.updateItemAvailable(itemId, bookingStatus);
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Предмет с id: " + itemId + " не найден."));
+
+        if (!bookingStatus.equals(item.getAvailable())) {
+            item.setAvailable(bookingStatus);
+            itemRepository.save(item);
+            log.info("Успешное обновление статуса брони предмета с ID: {}", itemId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(Long userId, Long itemId, String comment) {
+        if (comment != null && !comment.isBlank()) {
+            itemValidation.itemValidationById(itemId);
+            itemValidation.itemValidationByUserId(userId);
+
+            if (!bookingRepository.existsCompletedBookingByUserAndItem(userId, itemId)) {
+                throw new ValidationException("Пользователь не арендовал эту вещь или аренда еще не завершена.");
+            }
+
+            Comment newComment = new Comment();
+
+            newComment.setText(comment);
+            newComment.setUser(userRepository.findById(userId).orElseThrow(() ->
+                    new NotFoundException("Пользователь не найден.")));
+            newComment.setItem(itemRepository.findById(itemId).orElseThrow(() ->
+                    new NotFoundException("Предмет не найден.")));
+            newComment.setDate(LocalDateTime.now());
+
+            return commentMapper.toCommentDto(commentRepository.save(newComment));
+        } else {
+            throw new ValidationException("Комментарий не может быть пустой строкой.");
+        }
     }
 }
