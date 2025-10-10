@@ -22,10 +22,8 @@ public class UserServiceImpl implements UserService {
     private final UserValidation validation;
     private final UserMapper mapper;
 
-    /*
-     * В методе createUser оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
-     * обращений к БД.
-     */
+    /* В методе createUser оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
+       обращений к БД. */
     @Transactional
     @Override
     public UserDto createUser(UserRequestDto userRequestDto) {

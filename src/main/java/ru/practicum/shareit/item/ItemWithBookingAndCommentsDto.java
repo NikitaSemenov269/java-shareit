@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.NextBookingDto;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

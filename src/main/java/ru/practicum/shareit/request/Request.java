@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
+import ru.practicum.shareit.item.ItemDtoForRequester;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
@@ -42,5 +43,5 @@ public class Request {
     @Column(name = "created_date")
     private LocalDateTime created;
 
-    private Collection<ItemDto> items = new ArrayList<>();
+    private Collection<ItemDtoForRequester> items;
 }
