@@ -19,6 +19,15 @@ public class Validation {
         }
     }
 
+    void requestIdValidation(Long userId) {
+        if (userId == null) {
+            throw new ValidationException("ID запроса не может быть null");
+        }
+        if (userId <= 0) {
+            throw new ValidationException("ID запроса не может быть меньше 0");
+        }
+    }
+
     void itemIdValidation(Long itemId) {
         if (itemId == null) {
             throw new ValidationException("ID предмета не может быть null");
@@ -37,7 +46,7 @@ public class Validation {
         }
     }
 
-    void dateValidation(Long itemId, LocalDateTime start, LocalDateTime end) {
+    void dateValidation(LocalDateTime start, LocalDateTime end) {
         if (start == null) {
             throw new ru.practicum.exception.ValidationException("Время начала аренды не может быть null.");
         }

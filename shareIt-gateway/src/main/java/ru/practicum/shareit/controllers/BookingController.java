@@ -46,20 +46,20 @@ public class BookingController {
     public ResponseEntity<BookingDto> getBookingById(
             @PathVariable @Min(1) Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(bookingService.getBookingById(userId, bookingId));
+        return ResponseEntity.ok().body(gatewayServiceClient.getBookingById(userId, bookingId));
     }
 
     @GetMapping
     public ResponseEntity<Collection<BookingDto>> getAllBookingByBookerId(
             @RequestHeader("X-Sharer-User-Id") Long bookerId,
             @RequestParam(defaultValue = "ALL") State state) {
-        return ResponseEntity.ok().body(bookingService.getAllBookingByBookerId(bookerId, state));
+        return ResponseEntity.ok().body(gatewayServiceClient.getAllBookingByBookerId(bookerId, state));
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Collection<BookingDto>> getAllBookingByOwnerId(
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
             @RequestParam(defaultValue = "ALL") State state) {
-        return ResponseEntity.ok().body(bookingService.getAllBookingByOwnerId(ownerId, state));
+        return ResponseEntity.ok().body(gatewayServiceClient.getAllBookingByOwnerId(ownerId, state));
     }
 }

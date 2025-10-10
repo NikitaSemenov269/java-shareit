@@ -1,7 +1,5 @@
 package ru.practicum.shareit;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.DTO.*;
@@ -19,18 +17,18 @@ public interface GatewayServiceClient {
 
     @PatchMapping("/bookings/{bookingId}")
     BookingDto updateAvailableStatusBooking(
-            @PathVariable("bookingId") @Min(1) Long bookingId,
+            @PathVariable("bookingId") Long bookingId,
             @RequestParam Boolean approved,
             @RequestHeader("X-Sharer-User-Id") Long ownerId);
 
     @PatchMapping("/bookings/cancel/{bookingId}")
     void canceledBookingById(
-            @PathVariable @Min(1) Long bookingId,
+            @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long bookerId);
 
     @GetMapping("/bookings/{bookingId}")
     BookingDto getBookingById(
-            @PathVariable @Min(1) Long bookingId,
+            @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long userId);
 
     @GetMapping("/bookings")
@@ -47,12 +45,12 @@ public interface GatewayServiceClient {
     //ItemController
     @PostMapping("/items")
     ItemDto createItem(
-            @Valid @RequestBody ItemRequestDto itemRequestDto,
+            @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId);
 
     @GetMapping("/items/{id}")
     ItemWithBookingAndCommentsDto getItemById(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestHeader("X-Sharer-User-Id") Long userId);
 
     @GetMapping("/items")
@@ -60,31 +58,31 @@ public interface GatewayServiceClient {
             @RequestHeader("X-Sharer-User-Id") Long ownerId);
 
     @GetMapping("/items/search")
-    Collection<ItemDto> searchItemDTOByText(
+    Collection<ItemDto> searchItemDtoByText(
             @RequestParam("text") String text);
 
     @PatchMapping("/items/{id}")
     ItemDto updateItem(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long owner);
 
     @DeleteMapping("/items/{id}")
-    Void deleteItem(
-            @PathVariable @Min(1) Long id,
+    void deleteItem(
+            @PathVariable Long id,
             @RequestHeader("X-Sharer-User-Id") Long owner);
 
     @PostMapping("/items/{itemId}/comment")
     CommentDto addComment(
-            @PathVariable @Min(1) Long itemId,
+            @PathVariable Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody CommentTextDto commentDto);
+            @RequestBody CommentTextDto commentDto);
 
 
     //RequestController
     @PostMapping("/requests")
     ResponseRequestDto createRequest(
-            @Valid @RequestBody RequestDto requestDto,
+            @RequestBody RequestDto requestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId);
 
     @GetMapping("/requests")
@@ -93,7 +91,7 @@ public interface GatewayServiceClient {
 
     @GetMapping("/requests/{requestId}")
     ResponseRequestDto getRequestById(
-            @PathVariable @Min(1) Long requestId,
+            @PathVariable Long requestId,
             @RequestHeader("X-Sharer-User-Id") Long userId);
 
     @GetMapping("/requests/all")
@@ -106,18 +104,18 @@ public interface GatewayServiceClient {
     //UserController
     @PostMapping("/users")
     UserDto createUser(
-            @Valid @RequestBody UserRequestDto userRequestDto);
+            @RequestBody UserRequestDto userRequestDto);
 
     @GetMapping("/users/{id}")
     UserDto getUserDtoById(
-            @PathVariable @Min(1) Long id);
+            @PathVariable Long id);
 
     @PatchMapping("/users/{id}")
     UserDto updateUser(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestBody UserRequestDto userRequestDto);
 
     @DeleteMapping("/users/{id}")
-    Void deleteUser(
-            @PathVariable @Min(1) Long id);
+    void deleteUser(
+            @PathVariable Long id);
 }

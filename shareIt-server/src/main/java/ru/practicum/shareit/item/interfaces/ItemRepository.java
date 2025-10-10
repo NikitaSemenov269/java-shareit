@@ -19,7 +19,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "AND i.available = true")
     Collection<ItemDto> findAllByText(@Param("text") String text);
 
-
     @Query(nativeQuery = true, value =
             "SELECT i.id, i.name, i.description, i.available, " +
                     "last_b.start_rent as lastStart, last_b.end_rent as lastEnd, " +
