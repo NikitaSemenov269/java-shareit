@@ -1,0 +1,55 @@
+package ru.practicum.shareit;
+
+import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+
+@Component
+@RequiredArgsConstructor
+public class Validation {
+
+    void userIdValidation(Long userId) {
+        if (userId == null) {
+            throw new ValidationException("ID пользователя не может быть null");
+        }
+        if (userId <= 0) {
+            throw new ValidationException("ID пользователя не может быть меньше 0");
+        }
+    }
+
+    void itemIdValidation(Long itemId) {
+        if (itemId == null) {
+            throw new ValidationException("ID предмета не может быть null");
+        }
+        if (itemId <= 0) {
+            throw new ValidationException("ID предмета не может быть меньше 0");
+        }
+    }
+
+    void bookingIdValidation(Long bookingId) {
+        if (bookingId == null) {
+            throw new ValidationException("ID заявки не может быть null");
+        }
+        if (bookingId <= 0) {
+            throw new ValidationException("ID заявки не может быть меньше 0");
+        }
+    }
+
+    void dateValidation(Long itemId, LocalDateTime start, LocalDateTime end) {
+        if (start == null) {
+            throw new ru.practicum.exception.ValidationException("Время начала аренды не может быть null.");
+        }
+        if (end == null) {
+            throw new ru.practicum.exception.ValidationException("Время окончания аренды не может быть null.");
+        }
+        if (end.isBefore(start)) {
+            throw new ru.practicum.exception.ValidationException("Время окончания аренды не может наступить раньше начала аренды.");
+        }
+        if (end.equals(start)) {
+            throw new ru.practicum.exception.ValidationException("Время начала и окончания аренды не могут совпадать.");
+        }
+    }
+}
+

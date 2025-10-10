@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request.interfaces;
 
-import ru.practicum.shareit.request.RequestDto;
-import ru.practicum.shareit.request.ResponseRequestDto;
+import ru.practicum.DTO.RequestDto;
+import ru.practicum.DTO.ResponseRequestDto;
 
 import java.util.Collection;
 

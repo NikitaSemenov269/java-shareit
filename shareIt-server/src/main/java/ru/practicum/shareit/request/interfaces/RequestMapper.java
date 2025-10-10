@@ -3,8 +3,7 @@ package ru.practicum.shareit.request.interfaces;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.request.Request;
-import ru.practicum.shareit.request.RequestDto;
-import ru.practicum.shareit.request.ResponseRequestDto;
+import ru.practicum.DTO.ResponseRequestDto;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {

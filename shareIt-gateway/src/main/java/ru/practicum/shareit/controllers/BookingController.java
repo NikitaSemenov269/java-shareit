@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.DTO.BookingDto;
+import ru.practicum.DTO.BookingRequestDto;
+import ru.practicum.enums.State;
+import ru.practicum.shareit.GatewayServiceClient;
 
 import java.util.Collection;
 
@@ -12,28 +16,29 @@ import java.util.Collection;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
-    private final BookingService bookingService;
+
+    private final GatewayServiceClient gatewayServiceClient;
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
             @Valid @RequestBody BookingRequestDto bookingRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
-        return ResponseEntity.ok().body(bookingService.createBooking(bookerId, bookingRequestDto));
+        return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
     }
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<BookingDto> updateAvailableStatusBooking(
-            @PathVariable("bookingId") @Min(1) Long bookingId,
+            @PathVariable("bookingId") Long bookingId,
             @RequestParam Boolean approved,
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return ResponseEntity.ok().body(bookingService.updateAvailableStatusBooking(ownerId, bookingId, approved));
+        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(ownerId, approved, bookingId));
     }
 
     @PatchMapping("/cancel/{bookingId}")
     public ResponseEntity<Void> canceledBookingById(
             @PathVariable @Min(1) Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
-        bookingService.canceledBookingById(bookerId, bookingId);
+        gatewayServiceClient.canceledBookingById(bookerId, bookingId);
         return ResponseEntity.noContent().build();
     }
 

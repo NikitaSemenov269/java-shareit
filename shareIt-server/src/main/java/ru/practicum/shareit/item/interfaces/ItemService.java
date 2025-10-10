@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.interfaces;
 
-import ru.practicum.shareit.item.*;
+import ru.practicum.DTO.CommentDto;
+import ru.practicum.DTO.ItemDto;
+import ru.practicum.DTO.ItemRequestDto;
+import ru.practicum.DTO.ItemWithBookingAndCommentsDto;
 
 import java.util.Collection;
 

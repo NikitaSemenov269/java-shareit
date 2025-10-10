@@ -2,8 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
@@ -13,7 +13,7 @@ class ItemValidation {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    void itemValidationById(Long itemId) {
+/*    void itemValidationById(Long itemId) {
         if (itemId == null) {
             throw new ValidationException("ID предмета не может быть null");
         }
@@ -29,7 +29,7 @@ class ItemValidation {
         if (ownerId <= 0) {
             throw new ValidationException("ID пользователя не может быть меньше 0");
         }
-    }
+    }*/
 
     void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(

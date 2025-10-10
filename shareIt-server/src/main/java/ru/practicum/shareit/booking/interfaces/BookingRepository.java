@@ -3,10 +3,11 @@ package ru.practicum.shareit.booking.interfaces;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.practicum.DTO.BookingDto;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingDto;
-import ru.practicum.shareit.booking.LastBookingDto;
-import ru.practicum.shareit.booking.NextBookingDto;
+
+import ru.practicum.DTO.LastBookingDto;
+import ru.practicum.DTO.NextBookingDto;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -32,16 +33,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllBookingByBookerId(@Param("bookerId") Long bookerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId " +
             "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
@@ -49,47 +50,47 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId AND b.end < CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllPastBookingByBookerId(@Param("bookerId") Long bookerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId AND b.start > CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllFutureBookingByBookerId(@Param("bookerId") Long bookerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId AND b.status = WAITING " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllWaitingBookingByBookerId(@Param("bookerId") Long bookerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.booker.id = :bookerId AND b.status = REJECTED " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllRejectedBookingByBookerId(@Param("bookerId") Long bookerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId ORDER BY b.start DESC")
     Collection<BookingDto> findAllBookingByOwnerId(@Param("ownerId") Long ownerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId " +
             "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
@@ -97,43 +98,43 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.end < CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllPastBookingByOwnerId(@Param("ownerId") Long ownerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.start > CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllFutureBookingByOwnerId(@Param("ownerId") Long ownerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.status = WAITING " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllWaitingBookingByOwnerId(@Param("ownerId") Long ownerId);
 
     @Query("SELECT NEW ru.practicum.shareit.booking.BookingDto(" +
             "b.id, b.start, b.end, b.status, " +
-            "NEW ru.practicum.shareit.item.SimpleItemDto(b.item.id, b.item.name), " +
-            "NEW ru.practicum.shareit.user.SimpleUserDto(b.booker.id)) " +
+            "NEW ru.practicum.DTO.SimpleItemDto(b.item.id, b.item.name), " +
+            "NEW ru.practicum.DTO.SimpleUserDto(b.booker.id)) " +
             "FROM Booking b WHERE b.item.owner.id = :ownerId AND b.status = REJECTED " +
             "ORDER BY b.start DESC")
     Collection<BookingDto> findAllRejectedBookingByOwnerId(@Param("ownerId") Long ownerId);
 
-    @Query("SELECT new ru.practicum.shareit.booking.LastBookingDto(b.id, b.start, b.end) " +
+    @Query("SELECT new ru.practicum.DTO.LastBookingDto(b.id, b.start, b.end) " +
             "FROM Booking b WHERE b.item.id = :itemId AND b.start < :now " +
-            "AND b.status = ru.practicum.shareit.enums.BookingStatus.APPROVED " +
+            "AND b.status = ru.practicum.enums.BookingStatus.APPROVED " +
             "ORDER BY b.end DESC LIMIT 1")
     LastBookingDto findLastBookingDto(@Param("itemId") Long itemId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT new ru.practicum.shareit.booking.NextBookingDto(b.id, b.start, b.end) " +
+    @Query("SELECT new ru.practicum.DTO.NextBookingDto(b.id, b.start, b.end) " +
             "FROM Booking b WHERE b.item.id = :itemId AND b.start > :now ORDER BY b.start ASC LIMIT 1")
     NextBookingDto findNextBookingDto(@Param("itemId") Long itemId, @Param("now") LocalDateTime now);
 

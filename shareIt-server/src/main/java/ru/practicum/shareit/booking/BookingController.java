@@ -5,8 +5,10 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.DTO.BookingDto;
+import ru.practicum.DTO.BookingRequestDto;
 import ru.practicum.shareit.booking.interfaces.BookingService;
-import ru.practicum.shareit.enums.State;
+import ru.practicum.enums.State;
 
 import java.util.Collection;
 

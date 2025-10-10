@@ -2,17 +2,16 @@ package ru.practicum.shareit.controllers;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.DTO.RequestDto;
+import ru.practicum.DTO.ResponseRequestDto;
 
 import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "/requests")
-@RequiredArgsConstructor
 public class RequestController {
-    private final RequestService requestService;
 
     @PostMapping
     public ResponseEntity<ResponseRequestDto> createRequest(
