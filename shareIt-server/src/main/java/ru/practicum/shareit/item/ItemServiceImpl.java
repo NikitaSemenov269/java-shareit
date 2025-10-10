@@ -4,9 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.DTO.CommentDto;
+import ru.practicum.DTO.ItemDto;
+import ru.practicum.DTO.ItemRequestDto;
+import ru.practicum.DTO.ItemWithBookingAndCommentsDto;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.item.interfaces.*;
 import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.request.interfaces.RequestRepository;
@@ -124,11 +128,9 @@ public class ItemServiceImpl implements ItemService {
 
         if (userId.equals(item.getOwner().getId())) {
 
-            itemDto.setLastBooking(
-                    bookingRepository.findLastBookingDto(item.getId(), LocalDateTime.now()));
+            itemDto.setLastBooking(bookingRepository.findLastBookingDto(item.getId(), LocalDateTime.now()));
 
-            itemDto.setNextBooking(
-                    bookingRepository.findNextBookingDto(item.getId(), LocalDateTime.now())
+            itemDto.setNextBooking(bookingRepository.findNextBookingDto(item.getId(), LocalDateTime.now())
             );
         }
 

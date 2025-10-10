@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.DTO.BookingDto;
+import ru.practicum.DTO.BookingRequestDto;
 import ru.practicum.shareit.booking.interfaces.BookingMapper;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.booking.interfaces.BookingService;
-import ru.practicum.shareit.enums.State;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.enums.State;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.interfaces.ItemRepository;
 import ru.practicum.shareit.item.interfaces.ItemService;
@@ -17,6 +19,8 @@ import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static ru.practicum.enums.BookingStatus.*;
 
 @Slf4j
 @Service

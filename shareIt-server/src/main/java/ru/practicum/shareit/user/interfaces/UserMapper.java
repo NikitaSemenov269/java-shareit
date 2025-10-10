@@ -2,8 +2,8 @@ package ru.practicum.shareit.user.interfaces;
 
 import org.mapstruct.Mapper;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserRequestDto;
+import ru.practicum.DTO.UserDto;
+import ru.practicum.DTO.UserRequestDto;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

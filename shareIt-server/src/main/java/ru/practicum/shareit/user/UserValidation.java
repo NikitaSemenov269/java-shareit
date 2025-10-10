@@ -1,7 +1,8 @@
+/*
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.exception.ValidationException;
 
 @Service
 class UserValidation {
@@ -15,3 +16,4 @@ class UserValidation {
         }
     }
 }
+*/

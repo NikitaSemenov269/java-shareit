@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.DTO.UserDto;
+import ru.practicum.DTO.UserRequestDto;
 import ru.practicum.shareit.user.interfaces.UserService;
 
 @RestController

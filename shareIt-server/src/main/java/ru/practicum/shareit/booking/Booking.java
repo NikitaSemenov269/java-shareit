@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.practicum.shareit.enums.BookingStatus;
+import ru.practicum.enums.BookingStatus;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 

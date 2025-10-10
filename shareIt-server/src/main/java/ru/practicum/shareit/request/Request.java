@@ -6,12 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.ItemDtoForRequester;
+import ru.practicum.DTO.ItemDtoForRequester;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Entity

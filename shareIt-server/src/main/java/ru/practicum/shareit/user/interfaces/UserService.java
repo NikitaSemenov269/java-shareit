@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.interfaces;
 
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserRequestDto;
+import ru.practicum.DTO.UserDto;
+import ru.practicum.DTO.UserRequestDto;
 
 public interface UserService {
 

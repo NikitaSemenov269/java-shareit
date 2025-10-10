@@ -1,10 +1,12 @@
 package ru.practicum.shareit.controllers;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.DTO.RequestDto;
+import ru.practicum.DTO.ResponseRequestDto;
+import ru.practicum.shareit.GatewayServiceClient;
 
 import java.util.Collection;
 
@@ -12,26 +14,27 @@ import java.util.Collection;
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class RequestController {
-    private final RequestService requestService;
+
+    private final GatewayServiceClient gatewayServiceClient;
 
     @PostMapping
     public ResponseEntity<ResponseRequestDto> createRequest(
             @Valid @RequestBody RequestDto requestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(requestService.createRequest(requestDto, userId));
+        return ResponseEntity.ok().body(gatewayServiceClient.createRequest(requestDto, userId));
     }
 
     @GetMapping
     public ResponseEntity<Collection<ResponseRequestDto>> getUserRequests(
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(requestService.getUserRequests(userId));
+        return ResponseEntity.ok().body(gatewayServiceClient.getUserRequests(userId));
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<ResponseRequestDto> getRequestById(
-            @PathVariable @Min(1) Long requestId,
+            @PathVariable Long requestId,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(requestService.getRequestById(requestId, userId));
+        return ResponseEntity.ok().body(gatewayServiceClient.getRequestById(requestId, userId));
     }
 
     @GetMapping("/all")
@@ -39,7 +42,7 @@ public class RequestController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
-        return ResponseEntity.ok().body(requestService.getOtherUserRequests(userId, from, size));
+        return ResponseEntity.ok().body(gatewayServiceClient.getAllRequests(userId, from, size));
     }
 }
 
