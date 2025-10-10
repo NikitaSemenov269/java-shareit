@@ -1,4 +1,4 @@
-package ru.practicum.shareit.enums;
+package Enums;
 
 import lombok.Getter;
 

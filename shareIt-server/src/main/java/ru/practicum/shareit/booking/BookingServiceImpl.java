@@ -18,8 +18,6 @@ import ru.practicum.shareit.user.interfaces.UserRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static ru.practicum.shareit.enums.BookingStatus.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
