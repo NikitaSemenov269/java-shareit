@@ -11,6 +11,8 @@ import ru.practicum.enums.BookingStatus;
 
 import java.time.LocalDateTime;
 
+import static ru.practicum.enums.BookingStatus.WAITING;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,5 +27,5 @@ public class BookingRequestDto {
     @Future
     private LocalDateTime end;
 
-    private BookingStatus status = BookingStatus.WAITING;
+    private BookingStatus status = WAITING;
 }
