@@ -100,7 +100,6 @@ public interface GatewayServiceClient {
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size);
 
-
     //UserController
     @PostMapping("/users")
     UserDto createUser(
