@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 
 	<groupId>ru.practicum</groupId>
@@ -79,14 +79,26 @@
 		</dependency>
 	</dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2023.0.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 	<build>
 
-		<resources>
+	<!--	<resources>
 			<resource>
 				<directory>shareIt-server/src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
-		</resources>
+		</resources>-->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -115,11 +127,10 @@
 							<version>0.2.0</version>
 						</path>
 						<!-- Spring Boot Configuration Processor -->
-						<path>
+				<!--		<path>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
-							<version>${project.parent.version}</version>
-						</path>
+						</path>-->
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>

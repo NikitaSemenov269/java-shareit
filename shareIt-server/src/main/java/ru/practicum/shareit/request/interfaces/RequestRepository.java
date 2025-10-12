@@ -11,9 +11,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Collection<Request> findByRequesterId(Long userId);
 
-    @Query("SELECT Request" +
-            "FROM Request r " +
-            "WHERE r.requester.id <> :userId DESC")
+    @Query("SELECT r FROM Request r WHERE r.requester.id <> :userId ORDER BY r.created DESC")
     Collection<Request> findAllRequestsExceptUser(@Param("userId") Long userId);
 
 }

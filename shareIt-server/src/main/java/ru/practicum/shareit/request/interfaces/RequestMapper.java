@@ -8,7 +8,6 @@ import ru.practicum.DTO.ResponseRequestDto;
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
 
-    @Mapping(target = "items", ignore = true)
     @Mapping(target = "requesterId", source = "requester.id")
     ResponseRequestDto toDto(Request request);
 }

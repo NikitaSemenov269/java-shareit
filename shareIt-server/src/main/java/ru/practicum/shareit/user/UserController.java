@@ -24,20 +24,20 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserDtoById(
-            @PathVariable @Min(1) Long id) {
+            @PathVariable Long id) {
         return ResponseEntity.ok().body(userService.getUserDtoById(id));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestBody UserRequestDto userRequestDto) {
         return ResponseEntity.ok().body(userService.updateUser(id, userRequestDto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable @Min(1) Long id) {
+            @PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

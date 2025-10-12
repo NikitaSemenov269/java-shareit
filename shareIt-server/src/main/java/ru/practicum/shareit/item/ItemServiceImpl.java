@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
         log.info("Попытка создания нового предмета.");
 
-        itemValidation.itemValidationByUserId(ownerId);
+//        itemValidation.itemValidationByUserId(ownerId);
 
         User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new NotFoundException("Пользователь с ID: " + ownerId + " не найден"));
@@ -70,8 +70,8 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto) {
 
-        itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByUserId(ownerId);
+//        itemValidation.itemValidationById(itemId);
+//        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
@@ -101,8 +101,8 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(Long ownerId, Long itemId) {
         log.info("Попытка удаления предмета ID: {} пользователем с ID: {}", itemId, ownerId);
 
-        itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByUserId(ownerId);
+//        itemValidation.itemValidationById(itemId);
+//        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
         itemValidation.itemValidationBelongsByIdOwner(ownerId, itemId);
 
@@ -114,8 +114,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemWithBookingAndCommentsDto getItemById(Long itemId, Long userId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
 
-        itemValidation.itemValidationById(itemId);
-        itemValidation.itemValidationByUserId(userId);
+//        itemValidation.itemValidationById(itemId);
+//        itemValidation.itemValidationByUserId(userId);
         itemValidation.existsByUserId(userId);
 
         Item item = itemRepository.findById(itemId)
@@ -152,7 +152,7 @@ public class ItemServiceImpl implements ItemService {
     public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
 
-        itemValidation.itemValidationByUserId(ownerId);
+//        itemValidation.itemValidationByUserId(ownerId);
         itemValidation.existsByUserId(ownerId);
 
         Collection<ItemDto> resultCollection = itemRepository
@@ -173,7 +173,7 @@ public class ItemServiceImpl implements ItemService {
     public void updateItemAvailable(Long itemId, Boolean bookingStatus) {
         log.info("Попытка обновления статуса брони предмета с ID: {}", itemId);
 
-        itemValidation.itemValidationById(itemId);
+//        itemValidation.itemValidationById(itemId);
 
         if (bookingStatus == null) {
             throw new ValidationException("Статус бронирования не может быть null");
@@ -193,8 +193,8 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addComment(Long userId, Long itemId, String comment) {
         if (comment != null && !comment.isBlank()) {
-            itemValidation.itemValidationById(itemId);
-            itemValidation.itemValidationByUserId(userId);
+//            itemValidation.itemValidationById(itemId);
+//            itemValidation.itemValidationByUserId(userId);
 
             if (!bookingRepository.existsCompletedBookingByUserAndItem(userId, itemId)) {
                 throw new ValidationException("Пользователь не арендовал эту вещь или аренда еще не завершена.");

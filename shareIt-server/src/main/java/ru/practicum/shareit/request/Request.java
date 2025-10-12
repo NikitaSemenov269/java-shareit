@@ -6,11 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.DTO.ItemDtoForRequester;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 @Entity
 @AllArgsConstructor
@@ -40,6 +38,4 @@ public class Request {
     @NotNull
     @Column(name = "created_date")
     private LocalDateTime created;
-
-    private Collection<ItemDtoForRequester> items;
 }
