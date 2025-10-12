@@ -10,13 +10,7 @@
     </parent>
 
     <artifactId>common</artifactId>
-
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
-    </properties>
+    <packaging>jar</packaging>
 
     <dependencies>
         <!-- Lombok -->
@@ -30,7 +24,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>${org.mapstruct.version}</version> <!-- ДОБАВЬТЕ ЭТУ СТРОКУ -->
+            <version>${org.mapstruct.version}</version>
         </dependency>
 
         <!-- Spring Boot Validation -->
@@ -46,13 +40,13 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Web (если используются REST классы) -->
+        <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Data JPA (если используются Entity) -->
+        <!-- Spring Data JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -67,7 +61,7 @@
                 <executions>
                     <execution>
                         <id>repackage</id>
-                        <phase>none</phase>
+                        <phase>none</phase> <!-- Важно: отключаем repackage -->
                     </execution>
                 </executions>
             </plugin>

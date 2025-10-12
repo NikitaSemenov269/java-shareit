@@ -31,7 +31,7 @@ public class BookingController {
             @PathVariable("bookingId") Long bookingId,
             @RequestParam Boolean approved,
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(ownerId, approved, bookingId));
+        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(bookingId,approved, ownerId));
     }
 
     @PatchMapping("/cancel/{bookingId}")
