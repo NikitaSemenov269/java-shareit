@@ -12,7 +12,7 @@ import java.util.Collection;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("SELECT new ru.practicum.DTO.ItemDto(i.id, i.name, i.description, i.available, i.requestId) " +
+    @Query("SELECT new ru.practicum.DTO.ItemDto(i.id, i.owner.id, i.name, i.description, i.available, i.request.id) " +
             "FROM Item i " +
             "WHERE (LOWER(i.name) LIKE LOWER(CONCAT('%', :text, '%')) " +
             "OR LOWER(i.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
@@ -39,8 +39,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Collection<Item> findByOwnerId(Long ownerId);
 
-    Collection<Item> findByRequestIn(Request request);
+    Collection<Item> findByRequest(Request request);
 
-    Collection<Item> findByRequestsIn(Collection<Request> requests);
+    Collection<Item> findByRequestIn(Collection<Request> requests);
 }
 

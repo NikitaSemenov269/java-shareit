@@ -115,11 +115,10 @@
 							<version>0.2.0</version>
 						</path>
 						<!-- Spring Boot Configuration Processor -->
-						<path>
+				<!--		<path>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
-							<version>${project.parent.version}</version>
-						</path>
+						</path>-->
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
