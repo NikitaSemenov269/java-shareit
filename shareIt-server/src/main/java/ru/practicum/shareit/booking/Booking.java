@@ -30,7 +30,7 @@ public class Booking {
 
     @NotNull(message = "Статус бронирования обязательное поле.")
     @Column(name = "status", nullable = false)
-    private BookingStatus status = WAITING; // true
+    private BookingStatus status; // true
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

@@ -40,7 +40,7 @@ public class RequestServiceImpl implements RequestService {
 
         User requester = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден."));
-        // Нужна валидация входных данных !!!
+
         Request request = new Request();
         request.setDescriptionRequest(requestDto.getDescriptionRequest());
         request.setRequester(requester);
@@ -63,14 +63,15 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Заявка с ID: " + requestId + " не найдена."));
 
-        Collection<ItemDtoForRequester> items = itemRepository.findByRequestIn(request)
+        Collection<ItemDtoForRequester> items = itemRepository.findByRequest(request)
                 .stream()
                 .map(itemMapper::toDtoForRequest)
                 .collect(Collectors.toList());
 
-        request.setItems(items);
+        ResponseRequestDto responseRequestDto = mapper.toDto(request);
+        responseRequestDto.setItems(items);
 
-        return mapper.toDto(request);
+        return responseRequestDto;
     }
 
     @Override
@@ -83,7 +84,7 @@ public class RequestServiceImpl implements RequestService {
 
         Collection<Request> requests = requestRepository.findByRequesterId(userId);
 
-        Collection<Item> items = itemRepository.findByRequestsIn(requests);
+        Collection<Item> items = itemRepository.findByRequestIn(requests);
 
         return builderResponseRequestDtos(requests, items);
     }
@@ -98,12 +99,13 @@ public class RequestServiceImpl implements RequestService {
 
         Collection<Request> requestsExceptUser = requestRepository.findAllRequestsExceptUser(userId);
 
-        Collection<Item> items = itemRepository.findByRequestsIn(requestsExceptUser);
+        Collection<Item> items = itemRepository.findByRequestIn(requestsExceptUser);
 
         return builderResponseRequestDtos(requestsExceptUser, items);
     }
 
-    private Collection<ResponseRequestDto> builderResponseRequestDtos(Collection<Request> requests, Collection<Item> items) {
+    private Collection<ResponseRequestDto> builderResponseRequestDtos(Collection<Request> requests,
+                                                                      Collection<Item> items) {
         return requests.stream()
                 .map(request -> {
                     Collection<ItemDtoForRequester> itemDtos = items.stream()

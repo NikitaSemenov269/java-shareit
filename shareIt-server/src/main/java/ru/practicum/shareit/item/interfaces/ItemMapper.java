@@ -23,4 +23,6 @@ public interface ItemMapper {
 
     @Mapping(target = "ownerId", source = "owner.id")
     ItemDtoForRequester toDtoForRequest(Item item);
+
+
 }

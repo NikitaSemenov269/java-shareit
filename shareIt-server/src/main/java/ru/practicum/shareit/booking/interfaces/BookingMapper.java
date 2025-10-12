@@ -11,7 +11,6 @@ public interface BookingMapper {
 
     Booking toBooking(BookingRequestDto bookingRequestDto);
 
-    @Mapping(target = "item", source = "item")
-    @Mapping(target = "booker", source = "booker")
-    BookingDto toBookingDto(Booking booking);
+    @Mapping(target = "status", expression = "java(booking.getStatus().isStatus())")
+    BookingDto toDto(Booking booking);
 }
