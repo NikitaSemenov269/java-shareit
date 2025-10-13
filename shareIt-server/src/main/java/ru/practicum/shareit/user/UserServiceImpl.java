@@ -47,7 +47,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(Long id, UserRequestDto userRequestDto) {
-        //validation.userValidationId(id);
         log.info("Попытка обновления данных пользователя с ID: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с " + id +
                 " не существует"));
@@ -70,7 +69,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
         log.info("Попытка удаления пользователя по ID.");
-//        validation.userValidationId(userId);
         userRepository.deleteById(userId);
         log.info("Успешное удаления пользователя с ID: {}", userId);
 
@@ -79,7 +77,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);
-//        validation.userValidationId(userId);
         return userRepository.findById(userId).map(mapper::toUserDto)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }

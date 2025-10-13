@@ -18,7 +18,6 @@ public class GatewayServiceClientImpl {
     private final GatewayServiceClient gatewayServiceClient;
     private final Validation validation;
 
-    // что реально возвращать (какие статусы) ???
     public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
         log.info("Запрос на создание новой бронирования от пользователя с ID: {}", bookerId);
         validation.userIdValidation(bookerId);
@@ -27,7 +26,7 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
     }
 
-    public BookingDto updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
+    public ResponseEntity<BookingDto> updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
         log.info("Запрос на обновление статуса бронирования с ID: {} от пользователя с ID: {}", bookingId, ownerId);
         validation.bookingIdValidation(bookingId);
         validation.userIdValidation(ownerId);
@@ -36,17 +35,17 @@ public class GatewayServiceClientImpl {
             throw new ValidationException("Статус не может быть null.");
         }
 
-        return gatewayServiceClient.updateAvailableStatusBooking(bookingId, approved, ownerId);
+        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(bookingId, approved, ownerId));
     }
 
-    public void canceledBookingById(Long bookingId, Long bookerId) {
+    public ResponseEntity<Void> canceledBookingById(Long bookingId, Long bookerId) {
         log.info("Запрос на закрытие бронирования с ID: {} от пользователя с ID: {}", bookingId, bookerId);
         validation.bookingIdValidation(bookingId);
         validation.userIdValidation(bookerId);
 
         gatewayServiceClient.canceledBookingById(bookingId, bookerId);
+        return ResponseEntity.noContent().build();
     }
-
 
     public ResponseEntity<BookingDto> getBookingById(Long bookingId, Long userId) {
         log.info("Запрос на получение  бронирования с ID: {} от пользователя с ID: {}", bookingId, userId);
@@ -55,7 +54,6 @@ public class GatewayServiceClientImpl {
 
         return ResponseEntity.ok().body(gatewayServiceClient.getBookingById(bookingId, userId));
     }
-
 
     public ResponseEntity<Collection<BookingDto>> getAllBookingByBookerId(Long bookerId, State state) {
         log.info("Запрос на получение всех бронирований пользователя с ID: {}", bookerId);
@@ -110,12 +108,13 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.updateItem(id, itemRequestDto, owner));
     }
 
-    public void deleteItem(Long id, Long owner) {
+    public ResponseEntity<Void> deleteItem(Long id, Long owner) {
         log.info("Запрос на удаление предмета с ID: {} от пользователя с ID: {}", id, owner);
         validation.userIdValidation(owner);
         validation.itemIdValidation(id);
 
         gatewayServiceClient.deleteItem(id, owner);
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<CommentDto> addComment(Long itemId, Long userId, CommentTextDto commentDto) {

@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum;
 
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class CentralExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -27,14 +27,14 @@ public class CentralExceptionHandler {
             return error.getDefaultMessage();
         }).collect(Collectors.joining("; "));
 
-        log.warn("Ошибка валидации: {}", errorMessage);
+        log.error("Ошибка валидации: {}", errorMessage);
         return new ErrorResponse(errorMessage);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        log.warn("Ошибка валидации: {}", e.getMessage(), e);
+        log.error("Ошибка валидации: {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
@@ -48,7 +48,7 @@ public class CentralExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalError(final Exception e) {
-        log.warn("Ошибка сервера: {}", e.getMessage(), e);
+        log.error("Ошибка сервера: {}", e.getMessage(), e);
         return new ErrorResponse("Внутренняя ошибка сервера.");
     }
 }
