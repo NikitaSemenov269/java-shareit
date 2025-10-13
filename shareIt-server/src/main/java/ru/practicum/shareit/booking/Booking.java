@@ -20,11 +20,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Дата начала аренды не может быть null.")
     @Column(name = "start_rent", nullable = false)
     private LocalDateTime start;
 
-    @NotNull(message = "Дата окончания аренды не может быть null.")
     @Column(name = "end_rent", nullable = false)
     private LocalDateTime end;
 

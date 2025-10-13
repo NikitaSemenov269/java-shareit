@@ -26,7 +26,7 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
     }
 
-    public BookingDto updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
+    public ResponseEntity<BookingDto> updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
         log.info("Запрос на обновление статуса бронирования с ID: {} от пользователя с ID: {}", bookingId, ownerId);
         validation.bookingIdValidation(bookingId);
         validation.userIdValidation(ownerId);
@@ -35,15 +35,16 @@ public class GatewayServiceClientImpl {
             throw new ValidationException("Статус не может быть null.");
         }
 
-        return gatewayServiceClient.updateAvailableStatusBooking(bookingId, approved, ownerId);
+        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(bookingId, approved, ownerId));
     }
 
-    public void canceledBookingById(Long bookingId, Long bookerId) {
+    public ResponseEntity<Void> canceledBookingById(Long bookingId, Long bookerId) {
         log.info("Запрос на закрытие бронирования с ID: {} от пользователя с ID: {}", bookingId, bookerId);
         validation.bookingIdValidation(bookingId);
         validation.userIdValidation(bookerId);
 
         gatewayServiceClient.canceledBookingById(bookingId, bookerId);
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -109,12 +110,13 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.updateItem(id, itemRequestDto, owner));
     }
 
-    public void deleteItem(Long id, Long owner) {
+    public ResponseEntity<Void> deleteItem(Long id, Long owner) {
         log.info("Запрос на удаление предмета с ID: {} от пользователя с ID: {}", id, owner);
         validation.userIdValidation(owner);
         validation.itemIdValidation(id);
 
         gatewayServiceClient.deleteItem(id, owner);
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<CommentDto> addComment(Long itemId, Long userId, CommentTextDto commentDto) {
@@ -174,10 +176,11 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.updateUser(id, userRequestDto));
     }
 
-    public void deleteUser(Long id) {
+    public ResponseEntity<Void> deleteUser(Long id) {
         log.info("Запрос на удаление пользователя с ID: {}", id);
         validation.userIdValidation(id);
 
         gatewayServiceClient.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
