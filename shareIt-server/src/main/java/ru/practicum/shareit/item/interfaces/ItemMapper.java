@@ -16,6 +16,7 @@ public interface ItemMapper {
     ItemDto toItemDto(Item item);
 
     @Mapping(target = "request", ignore = true)
+    @Mapping(target = "available" , ignore = true)
     Item toItem(ItemRequestDto itemRequestDto);
 
     @Mapping(target = "comments", ignore = true)

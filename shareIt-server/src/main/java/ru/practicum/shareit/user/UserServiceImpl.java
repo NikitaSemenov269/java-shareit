@@ -2,6 +2,8 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
 
     /* В методе createUser оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
        обращений к БД. */
+    @Cacheable(value = "userCreation", key = "{#userRequestDto.email, #userRequestDto.name}")
     @Transactional
     @Override
     public UserDto createUser(UserRequestDto userRequestDto) {
@@ -44,13 +47,16 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @CacheEvict(value = {"users", "userCreation"}, allEntries = true)
     @Transactional
     @Override
     public UserDto updateUser(Long id, UserRequestDto userRequestDto) {
-        //validation.userValidationId(id);
+
         log.info("Попытка обновления данных пользователя с ID: {}", id);
+
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с " + id +
                 " не существует"));
+
         if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userRepository.existsByEmailAndIdNot(userRequestDto.getEmail(), id)) {
                 throw new EmailAlreadyExistsException("Email уже занят другим пользователем.");
@@ -61,11 +67,13 @@ public class UserServiceImpl implements UserService {
         if (userRequestDto.getName() != null && !userRequestDto.getName().equals(user.getName())) {
             user.setName(userRequestDto.getName());
         }
+
         log.info("Данные пользователя с ID: {} успешно обновлены", id);
         // Изменения сохранятся при коммите транзакции
         return mapper.toUserDto(user);
     }
 
+    @CacheEvict(value = {"users", "userCreation", "userRequests", "userBookings", "ownerBookings", "userItems"}, allEntries = true)
     @Transactional
     @Override
     public void deleteUser(Long userId) {
@@ -75,6 +83,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Cacheable(value = "users", key = "#userId")
     @Override
     public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);

@@ -46,6 +46,18 @@ public class Validation {
         }
     }
 
+    void userEmailValidation(String email) {
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("Email не может быть пустой строкой, или null");
+        }
+    }
+
+    void userNameValidation(String name) {
+        if (name == null || name.isBlank()) {
+            throw new ValidationException("Имя не может быть пустой строкой, или null");
+        }
+    }
+
     void dateValidation(LocalDateTime start, LocalDateTime end) {
         if (start == null) {
             throw new ru.practicum.exception.ValidationException("Время начала аренды не может быть null.");
