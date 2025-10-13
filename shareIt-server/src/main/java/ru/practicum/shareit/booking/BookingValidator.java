@@ -18,37 +18,7 @@ class BookingValidator {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
-/*    void userValidationById(Long userId) {
-        if (userId == null) {
-            throw new ValidationException("ID пользователя не может быть null");
-        }
-        if (userId <= 0) {
-            throw new ValidationException("ID пользователя не может быть меньше 0");
-        }
-    }
-
-    void bookingValidationById(Long bookingId) {
-        if (bookingId == null) {
-            throw new ValidationException("ID заявки не может быть null");
-        }
-        if (bookingId <= 0) {
-            throw new ValidationException("ID заявки не может быть меньше 0");
-        }
-    }*/
-
     void bookingDateValidation(Long itemId, LocalDateTime start, LocalDateTime end) {
-    /*    if (start == null) {
-            throw new ValidationException("Время начала аренды не может быть null.");
-        }
-        if (end == null) {
-            throw new ValidationException("Время окончания аренды не может быть null.");
-        }
-        if (end.isBefore(start)) {
-            throw new ValidationException("Время окончания аренды не может наступить раньше начала аренды.");
-        }
-        if (end.equals(start)) {
-            throw new ValidationException("Время начала и окончания аренды не могут совпадать.");
-        }*/
         if (bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end)) {
             throw new ValidationException("Бронирование на данный период невозможно поскольку даты уже заняты.");
         }

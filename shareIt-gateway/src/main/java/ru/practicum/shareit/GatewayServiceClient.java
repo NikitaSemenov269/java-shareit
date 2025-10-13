@@ -11,6 +11,7 @@ import java.util.Collection;
 public interface GatewayServiceClient {
 
     // BookingController
+
     @PostMapping("/bookings")
     BookingDto createBooking(@RequestBody BookingRequestDto bookingRequestDto,
                              @RequestHeader("X-Sharer-User-Id") Long bookerId);
@@ -41,8 +42,8 @@ public interface GatewayServiceClient {
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
             @RequestParam(defaultValue = "ALL") State state);
 
-
     //ItemController
+
     @PostMapping("/items")
     ItemDto createItem(
             @RequestBody ItemRequestDto itemRequestDto,
@@ -80,6 +81,7 @@ public interface GatewayServiceClient {
 
 
     //RequestController
+
     @PostMapping("/requests")
     ResponseRequestDto createRequest(
             @RequestBody RequestDto requestDto,
@@ -101,6 +103,7 @@ public interface GatewayServiceClient {
             @RequestParam(defaultValue = "10") Integer size);
 
     //UserController
+
     @PostMapping("/users")
     UserDto createUser(
             @RequestBody UserRequestDto userRequestDto);
