@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum;
 
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class CentralExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)

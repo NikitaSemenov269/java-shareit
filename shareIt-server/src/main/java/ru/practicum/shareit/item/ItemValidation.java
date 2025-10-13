@@ -13,24 +13,6 @@ class ItemValidation {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-/*    void itemValidationById(Long itemId) {
-        if (itemId == null) {
-            throw new ValidationException("ID предмета не может быть null");
-        }
-        if (itemId <= 0) {
-            throw new ValidationException("ID предмета не может быть меньше 0");
-        }
-    }
-
-    void itemValidationByUserId(Long ownerId) {
-        if (ownerId == null) {
-            throw new ValidationException("ID пользователя не может быть null");
-        }
-        if (ownerId <= 0) {
-            throw new ValidationException("ID пользователя не может быть меньше 0");
-        }
-    }*/
-
     void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new NotFoundException("Предмет с id: " + itemId + " не найден."));

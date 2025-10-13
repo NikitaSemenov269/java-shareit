@@ -1,7 +1,5 @@
 package ru.practicum.shareit.request;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,7 @@ public class RequestController {
 
     @PostMapping
     public ResponseEntity<ResponseRequestDto> createRequest(
-            @Valid @RequestBody RequestDto requestDto,
+            @RequestBody RequestDto requestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(requestService.createRequest(requestDto, userId));
     }
@@ -33,7 +31,7 @@ public class RequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<ResponseRequestDto> getRequestById(
-            @PathVariable @Min(1) Long requestId,
+            @PathVariable Long requestId,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(requestService.getRequestById(requestId, userId));
     }

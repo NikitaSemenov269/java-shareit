@@ -18,7 +18,6 @@ public class GatewayServiceClientImpl {
     private final GatewayServiceClient gatewayServiceClient;
     private final Validation validation;
 
-    // что реально возвращать (какие статусы) ???
     public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
         log.info("Запрос на создание новой бронирования от пользователя с ID: {}", bookerId);
         validation.userIdValidation(bookerId);

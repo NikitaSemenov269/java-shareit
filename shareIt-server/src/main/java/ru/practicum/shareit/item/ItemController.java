@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +17,14 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<ItemDto> createItem(
-            @Valid @RequestBody ItemRequestDto itemRequestDto,
+            @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.createItem(userId, itemRequestDto));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ItemWithBookingAndCommentsDto> getItemById(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.getItemById(id, userId));
     }
@@ -45,7 +43,7 @@ public class ItemController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ItemDto> updateItem(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long owner) {
         return ResponseEntity.ok().body(itemService.updateItem(id, owner, itemRequestDto));
@@ -53,7 +51,7 @@ public class ItemController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(
-            @PathVariable @Min(1) Long id,
+            @PathVariable Long id,
             @RequestHeader("X-Sharer-User-Id") Long owner) {
         itemService.deleteItem(owner, id);
         return ResponseEntity.noContent().build();
@@ -61,9 +59,9 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<CommentDto> addComment(
-            @PathVariable @Min(1) Long itemId,
+            @PathVariable Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody CommentTextDto commentDto) {
+            @RequestBody CommentTextDto commentDto) {
         return ResponseEntity.ok().body(itemService.addComment(userId, itemId, commentDto.getText()));
     }
 }

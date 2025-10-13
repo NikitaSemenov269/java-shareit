@@ -40,7 +40,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto createBooking(Long bookerId, BookingRequestDto bookingRequestDto) {
 
-//        bookingValidator.userValidationById(bookerId);
         bookingValidator.existsByUserId(bookerId);
 
         Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() ->
@@ -74,9 +73,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto updateAvailableStatusBooking(Long ownerId, Long id, Boolean approved) {
         log.info("Попытка обновления статуса брони с ID: {} владельцем вещи.", id);
 
-//        bookingValidator.bookingValidationById(id);
-//        bookingValidator.userValidationById(ownerId);
-
         Booking booking = bookingRepository.findByIdWithItemAndOwner(id).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено."));
 
@@ -100,8 +96,6 @@ public class BookingServiceImpl implements BookingService {
     public void canceledBookingById(Long bookerId, Long bookingId) {
         log.info("Попытка отмены брони с ID: {} автором.", bookingId);
 
-//        bookingValidator.bookingValidationById(bookingId);
-//        bookingValidator.userValidationById(bookerId);
         bookingValidator.existsByUserId(bookerId);
 
         Booking booking = bookingRepository.findByIdAndBooker(bookingId, bookerId).orElseThrow(() ->
@@ -118,8 +112,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto getBookingById(Long userId, Long bookingId) {
         log.info("Попытка получения информации о брони с ID: {}", bookingId);
 
-//        bookingValidator.bookingValidationById(bookingId);
-//        bookingValidator.userValidationById(userId);
         bookingValidator.existsByUserId(userId);
 
         Booking booking = bookingRepository.findByIdForAuthorOrOwner(bookingId, userId).orElseThrow(() ->
@@ -131,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<BookingDto> getAllBookingByBookerId(Long bookerId, State state) {
         // по умолчанию state = all
-//        bookingValidator.userValidationById(bookerId);
+
         bookingValidator.existsByUserId(bookerId);
 
         switch (state) {
@@ -159,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Collection<BookingDto> getAllBookingByOwnerId(Long ownerId, State state) {
-//        bookingValidator.userValidationById(ownerId);
+
         bookingValidator.existsByUserId(ownerId);
 
         switch (state) {
