@@ -79,7 +79,6 @@ public interface GatewayServiceClient {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestBody CommentTextDto commentDto);
 
-
     //RequestController
 
     @PostMapping("/requests")

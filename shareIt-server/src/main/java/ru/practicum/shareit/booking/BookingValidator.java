@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-class BookingValidator {
+public class BookingValidator {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -24,7 +24,7 @@ class BookingValidator {
         }
     }
 
-    void existsByUserId(Long bookerId) {
+    public void existsByUserId(Long bookerId) {
         if (!userRepository.existsById(bookerId)) {
             throw new NotFoundException("Пользователь с " + bookerId + " не найден.");
         }
