@@ -31,14 +31,14 @@ public class BookingController {
             @PathVariable("bookingId") Long bookingId,
             @RequestParam Boolean approved,
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(bookingId,approved, ownerId));
+        return ResponseEntity.ok().body(gatewayServiceClient.updateAvailableStatusBooking(bookingId, approved, ownerId));
     }
 
     @PatchMapping("/cancel/{bookingId}")
     public ResponseEntity<Void> canceledBookingById(
             @PathVariable @Min(1) Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
-        gatewayServiceClient.canceledBookingById(bookerId, bookingId);
+        gatewayServiceClient.canceledBookingById(bookingId, bookerId);
         return ResponseEntity.noContent().build();
     }
 
@@ -46,8 +46,9 @@ public class BookingController {
     public ResponseEntity<BookingDto> getBookingById(
             @PathVariable @Min(1) Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(gatewayServiceClient.getBookingById(userId, bookingId));
+        return ResponseEntity.ok().body(gatewayServiceClient.getBookingById(bookingId, userId));
     }
+
 
     @GetMapping
     public ResponseEntity<Collection<BookingDto>> getAllBookingByBookerId(
