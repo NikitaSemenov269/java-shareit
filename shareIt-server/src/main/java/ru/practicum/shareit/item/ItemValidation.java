@@ -9,11 +9,11 @@ import ru.practicum.shareit.user.interfaces.UserRepository;
 
 @Component
 @RequiredArgsConstructor
-public class ItemValidation {
+class ItemValidation {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    public void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
+    void itemValidationBelongsByIdOwner(Long ownerId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new NotFoundException("Предмет с id: " + itemId + " не найден."));
 
@@ -23,7 +23,7 @@ public class ItemValidation {
         }
     }
 
-    public void existsByUserId(Long id) {
+    void existsByUserId(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("Пользователь с id: " + id + " не найден.");
         }

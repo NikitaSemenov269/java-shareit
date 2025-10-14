@@ -15,7 +15,7 @@ public class ResponseRequestDto {
 
     private Long requesterId;
 
-    private String descriptionRequest;
+    private String description;
 
     private LocalDateTime created;
 

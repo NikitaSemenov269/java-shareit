@@ -13,18 +13,19 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class BookingValidator {
+class BookingValidator {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
     void bookingDateValidation(Long itemId, LocalDateTime start, LocalDateTime end) {
+
         if (bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end)) {
             throw new ValidationException("Бронирование на данный период невозможно поскольку даты уже заняты.");
         }
     }
 
-    public void existsByUserId(Long bookerId) {
+    void existsByUserId(Long bookerId) {
         if (!userRepository.existsById(bookerId)) {
             throw new NotFoundException("Пользователь с " + bookerId + " не найден.");
         }
@@ -41,7 +42,7 @@ public class BookingValidator {
                 .orElseThrow(() -> new NotFoundException("Предмета с " + itemId + " не найден."));
 
         if (!ownerId.equals(item.getOwner().getId())) {
-            throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
+            throw new NotFoundException("ID владельца не cовпадает с ID пользователя.");
         }
     }
 }

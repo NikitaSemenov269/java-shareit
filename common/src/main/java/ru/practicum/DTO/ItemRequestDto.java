@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequestDto {
+
     @NotBlank(message = "Название не может быть пустой строкой.")
     @Size(max = 45, message = "Название вещи не может превышать 45 символов.")
     private String name;

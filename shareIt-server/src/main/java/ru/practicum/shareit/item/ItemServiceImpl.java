@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.DTO.CommentDto;
@@ -37,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
     private final RequestRepository requestRepository;
 
+    @Cacheable(value = "itemCreation", key = "{#ownerId, #itemRequestDto.name, #itemRequestDto.description, #itemRequestDto.available}")
     @Override
     @Transactional
     public ItemDto createItem(Long ownerId, ItemRequestDto itemRequestDto) {
@@ -64,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
         return (itemMapper.toItemDto(itemRepository.save(item)));
     }
 
+    @CacheEvict(value = {"items", "userItems", "itemSearch", "itemCreation"}, allEntries = true)
     @Override
     @Transactional
     public ItemDto updateItem(Long itemId, Long ownerId, ItemRequestDto itemRequestDto) {
@@ -92,6 +96,7 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(item);
     }
 
+    @CacheEvict(value = {"items", "userItems", "itemSearch", "itemCreation"}, allEntries = true)
     @Override
     @Transactional
     public void deleteItem(Long ownerId, Long itemId) {
@@ -104,6 +109,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Успешное удаление предмета ID: {} пользователем с ID: {}", itemId, ownerId);
     }
 
+    @Cacheable(value = "items", key = "#itemId")
     @Override
     public ItemWithBookingAndCommentsDto getItemById(Long itemId, Long userId) {
         log.info("Попытка получения предмета по ID: {}", itemId);
@@ -129,6 +135,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
+    @Cacheable(value = "itemSearch", key = "#text")
     @Override
     public Collection<ItemDto> searchItemDtoByText(String text) {
         log.info("Попытка поиска доступных предметов по ключевым словам: {}", text);
@@ -140,6 +147,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findAllByText(text.trim());
     }
 
+    @Cacheable(value = "userItems", key = "#ownerId")
     @Override
     public Collection<ItemDto> searchAllItemOfOwnerById(Long ownerId) {
         log.info("Попытка поиска всех предметов пользователя с ID: {}", ownerId);
@@ -159,6 +167,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @CacheEvict(value = {"items", "userItems"}, allEntries = true)
     @Override
     @Transactional
     public void updateItemAvailable(Long itemId, Boolean bookingStatus) {
@@ -178,6 +187,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @CacheEvict(value = {"items", "userItems"}, allEntries = true)
     @Override
     @Transactional
     public CommentDto addComment(Long userId, Long itemId, String comment) {

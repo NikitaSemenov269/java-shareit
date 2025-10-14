@@ -157,6 +157,9 @@ public class GatewayServiceClientImpl {
     public ResponseEntity<UserDto> createUser(UserRequestDto userRequestDto) {
         log.info("Запрос на создание нового пользователя.");
 
+        validation.userEmailValidation(userRequestDto.getEmail());
+        validation.userNameValidation(userRequestDto.getName());
+
         return ResponseEntity.ok().body(gatewayServiceClient.createUser(userRequestDto));
     }
 
@@ -174,10 +177,11 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.ok().body(gatewayServiceClient.updateUser(id, userRequestDto));
     }
 
-    public void deleteUser(Long id) {
+    public ResponseEntity<Void> deleteUser(Long id) {
         log.info("Запрос на удаление пользователя с ID: {}", id);
         validation.userIdValidation(id);
 
         gatewayServiceClient.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
