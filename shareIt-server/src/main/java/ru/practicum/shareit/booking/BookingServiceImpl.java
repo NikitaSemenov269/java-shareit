@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Успешное отмена брони с ID: {}", bookingId);
     }
-
+    // для пуша
     //    @Cacheable(value = "bookings", key = "#bookingId")
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
