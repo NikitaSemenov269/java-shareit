@@ -22,6 +22,7 @@ public class GatewayServiceClientImpl {
         log.info("Запрос на создание новой бронирования от пользователя с ID: {}", bookerId);
         validation.userIdValidation(bookerId);
         validation.dateValidation(bookingRequestDto.getStart(), bookingRequestDto.getEnd());
+        validation.itemIdValidation(bookingRequestDto.getItemId());
 
         return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
     }

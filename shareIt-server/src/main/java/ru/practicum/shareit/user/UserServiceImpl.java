@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     /* В методе createUser оставил проверку уникальности email только на уровне БД, что бы уменьшить количество
        обращений к БД. */
-    //    @Cacheable(value = "userCreation", key = "{#userRequestDto.email, #userRequestDto.name}")
     @Transactional
     @Override
     public UserDto createUser(UserRequestDto userRequestDto) {
@@ -45,7 +44,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    //    @CacheEvict(value = {"users", "userCreation"}, allEntries = true)
     @Transactional
     @Override
     public UserDto updateUser(Long id, UserRequestDto userRequestDto) {
@@ -71,7 +69,6 @@ public class UserServiceImpl implements UserService {
         return mapper.toUserDto(user);
     }
 
-    //    @CacheEvict(value = {"users", "userCreation", "userRequests", "userBookings", "ownerBookings", "userItems"}, allEntries = true)
     @Transactional
     @Override
     public void deleteUser(Long userId) {
@@ -81,7 +78,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    //    @Cacheable(value = "users", key = "#userId")
     @Override
     public UserDto getUserDtoById(Long userId) {
         log.info("Попытка получения пользователя по ID: {}", userId);

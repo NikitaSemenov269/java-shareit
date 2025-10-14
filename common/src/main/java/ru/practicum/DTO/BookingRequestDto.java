@@ -15,8 +15,7 @@ import static ru.practicum.enums.BookingStatus.WAITING;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDto {
-    @NotNull
-    @Min(value = 1, message = "Id должно быть положительным числом.")
+    
     private Long itemId;
 
     @NotNull

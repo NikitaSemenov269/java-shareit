@@ -35,10 +35,6 @@ public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
     private final BookingMapper mapper;
 
-    /* @Cacheable(value = "bookingCreation", key = "{#bookerId," +
-             " #bookingRequestDto.itemId," +
-             " #bookingRequestDto.start," +
-             " #bookingRequestDto.end}")*/
     @Override
     @Transactional
     public BookingDto createBooking(Long bookerId, BookingRequestDto bookingRequestDto) {
@@ -71,7 +67,6 @@ public class BookingServiceImpl implements BookingService {
         return mapper.toDto(booking);
     }
 
-    //    @CacheEvict(value = {"bookings", "userBookings", "ownerBookings"}, allEntries = true)
     @Override
     @Transactional
     public BookingDto updateAvailableStatusBooking(Long ownerId, Long id, Boolean approved) {
@@ -112,7 +107,6 @@ public class BookingServiceImpl implements BookingService {
         log.info("Успешное отмена брони с ID: {}", bookingId);
     }
 
-    //    @Cacheable(value = "bookings", key = "#bookingId")
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
         log.info("Попытка получения информации о брони с ID: {}", bookingId);
@@ -125,7 +119,6 @@ public class BookingServiceImpl implements BookingService {
         return mapper.toDto(booking);
     }
 
-    //    @Cacheable(value = "userBookings", key = "{#bookerId, #state}")
     @Override
     public Collection<BookingDto> getAllBookingByBookerId(Long bookerId, State state) {
         // по умолчанию state = all
@@ -155,7 +148,6 @@ public class BookingServiceImpl implements BookingService {
         return new ArrayList<>();
     }
 
-    //    @Cacheable(value = "ownerBookings", key = "{#ownerId, #state}")
     @Override
     public Collection<BookingDto> getAllBookingByOwnerId(Long ownerId, State state) {
 
