@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 
-    private boolean isEmailConflict(DataIntegrityViolationException ex) {
+    public boolean isEmailConflict(DataIntegrityViolationException ex) {
         String message = ex.getMessage().toLowerCase();
         return message.contains("email") &&
                 (message.contains("unique") ||

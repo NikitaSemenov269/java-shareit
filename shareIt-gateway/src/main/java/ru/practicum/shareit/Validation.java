@@ -3,7 +3,6 @@ package ru.practicum.shareit;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 
@@ -13,37 +12,37 @@ public class Validation {
 
     void userIdValidation(Long userId) {
         if (userId == null) {
-            throw new NotFoundException("ID пользователя не может быть null");
+            throw new ValidationException("ID пользователя не может быть null");
         }
         if (userId <= 0) {
-            throw new NotFoundException("ID пользователя не может быть меньше 0");
+            throw new ValidationException("ID пользователя не может быть меньше 0");
         }
     }
 
     void requestIdValidation(Long userId) {
         if (userId == null) {
-            throw new NotFoundException("ID запроса не может быть null");
+            throw new ValidationException("ID запроса не может быть null");
         }
         if (userId <= 0) {
-            throw new NotFoundException("ID запроса не может быть меньше 0");
+            throw new ValidationException("ID запроса не может быть меньше 0");
         }
     }
 
     void itemIdValidation(Long itemId) {
         if (itemId == null) {
-            throw new NotFoundException("ID предмета не может быть null");
+            throw new ValidationException("ID предмета не может быть null");
         }
         if (itemId <= 0) {
-            throw new NotFoundException("ID предмета не может быть меньше 0");
+            throw new ValidationException("ID предмета не может быть меньше 0");
         }
     }
 
     void bookingIdValidation(Long bookingId) {
         if (bookingId == null) {
-            throw new NotFoundException("ID заявки не может быть null");
+            throw new ValidationException("ID заявки не может быть null");
         }
         if (bookingId <= 0) {
-            throw new NotFoundException("ID заявки не может быть меньше 0");
+            throw new ValidationException("ID заявки не может быть меньше 0");
         }
     }
 
