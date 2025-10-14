@@ -10,10 +10,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
-import static ru.practicum.enums.BookingStatus.WAITING;
-import static ru.practicum.enums.BookingStatus.REJECTED;
-import static ru.practicum.enums.BookingStatus.APPROVED;
-
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsByIdAndBookerId(Long id, Long bookerId);
@@ -22,15 +18,25 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                                                       LocalDateTime start,
                                                                       LocalDateTime end);
 
-    @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH i.owner WHERE b.id = :bookingId")
+    @Query("SELECT b FROM Booking b " +
+            "JOIN FETCH b.item i " +
+            "JOIN FETCH b.booker bk " +
+            "JOIN FETCH i.owner " +
+            "WHERE b.id = :bookingId")
     Optional<Booking> findByIdWithItemAndOwner(@Param("bookingId") Long bookingId);
 
-    @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker " +
+    @Query("SELECT b FROM Booking b " +
+            "JOIN FETCH b.item i " +
+            "JOIN FETCH b.booker bk " +
+            "JOIN FETCH i.owner " +
             "WHERE b.id = :bookingId AND b.booker.id = :bookerId")
     Optional<Booking> findByIdAndBooker(@Param("bookingId") Long bookingId,
                                         @Param("bookerId") Long bookerId);
 
-    @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker " +
+    @Query("SELECT b FROM Booking b " +
+            "JOIN FETCH b.item i " +
+            "JOIN FETCH b.booker bk " +
+            "JOIN FETCH i.owner o " +
             "WHERE b.id = :bookingId AND (b.booker.id = :userId OR i.owner.id = :userId)")
     Optional<Booking> findByIdForAuthorOrOwner(@Param("bookingId") Long bookingId,
                                                @Param("userId") Long userId);
