@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.DTO.RequestDto;
@@ -34,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestMapper mapper;
     private final ItemMapper itemMapper;
 
-    @Cacheable(value = "requestCreation", key = "{#userId, #requestDto.description}")
+    //    @Cacheable(value = "requestCreation", key = "{#userId, #requestDto.description}")
     @Transactional
     @Override
     public ResponseRequestDto createRequest(RequestDto requestDto, Long userId) {
@@ -55,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
         return mapper.toDto(newRequest);
     }
 
-    @Cacheable(value = "requests", key = "#requestId")
+    //    @Cacheable(value = "requests", key = "#requestId")
     @Override
     public ResponseRequestDto getRequestById(Long requestId, Long userId) {
         log.info("Попытка получения заявки по ID: {} пользователем ID: {}", requestId, userId);
@@ -78,7 +77,7 @@ public class RequestServiceImpl implements RequestService {
         return responseRequestDto;
     }
 
-    @Cacheable(value = "userRequests", key = "#userId")
+    //    @Cacheable(value = "userRequests", key = "#userId")
     @Override
     public Collection<ResponseRequestDto> getUserRequests(Long userId) {
         log.info("Попытка получения заявок пользователя с ID: {}", userId);
@@ -94,7 +93,7 @@ public class RequestServiceImpl implements RequestService {
         return builderResponseRequestDtos(requests, items);
     }
 
-    @Cacheable(value = "allRequests", key = "{#userId, #from, #size}")
+    //    @Cacheable(value = "allRequests", key = "{#userId, #from, #size}")
     @Override
     public Collection<ResponseRequestDto> getOtherUserRequests(Long userId, Integer from, Integer size) {
         log.info("Попытка получения заявок других пользователей для пользователя ID: {}", userId);
