@@ -9,5 +9,6 @@ import ru.practicum.DTO.ResponseRequestDto;
 public interface RequestMapper {
 
     @Mapping(target = "requesterId", source = "requester.id")
+    @Mapping(target = "description", source = "description")
     ResponseRequestDto toDto(Request request);
 }

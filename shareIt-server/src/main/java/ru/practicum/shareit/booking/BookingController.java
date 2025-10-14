@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +19,14 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
-            @Valid @RequestBody BookingRequestDto bookingRequestDto,
+            @RequestBody BookingRequestDto bookingRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
         return ResponseEntity.ok().body(bookingService.createBooking(bookerId, bookingRequestDto));
     }
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<BookingDto> updateAvailableStatusBooking(
-            @PathVariable("bookingId") @Min(1) Long bookingId,
+            @PathVariable("bookingId") Long bookingId,
             @RequestParam Boolean approved,
             @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return ResponseEntity.ok().body(bookingService.updateAvailableStatusBooking(ownerId, bookingId, approved));
@@ -36,7 +34,7 @@ public class BookingController {
 
     @PatchMapping("/cancel/{bookingId}")
     public ResponseEntity<Void> canceledBookingById(
-            @PathVariable @Min(1) Long bookingId,
+            @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
         bookingService.canceledBookingById(bookerId, bookingId);
         return ResponseEntity.noContent().build();
@@ -44,7 +42,7 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<BookingDto> getBookingById(
-            @PathVariable @Min(1) Long bookingId,
+            @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(bookingService.getBookingById(userId, bookingId));
     }

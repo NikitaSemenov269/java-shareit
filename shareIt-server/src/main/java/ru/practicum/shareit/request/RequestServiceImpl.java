@@ -34,7 +34,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestMapper mapper;
     private final ItemMapper itemMapper;
 
-    @Cacheable(value = "requestCreation", key = "{#userId, #requestDto.descriptionRequest}")
+    @Cacheable(value = "requestCreation", key = "{#userId, #requestDto.description}")
     @Transactional
     @Override
     public ResponseRequestDto createRequest(RequestDto requestDto, Long userId) {
@@ -44,7 +44,8 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден."));
 
         Request request = new Request();
-        request.setDescriptionRequest(requestDto.getDescriptionRequest());
+
+        request.setDescription(requestDto.getDescription());
         request.setRequester(requester);
         request.setCreated(LocalDateTime.now());
 
@@ -122,7 +123,7 @@ public class RequestServiceImpl implements RequestService {
                     return new ResponseRequestDto(
                             request.getId(),
                             request.getRequester().getId(),
-                            request.getDescriptionRequest(),
+                            request.getDescription(),
                             request.getCreated(),
                             itemDtos
                     );

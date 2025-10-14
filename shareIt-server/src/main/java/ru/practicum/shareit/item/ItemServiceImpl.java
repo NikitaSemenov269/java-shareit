@@ -43,6 +43,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto createItem(Long ownerId, ItemRequestDto itemRequestDto) {
+        if (itemRequestDto.getAvailable() == null) {
+            throw new ValidationException("Поле available обязательно");
+        }
+
         log.info("Попытка создания нового предмета.");
 
         User owner = userRepository.findById(ownerId).orElseThrow(
@@ -50,17 +54,6 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toItem(itemRequestDto);
         item.setOwner(owner);
-
-        if (itemRequestDto.getAvailable() != null && !itemRequestDto.getAvailable().isBlank()) {
-            String available = itemRequestDto.getAvailable().trim();
-            if ("false".equals(available)) {
-                item.setAvailable(false);
-            } else if ("true".equals(available)) {
-                item.setAvailable(true);
-            } else {
-                throw new ValidationException("Значение available должно быть true / false");
-            }
-        }
 
         if (itemRequestDto.getRequestId() != null) {
             Request request = requestRepository.findById(itemRequestDto.getRequestId())
@@ -94,16 +87,10 @@ public class ItemServiceImpl implements ItemService {
         if (itemRequestDto.getDescription() != null && !itemRequestDto.getDescription().equals(item.getDescription())) {
             item.setDescription(itemRequestDto.getDescription());
         }
-
-        if (itemRequestDto.getAvailable() != null || itemRequestDto.getAvailable().isBlank()) {
-            if (itemRequestDto.getAvailable().trim().equals("false")) {
-                item.setAvailable(false);
-            } else if (itemRequestDto.getAvailable().trim().equals("true")) {
-                item.setAvailable(true);
-            }
-        } else {
-            throw new ValidationException("Значение available должно быть true / false");
+        if (itemRequestDto.getAvailable() != null && !itemRequestDto.getAvailable().equals(item.getAvailable())) {
+            item.setAvailable(itemRequestDto.getAvailable());
         }
+
         log.info("Данные предмета с ID: {} успешно обновлены", itemId);
         // Изменения сохранятся при коммите транзакции
         return itemMapper.toItemDto(item);

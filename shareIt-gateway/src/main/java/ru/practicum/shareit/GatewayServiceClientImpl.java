@@ -47,6 +47,7 @@ public class GatewayServiceClientImpl {
         return ResponseEntity.noContent().build();
     }
 
+
     public ResponseEntity<BookingDto> getBookingById(Long bookingId, Long userId) {
         log.info("Запрос на получение  бронирования с ID: {} от пользователя с ID: {}", bookingId, userId);
         validation.bookingIdValidation(bookingId);
@@ -54,6 +55,7 @@ public class GatewayServiceClientImpl {
 
         return ResponseEntity.ok().body(gatewayServiceClient.getBookingById(bookingId, userId));
     }
+
 
     public ResponseEntity<Collection<BookingDto>> getAllBookingByBookerId(Long bookerId, State state) {
         log.info("Запрос на получение всех бронирований пользователя с ID: {}", bookerId);
@@ -72,11 +74,6 @@ public class GatewayServiceClientImpl {
     public ResponseEntity<ItemDto> createItem(ItemRequestDto itemRequestDto, Long userId) {
         log.info("Запрос на создание предмета от пользователя с ID: {}", userId);
         validation.userIdValidation(userId);
-
-        String available = itemRequestDto.getAvailable().trim();
-        if (!"true".equals(available) && !"false".equals(available)) {
-            throw new ValidationException("Значение available должно быть true / false");
-        }
 
         return ResponseEntity.ok().body(gatewayServiceClient.createItem(itemRequestDto, userId));
     }

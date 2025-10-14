@@ -21,19 +21,14 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     @Size(max = 200, message = "Описание вещи не может превышать 200 символов.")
-    private String descriptionRequest;
+    private String description;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
 
     @NotNull
     @Column(name = "created_date")

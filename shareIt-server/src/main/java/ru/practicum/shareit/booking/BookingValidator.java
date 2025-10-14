@@ -42,7 +42,7 @@ class BookingValidator {
                 .orElseThrow(() -> new NotFoundException("Предмета с " + itemId + " не найден."));
 
         if (!ownerId.equals(item.getOwner().getId())) {
-            throw new ValidationException("ID владельца не cовпадает с ID пользователя.");
+            throw new NotFoundException("ID владельца не cовпадает с ID пользователя.");
         }
     }
 }
