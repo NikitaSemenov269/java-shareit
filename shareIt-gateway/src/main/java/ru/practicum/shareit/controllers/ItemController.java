@@ -54,7 +54,7 @@ public class ItemController {
     public ResponseEntity<Void> deleteItem(
             @PathVariable Long id,
             @RequestHeader("X-Sharer-User-Id") Long owner) {
-        gatewayServiceClient.deleteItem(owner, id);
+        gatewayServiceClient.deleteItem(id, owner);
         return ResponseEntity.noContent().build();
     }
 
@@ -63,6 +63,6 @@ public class ItemController {
             @PathVariable Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @Valid @RequestBody CommentTextDto commentTextDto) {
-        return ResponseEntity.ok().body(gatewayServiceClient.addComment(userId, itemId, commentTextDto));
+        return ResponseEntity.ok().body(gatewayServiceClient.addComment(itemId, userId, commentTextDto));
     }
 }
