@@ -2,6 +2,7 @@ package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.DTO.*;
@@ -19,22 +20,20 @@ public class GatewayServiceClientImpl {
     private final Validation validation;
     private final GatewayServiceClient gatewayServiceClient;
 
-    public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
-        log.info("Запрос на создание новой бронирования от пользователя с ID: {}", bookerId);
-        try {
-            validation.userIdValidation(bookerId);
-            validation.dateValidation(bookingRequestDto.getStart(), bookingRequestDto.getEnd());
 
-            if (bookingRequestDto.getItemId() == null) {
-                throw new ValidationException("Item ID не может быть null");
-            }
-            return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
-        } catch (ValidationException e) {
-            log.warn("Ошибка валидации при создании бронирования: {}", e.getMessage());
-            throw new NotFoundException("Ошибка валидации данных: " + e.getMessage());
+    public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
+        try {
+            ResponseEntity<BookingDto> booking = gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
+            return booking;
+
         } catch (NotFoundException e) {
-            log.warn("Пользователь или данные не найдены для бронирования");
-            throw new NotFoundException("Пользователь или данные не найдены");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

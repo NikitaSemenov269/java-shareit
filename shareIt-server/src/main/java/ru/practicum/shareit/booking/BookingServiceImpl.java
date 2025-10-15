@@ -45,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
                 new NotFoundException("Предмета с " + bookingRequestDto.getItemId() + " не найден."));
 
         if (!item.getAvailable()) {
-            throw new NotFoundException("Предмет недоступен для бронирования");
+            throw new ValidationException("Предмет недоступен для бронирования");
         }
         if (bookerId.equals(item.getOwner().getId())) {
             throw new ValidationException("Владелец не может бронировать собственные вещи.");

@@ -1,20 +1,21 @@
 package ru.practicum.shareit;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.DTO.*;
 import ru.practicum.enums.State;
 
 import java.util.Collection;
 
-@FeignClient(name = "shareIt-service", url = "${shareIt-server.url}")
+@FeignClient(name = "shareIt-server", url = "${shareIt-server.url}")
 public interface GatewayServiceClient {
 
     // BookingController
 
     @PostMapping("/bookings")
-    BookingDto createBooking(@RequestBody BookingRequestDto bookingRequestDto,
-                             @RequestHeader("X-Sharer-User-Id") Long bookerId);
+    ResponseEntity<BookingDto> createBooking(@RequestBody BookingRequestDto bookingRequestDto,
+                                             @RequestHeader("X-Sharer-User-Id") Long bookerId);
 
     @PatchMapping("/bookings/{bookingId}")
     BookingDto updateAvailableStatusBooking(

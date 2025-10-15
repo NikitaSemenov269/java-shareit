@@ -1,8 +1,8 @@
 package ru.practicum.shareit;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.exception.ValidationException;
 
 import java.time.LocalDateTime;
 
