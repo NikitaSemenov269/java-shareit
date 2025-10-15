@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.DTO.BookingDto;
 import ru.practicum.DTO.BookingRequestDto;
 import ru.practicum.enums.State;
-import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.booking.interfaces.BookingService;
 import ru.practicum.shareit.item.Item;
