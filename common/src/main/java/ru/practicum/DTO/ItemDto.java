@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static ru.practicum.enums.BookingStatus.AWAITING_A_REQUEST;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

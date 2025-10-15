@@ -15,7 +15,6 @@ import ru.practicum.DTO.SimpleUserDto;
 import ru.practicum.enums.BookingStatus;
 import ru.practicum.enums.State;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.booking.interfaces.BookingService;
 
 import java.time.LocalDateTime;
