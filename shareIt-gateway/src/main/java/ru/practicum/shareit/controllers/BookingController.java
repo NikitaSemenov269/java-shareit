@@ -1,8 +1,10 @@
 package ru.practicum.shareit.controllers;
 
+import feign.FeignException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.DTO.BookingDto;
@@ -23,8 +25,16 @@ public class BookingController {
     public ResponseEntity<BookingDto> createBooking(
             @Valid @RequestBody BookingRequestDto bookingRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
-            BookingDto bookingDto = gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
-            return ResponseEntity.ok(bookingDto);
+
+        try {
+            return gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
+
+        } catch (FeignException.NotFound e) {
+            // Сервер вернул 404 - пробрасываем клиенту
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PatchMapping("/{bookingId}")

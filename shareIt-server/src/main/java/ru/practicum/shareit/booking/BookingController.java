@@ -1,10 +1,13 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.DTO.BookingDto;
 import ru.practicum.DTO.BookingRequestDto;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.booking.interfaces.BookingService;
 import ru.practicum.enums.State;
 
@@ -21,7 +24,20 @@ public class BookingController {
     public ResponseEntity<BookingDto> createBooking(
             @RequestBody BookingRequestDto bookingRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long bookerId) {
-        return ResponseEntity.ok().body(bookingService.createBooking(bookerId, bookingRequestDto));
+
+        try {
+            BookingDto bookingDto = bookingService.createBooking(bookerId, bookingRequestDto);
+            return ResponseEntity.ok(bookingDto);
+
+        } catch (NotFoundException e) {
+            // 404 - не найдено
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (ValidationException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            // 500 - внутренняя ошибка сервера
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PatchMapping("/{bookingId}")

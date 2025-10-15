@@ -2,11 +2,12 @@ package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.DTO.*;
-import ru.practicum.ErrorResponse;
 import ru.practicum.enums.State;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 
 import java.util.Collection;
@@ -20,23 +21,23 @@ public class GatewayServiceClientImpl {
     private final GatewayServiceClient gatewayServiceClient;
 
 
-    public ResponseEntity<?> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
+    public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
+        try {
+            ResponseEntity<BookingDto> booking = gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
+            return booking;
 
-      /*  if (bookingRequestDto.getItemId() == null || bookerId == null ||
-                bookingRequestDto.getStart() == null || bookingRequestDto.getEnd() == null ||
-                bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart()) ||
-                bookingRequestDto.getEnd().equals(bookingRequestDto.getStart())) {
-            return ResponseEntity.status(400).body(new ErrorResponse("Некорректные данные запроса"));
+        } catch (NotFoundException e) {
+            // ТОЛЬКО для реальных "не найдено" возвращаем 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        } catch (ru.practicum.exception.ValidationException e) {
+            // Для ошибок валидации возвращаем 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        } catch (Exception e) {
+            // Для всех остальных - 500
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        try {*/
-            BookingDto bookingDto = gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
-            return ResponseEntity.ok(bookingDto);
-
-       /* } catch (feign.FeignException e) {
-            log.warn("Не найдено: {}", e.contentUTF8());
-            return ResponseEntity.status(404).body(new ErrorResponse(" данных"));
-
-        }*/
     }
 
     public ResponseEntity<BookingDto> updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
