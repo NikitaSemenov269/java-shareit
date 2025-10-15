@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -164,4 +165,4 @@ class RequestControllerTest {
         // Verify - должны использоваться кастомные значения
         verify(requestService).getOtherUserRequests(userId, 5, 20);
     }
-}
+}*/

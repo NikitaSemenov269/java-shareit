@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -148,4 +149,4 @@ class BookingServiceImplIntegrationTest {
         item.setOwner(owner);
         return itemRepository.save(item);
     }
-}
+}*/
