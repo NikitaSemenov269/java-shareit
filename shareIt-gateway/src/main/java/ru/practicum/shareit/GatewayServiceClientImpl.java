@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.DTO.*;
 import ru.practicum.enums.State;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 
 import java.util.Collection;
@@ -15,16 +16,26 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class GatewayServiceClientImpl {
 
-    private final GatewayServiceClient gatewayServiceClient;
     private final Validation validation;
+    private final GatewayServiceClient gatewayServiceClient;
 
     public ResponseEntity<BookingDto> createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
         log.info("Запрос на создание новой бронирования от пользователя с ID: {}", bookerId);
-        validation.userIdValidation(bookerId);
-        validation.dateValidation(bookingRequestDto.getStart(), bookingRequestDto.getEnd());
-        validation.itemIdValidation(bookingRequestDto.getItemId());
+        try {
+            validation.userIdValidation(bookerId);
+            validation.dateValidation(bookingRequestDto.getStart(), bookingRequestDto.getEnd());
 
-        return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
+            if (bookingRequestDto.getItemId() == null) {
+                throw new ValidationException("Item ID не может быть null");
+            }
+            return ResponseEntity.ok().body(gatewayServiceClient.createBooking(bookingRequestDto, bookerId));
+        } catch (ValidationException e) {
+            log.warn("Ошибка валидации при создании бронирования: {}", e.getMessage());
+            throw new NotFoundException("Ошибка валидации данных: " + e.getMessage());
+        } catch (NotFoundException e) {
+            log.warn("Пользователь или данные не найдены для бронирования");
+            throw new NotFoundException("Пользователь или данные не найдены");
+        }
     }
 
     public ResponseEntity<BookingDto> updateAvailableStatusBooking(Long bookingId, Boolean approved, Long ownerId) {
