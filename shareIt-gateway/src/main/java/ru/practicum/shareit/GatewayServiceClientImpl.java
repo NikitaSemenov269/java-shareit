@@ -27,15 +27,12 @@ public class GatewayServiceClientImpl {
             return booking;
 
         } catch (NotFoundException e) {
-            // ТОЛЬКО для реальных "не найдено" возвращаем 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        } catch (ru.practicum.exception.ValidationException e) {
-            // Для ошибок валидации возвращаем 400
+        } catch (ValidationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         } catch (Exception e) {
-            // Для всех остальных - 500
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
