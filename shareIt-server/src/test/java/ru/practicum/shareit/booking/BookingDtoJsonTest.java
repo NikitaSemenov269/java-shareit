@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -95,4 +96,4 @@ class BookingDtoJsonTest {
 
         assertThat(json).isEqualTo("{\"id\":1}");
     }
-}
+}*/

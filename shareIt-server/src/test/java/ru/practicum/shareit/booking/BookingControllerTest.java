@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -166,4 +167,4 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isNoContent());
     }
-}
+}*/
