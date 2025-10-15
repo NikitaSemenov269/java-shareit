@@ -7,7 +7,7 @@ import ru.practicum.enums.State;
 
 import java.util.Collection;
 
-@FeignClient(name = "shareIt-service", url = "${shareIt-server.url}")
+@FeignClient(name = "shareIt-server", url = "${shareIt-server.url}")
 public interface GatewayServiceClient {
 
     // BookingController
