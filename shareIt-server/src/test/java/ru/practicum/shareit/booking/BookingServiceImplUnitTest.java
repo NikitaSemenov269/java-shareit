@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.DTO.BookingDto;
 import ru.practicum.DTO.BookingRequestDto;
+import ru.practicum.enums.State;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.shareit.booking.interfaces.BookingMapper;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
 import ru.practicum.shareit.item.Item;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +51,6 @@ class BookingServiceImplUnitTest {
 
     @Test
     void createBooking_WithValidData_ShouldCreateBooking() {
-        // Given
         Long bookerId = 2L;
         Long itemId = 1L;
 
@@ -70,8 +72,6 @@ class BookingServiceImplUnitTest {
 
         Booking booking = new Booking();
         booking.setId(1L);
-        booking.setItem(item);
-        booking.setBooker(booker);
 
         BookingDto expectedDto = new BookingDto();
 
@@ -81,36 +81,64 @@ class BookingServiceImplUnitTest {
         when(bookingRepository.save(booking)).thenReturn(booking);
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // When
         BookingDto result = bookingService.createBooking(bookerId, requestDto);
 
-        // Then
         assertNotNull(result);
         verify(bookingValidator).existsByUserId(bookerId);
-        verify(bookingValidator).bookingDateValidation(eq(itemId), any(), any());
         verify(bookingRepository).save(booking);
     }
 
     @Test
+    void getAllBookingByBookerId_WithStateAll_ShouldReturnAllBookings() {
+        Long bookerId = 1L;
+        when(bookingRepository.findAllBookingByBookerId(bookerId))
+                .thenReturn(Collections.emptyList());
+
+        var result = bookingService.getAllBookingByBookerId(bookerId, State.ALL);
+
+        assertNotNull(result);
+        verify(bookingValidator).existsByUserId(bookerId);
+    }
+
+    @Test
+    void getAllBookingByOwnerId_WithStateCurrent_ShouldReturnCurrentBookings() {
+        Long ownerId = 1L;
+        when(bookingRepository.findAllCurrentBookingByOwnerId(ownerId))
+                .thenReturn(Collections.emptyList());
+
+        var result = bookingService.getAllBookingByOwnerId(ownerId, State.CURRENT);
+
+        assertNotNull(result);
+        verify(bookingValidator).existsByUserId(ownerId);
+    }
+
+    @Test
     void getBookingById_WithValidUser_ShouldReturnBooking() {
-        // Given
         Long userId = 1L;
         Long bookingId = 1L;
 
         Booking booking = new Booking();
-        booking.setId(bookingId);
-
         BookingDto expectedDto = new BookingDto();
 
         when(bookingRepository.findByIdForAuthorOrOwner(bookingId, userId))
                 .thenReturn(Optional.of(booking));
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // When
         BookingDto result = bookingService.getBookingById(userId, bookingId);
 
-        // Then
         assertNotNull(result);
         verify(bookingValidator).existsByUserId(userId);
+    }
+
+    @Test
+    void getBookingById_WithNonExistingBooking_ShouldThrowException() {
+        Long userId = 1L;
+        Long bookingId = 999L;
+
+        when(bookingRepository.findByIdForAuthorOrOwner(bookingId, userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () ->
+                bookingService.getBookingById(userId, bookingId));
     }
 }

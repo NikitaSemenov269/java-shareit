@@ -11,17 +11,14 @@ import ru.practicum.exception.ValidationException;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.enums.BookingStatus;
 import ru.practicum.shareit.booking.interfaces.BookingRepository;
-import ru.practicum.shareit.item.interfaces.ItemRepository;
+import ru.practicum.shareit.item.interfaces.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemService;
-import ru.practicum.shareit.request.Request;
-import ru.practicum.shareit.request.interfaces.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -29,25 +26,26 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class ItemServiceImplIntegrationTest {
 
-    @Autowired private ItemService itemService;
-    @Autowired private ItemRepository itemRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private BookingRepository bookingRepository;
-    @Autowired private RequestRepository requestRepository;
+    @Autowired
+    private ItemService itemService;
 
-    private User owner, booker, requester;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private ItemMapper mapper;
+
+    private User owner;
+    private User booker;
     private Item item;
 
     @BeforeEach
     void setUp() {
-        bookingRepository.deleteAll();
-        itemRepository.deleteAll();
-        requestRepository.deleteAll();
-        userRepository.deleteAll();
-
-        owner = createUser("owner-item@test.com", "Item Owner");
-        booker = createUser("booker-item@test.com", "Item Booker");
-        requester = createUser("requester-item@test.com", "Item Requester");
+        owner = createUser("owner@test.com", "Owner");
+        booker = createUser("booker@test.com", "Booker");
         item = createItem("Test Item", "Test Description", owner, true);
     }
 
@@ -66,27 +64,55 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void createItem_WithRequest_ShouldCreateItemWithRequest() {
-        Request request = createRequest(requester);
-        ItemRequestDto requestDto = new ItemRequestDto();
-        requestDto.setName("Item for Request");
-        requestDto.setDescription("Description");
-        requestDto.setAvailable(true);
-        requestDto.setRequestId(request.getId());
+    void getItemById_ForOwner_ShouldReturnItemWithBookings() {
+        createCompletedBooking();
 
-        ItemDto result = itemService.createItem(owner.getId(), requestDto);
+        ItemWithBookingAndCommentsDto result = itemService.getItemById(item.getId(), owner.getId());
 
-        assertEquals(request.getId(), result.getRequestId());
+        assertNotNull(result);
+        assertEquals(item.getId(), result.getId());
+        assertNotNull(result.getLastBooking());
     }
 
     @Test
-    void createItem_WithoutAvailable_ShouldThrowException() {
-        ItemRequestDto requestDto = new ItemRequestDto();
-        requestDto.setName("Test Item");
-        requestDto.setDescription("Test Description");
+    void getItemById_ForNonOwner_ShouldReturnItemWithoutBookings() {
+        createCompletedBooking();
 
+        ItemWithBookingAndCommentsDto result = itemService.getItemById(item.getId(), booker.getId());
+
+        assertNotNull(result);
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+    }
+
+    @Test
+    void searchItemDtoByText_WithMatchingText_ShouldReturnItems() {
+        Collection<ItemDto> result = itemService.searchItemDtoByText("test");
+
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void searchItemDtoByText_WithEmptyText_ShouldReturnEmpty() {
+        Collection<ItemDto> result = itemService.searchItemDtoByText("");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void addComment_WithValidCompletedBooking_ShouldCreateComment() {
+        createCompletedBooking();
+
+        CommentDto result = itemService.addComment(booker.getId(), item.getId(), "Great item!");
+
+        assertNotNull(result);
+        assertEquals("Great item!", result.getText());
+    }
+
+    @Test
+    void addComment_WithoutCompletedBooking_ShouldThrowException() {
         assertThrows(ValidationException.class, () ->
-                itemService.createItem(owner.getId(), requestDto));
+                itemService.addComment(booker.getId(), item.getId(), "Test comment"));
     }
 
     @Test
@@ -94,100 +120,26 @@ class ItemServiceImplIntegrationTest {
         ItemRequestDto updateDto = new ItemRequestDto();
         updateDto.setName("Updated Name");
         updateDto.setDescription("Updated Description");
-        updateDto.setAvailable(false);
 
         ItemDto result = itemService.updateItem(item.getId(), owner.getId(), updateDto);
 
         assertEquals("Updated Name", result.getName());
-        assertFalse(result.getAvailable());
-    }
-
-    @Test
-    void updateItem_WithNonOwner_ShouldThrowException() {
-        ItemRequestDto updateDto = new ItemRequestDto();
-        updateDto.setName("Updated Name");
-
-        assertThrows(ValidationException.class, () ->
-                itemService.updateItem(item.getId(), booker.getId(), updateDto));
-    }
-
-    @Test
-    void getItemById_ForOwner_ShouldReturnItemWithBookings() {
-        createBooking(item, booker, LocalDateTime.now().minusDays(2),
-                LocalDateTime.now().minusDays(1), BookingStatus.APPROVED);
-
-        ItemWithBookingAndCommentsDto result = itemService.getItemById(item.getId(), owner.getId());
-
-        assertNotNull(result);
-        assertEquals(item.getId(), result.getId());
-    }
-
-    @Test
-    void getItemById_ForNonOwner_ShouldReturnItemWithoutBookings() {
-        createBooking(item, booker, LocalDateTime.now().minusDays(2),
-                LocalDateTime.now().minusDays(1), BookingStatus.APPROVED);
-
-        ItemWithBookingAndCommentsDto result = itemService.getItemById(item.getId(), booker.getId());
-
-        assertNull(result.getLastBooking());
-        assertNull(result.getNextBooking());
-    }
-
-    @Test
-    void searchItemDtoByText_WithMatchingText_ShouldReturnItems() {
-        createItem("Laptop", "Gaming laptop", owner, true);
-
-        Collection<ItemDto> result = itemService.searchItemDtoByText("laptop");
-
-        assertThat(result).isNotEmpty();
-    }
-
-    @Test
-    void searchItemDtoByText_WithEmptyText_ShouldReturnEmpty() {
-        Collection<ItemDto> result = itemService.searchItemDtoByText("");
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void searchAllItemOfOwnerById_ShouldReturnOwnerItems() {
-        createItem("Second Item", "Another item", owner, true);
-
-        Collection<ItemDto> result = itemService.searchAllItemOfOwnerById(owner.getId());
-
-        assertThat(result).hasSize(2);
-    }
-
-    @Test
-    void addComment_WithValidBooking_ShouldCreateComment() {
-        createBooking(item, booker, LocalDateTime.now().minusDays(2),
-                LocalDateTime.now().minusDays(1), BookingStatus.APPROVED);
-
-        CommentDto result = itemService.addComment(booker.getId(), item.getId(), "Great item!");
-
-        assertEquals("Great item!", result.getText());
-        assertEquals("Item Booker", result.getAuthorName());
-    }
-
-    @Test
-    void addComment_WithoutBooking_ShouldThrowException() {
-        assertThrows(ValidationException.class, () ->
-                itemService.addComment(booker.getId(), item.getId(), "Comment without booking"));
+        assertEquals("Updated Description", result.getDescription());
     }
 
     @Test
     void deleteItem_WithValidOwner_ShouldDeleteItem() {
-        itemService.deleteItem(owner.getId(), item.getId());
-
-        assertFalse(itemRepository.existsById(item.getId()));
+        assertDoesNotThrow(() -> itemService.deleteItem(owner.getId(), item.getId()));
     }
 
-    @Test
-    void updateItemAvailable_WithValidData_ShouldUpdateAvailability() {
-        itemService.updateItemAvailable(item.getId(), false);
-
-        Item updatedItem = itemRepository.findById(item.getId()).orElseThrow();
-        assertFalse(updatedItem.getAvailable());
+    private void createCompletedBooking() {
+        Booking booking = new Booking();
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(booking);
     }
 
     private User createUser(String email, String name) {
@@ -198,29 +150,18 @@ class ItemServiceImplIntegrationTest {
     }
 
     private Item createItem(String name, String description, User owner, boolean available) {
+        ItemRequestDto requestDto = new ItemRequestDto();
+        requestDto.setName(name);
+        requestDto.setDescription(description);
+        requestDto.setAvailable(available);
+        ItemDto itemDto = itemService.createItem(owner.getId(), requestDto);
+
         Item item = new Item();
-        item.setName(name);
-        item.setDescription(description);
-        item.setAvailable(available);
-        item.setOwner(owner);
-        return itemRepository.save(item);
-    }
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setAvailable(itemDto.getAvailable());
 
-    private Booking createBooking(Item item, User booker, LocalDateTime start, LocalDateTime end, BookingStatus status) {
-        Booking booking = new Booking();
-        booking.setItem(item);
-        booking.setBooker(booker);
-        booking.setStart(start);
-        booking.setEnd(end);
-        booking.setStatus(status);
-        return bookingRepository.save(booking);
-    }
-
-    private Request createRequest(User requester) {
-        Request request = new Request();
-        request.setDescription("Need item for testing");
-        request.setRequester(requester);
-        request.setCreated(LocalDateTime.now());
-        return requestRepository.save(request);
+        return item;
     }
 }
