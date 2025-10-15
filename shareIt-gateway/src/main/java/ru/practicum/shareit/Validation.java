@@ -1,10 +1,8 @@
 package ru.practicum.shareit;
 
-import feign.FeignException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 
