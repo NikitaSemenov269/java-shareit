@@ -59,7 +59,9 @@ class UserMapperTest {
     }
 
     @Test
-    void toUser_ShouldHandleNullName() {UserRequestDto requestDto = new UserRequestDto(null, "test@example.com");
+    void toUser_ShouldHandleNullName() {
+
+        UserRequestDto requestDto = new UserRequestDto(null, "test@example.com");
 
         User user = userMapper.toUser(requestDto);
 

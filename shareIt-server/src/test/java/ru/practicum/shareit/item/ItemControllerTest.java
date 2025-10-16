@@ -277,8 +277,8 @@ class ItemControllerTest {
         mockMvc.perform(patch("/items/{id}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemRequestDto)))
-                .andExpect(status().
-                        isInternalServerError());
+                .andExpect(status()
+                        .isInternalServerError());
     }
 
     @Test
