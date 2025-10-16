@@ -19,9 +19,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ItemValidationTest {
 
-    @Mock private ItemRepository itemRepository;
-    @Mock private UserRepository userRepository;
-    @InjectMocks private ItemValidation itemValidation;
+    @Mock
+    private ItemRepository itemRepository;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private ItemValidation itemValidation;
 
     @Test
     void existsByUserId_WithExistingUser_ShouldNotThrowException() {

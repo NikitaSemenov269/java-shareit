@@ -22,9 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class ItemRepositoryTest {
 
-    @Autowired private TestEntityManager entityManager;
-    @Autowired private ItemRepository itemRepository;
-    @Autowired private CommentRepository commentRepository;
+    @Autowired
+    private TestEntityManager entityManager;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Test
     void findAllByText_WithMatchingText_ShouldReturnItems() {

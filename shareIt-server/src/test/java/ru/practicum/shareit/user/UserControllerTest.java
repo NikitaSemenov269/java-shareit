@@ -184,7 +184,6 @@ class UserControllerTest {
         verify(userService).deleteUser(999L);
     }
 
-    // Тесты с некорректными ID (проверяем Spring conversion)
     @Test
     void getUserById_WithInvalidIdFormat() throws Exception {
         mockMvc.perform(get("/users/not-a-number"))
@@ -197,7 +196,6 @@ class UserControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    // Тесты с пустым телом запроса
     @Test
     void createUser_WithEmptyBody() throws Exception {
         mockMvc.perform(post("/users")
@@ -214,7 +212,6 @@ class UserControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    // Дополнительные тесты для покрытия edge cases
     @Test
     void createUser_WithServiceException() throws Exception {
         when(userService.createUser(any(UserRequestDto.class)))

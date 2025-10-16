@@ -35,7 +35,6 @@ class BookingValidatorTest {
 
     @Test
     void bookingDateValidation_ShouldThrowException_WhenDatesOverlap() {
-        // Arrange
         Long itemId = 1L;
         LocalDateTime start = LocalDateTime.now().plusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(2);
@@ -43,14 +42,12 @@ class BookingValidatorTest {
         when(bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end))
                 .thenReturn(true);
 
-        // Act & Assert
         assertThrows(ValidationException.class, () ->
                 bookingValidator.bookingDateValidation(itemId, start, end));
     }
 
     @Test
     void bookingDateValidation_ShouldNotThrow_WhenNoOverlap() {
-        // Arrange
         Long itemId = 1L;
         LocalDateTime start = LocalDateTime.now().plusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(2);
@@ -58,53 +55,43 @@ class BookingValidatorTest {
         when(bookingRepository.existsByItemIdAndStartLessThanEqualAndEndGreaterThanEqual(itemId, start, end))
                 .thenReturn(false);
 
-        // Act & Assert
         assertDoesNotThrow(() -> bookingValidator.bookingDateValidation(itemId, start, end));
     }
 
     @Test
     void existsByUserId_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> bookingValidator.existsByUserId(userId));
     }
 
     @Test
     void existsByUserId_ShouldNotThrow_WhenUserExists() {
-        // Arrange
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
 
-        // Act & Assert
         assertDoesNotThrow(() -> bookingValidator.existsByUserId(userId));
     }
 
     @Test
     void existsByItemId_ShouldThrowException_WhenItemNotFound() {
-        // Arrange
         Long itemId = 1L;
         when(itemRepository.existsById(itemId)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> bookingValidator.existsByItemId(itemId));
     }
 
     @Test
     void existsByItemId_ShouldNotThrow_WhenItemExists() {
-        // Arrange
         Long itemId = 1L;
         when(itemRepository.existsById(itemId)).thenReturn(true);
 
-        // Act & Assert
         assertDoesNotThrow(() -> bookingValidator.existsByItemId(itemId));
     }
 
     @Test
     void bookingValidationOfTheItemOwner_ShouldThrowException_WhenUserNotOwner() {
-        // Arrange
         Long userId = 1L;
         Long itemId = 1L;
 
@@ -117,14 +104,12 @@ class BookingValidatorTest {
 
         when(itemRepository.findById(itemId)).thenReturn(java.util.Optional.of(item));
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () ->
                 bookingValidator.bookingValidationOfTheItemOwner(userId, itemId));
     }
 
     @Test
     void bookingValidationOfTheItemOwner_ShouldNotThrow_WhenUserIsOwner() {
-        // Arrange
         Long userId = 1L;
         Long itemId = 1L;
 
@@ -137,7 +122,6 @@ class BookingValidatorTest {
 
         when(itemRepository.findById(itemId)).thenReturn(java.util.Optional.of(item));
 
-        // Act & Assert
         assertDoesNotThrow(() -> bookingValidator.bookingValidationOfTheItemOwner(userId, itemId));
     }
 }

@@ -55,7 +55,6 @@ class RequestMapperTest {
         assertNull(dto);
     }
 
-    // ДОБАВЛЕН тест для проверки маппинга всех полей
     @Test
     void toDto_ShouldMapAllFieldsCorrectly() {
         User requester = new User();

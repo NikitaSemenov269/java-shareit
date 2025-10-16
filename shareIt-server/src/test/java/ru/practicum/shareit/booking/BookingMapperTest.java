@@ -19,7 +19,6 @@ class BookingMapperTest {
 
     @Test
     void toBooking_WithValidRequestDto_ShouldMapCorrectly() {
-        // Given
         BookingRequestDto requestDto = new BookingRequestDto(
                 1L,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
@@ -27,10 +26,8 @@ class BookingMapperTest {
                 BookingStatus.WAITING
         );
 
-        // When
         Booking booking = bookingMapper.toBooking(requestDto);
 
-        // Then
         assertThat(booking).isNotNull();
         assertThat(booking.getStart()).isEqualTo(requestDto.getStart());
         assertThat(booking.getEnd()).isEqualTo(requestDto.getEnd());
@@ -39,7 +36,6 @@ class BookingMapperTest {
 
     @Test
     void toDto_WithValidBooking_ShouldMapCorrectly() {
-        // Given
         User booker = new User();
         booker.setId(2L);
         booker.setName("Booker Name");
@@ -65,10 +61,8 @@ class BookingMapperTest {
         booking.setItem(item);
         booking.setBooker(booker);
 
-        // When
         BookingDto dto = bookingMapper.toDto(booking);
 
-        // Then
         assertThat(dto).isNotNull();
         assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getStart()).isEqualTo(booking.getStart());
@@ -81,7 +75,6 @@ class BookingMapperTest {
 
     @Test
     void toDto_WithNullItem_ShouldReturnNull() {
-        // Given
         User booker = new User();
         booker.setId(2L);
 
@@ -93,10 +86,8 @@ class BookingMapperTest {
         booking.setItem(null);
         booking.setBooker(booker);
 
-        // When
         BookingDto dto = bookingMapper.toDto(booking);
 
-        // Then
         assertThat(dto).isNotNull();
         assertThat(dto.getItem()).isNull();
         assertThat(dto.getBooker().getId()).isEqualTo(2L);
@@ -104,7 +95,6 @@ class BookingMapperTest {
 
     @Test
     void toDto_WithNullUser_ShouldReturnNull() {
-        // Given
         Item item = new Item();
         item.setId(1L);
         item.setName("Test Item");
@@ -117,10 +107,8 @@ class BookingMapperTest {
         booking.setItem(item);
         booking.setBooker(null);
 
-        // When
         BookingDto dto = bookingMapper.toDto(booking);
 
-        // Then
         assertThat(dto).isNotNull();
         assertThat(dto.getBooker()).isNull();
         assertThat(dto.getItem().getId()).isEqualTo(1L);

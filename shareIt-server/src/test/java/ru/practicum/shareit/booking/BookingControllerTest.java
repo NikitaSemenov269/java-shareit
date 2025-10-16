@@ -62,9 +62,8 @@ class BookingControllerTest {
                 .build();
 
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // Важно: добавляем поддержку Java 8 времени
+        objectMapper.registerModule(new JavaTimeModule());
 
-        // Подготовка тестовых данных для запроса на бронирование
         bookingRequestDto = new BookingRequestDto(
                 itemId,
                 LocalDateTime.now().plusDays(1),
@@ -72,7 +71,6 @@ class BookingControllerTest {
                 BookingStatus.WAITING
         );
 
-        // Подготовка тестовых данных для ответа с бронированием
         bookingDto = new BookingDto(
                 bookingId,
                 LocalDateTime.now().plusDays(1),
@@ -82,7 +80,6 @@ class BookingControllerTest {
                 new SimpleUserDto(bookerId)
         );
 
-        // Подготовка подтвержденного бронирования
         approvedBookingDto = new BookingDto(
                 bookingId,
                 LocalDateTime.now().plusDays(1),
@@ -92,7 +89,6 @@ class BookingControllerTest {
                 new SimpleUserDto(bookerId)
         );
 
-        // Подготовка отклоненного бронирования
         rejectedBookingDto = new BookingDto(
                 bookingId,
                 LocalDateTime.now().plusDays(1),
@@ -149,7 +145,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBooking_WithEmptyBody_ShouldReturnBadRequest() throws Exception {
+    void createBooking_WithEmptyBody() throws Exception {
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", bookerId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +154,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBooking_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void createBooking_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
@@ -178,8 +174,6 @@ class BookingControllerTest {
 
         verify(bookingService).createBooking(eq(bookerId), any(BookingRequestDto.class));
     }
-
-    // ===== ТЕСТЫ ОБНОВЛЕНИЯ СТАТУСА БРОНИРОВАНИЯ =====
 
     @Test
     void updateAvailableStatusBooking_WhenApprove_ShouldReturnApprovedBooking() throws Exception {
@@ -225,7 +219,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void updateAvailableStatusBooking_WhenNotOwner_ShouldReturnBadRequest() throws Exception {
+    void updateAvailableStatusBooking_WhenNotOwner() throws Exception {
         when(bookingService.updateAvailableStatusBooking(eq(userId), eq(bookingId), eq(true)))
                 .thenThrow(new ValidationException("Пользователь не является владельцем вещи"));
 
@@ -238,20 +232,18 @@ class BookingControllerTest {
     }
 
     @Test
-    void updateAvailableStatusBooking_WithoutApprovedParam_ShouldReturnBadRequest() throws Exception {
+    void updateAvailableStatusBooking_WithoutApprovedParam() throws Exception {
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .header("X-Sharer-User-Id", ownerId))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void updateAvailableStatusBooking_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void updateAvailableStatusBooking_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .param("approved", "true"))
                 .andExpect(status().isInternalServerError());
     }
-
-    // ===== ТЕСТЫ ОТМЕНЫ БРОНИРОВАНИЯ =====
 
     @Test
     void canceledBookingById_ShouldReturnNoContent() throws Exception {
@@ -277,12 +269,10 @@ class BookingControllerTest {
     }
 
     @Test
-    void canceledBookingById_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void canceledBookingById_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(patch("/bookings/cancel/{bookingId}", bookingId))
                 .andExpect(status().isInternalServerError());
     }
-
-    // ===== ТЕСТЫ ПОЛУЧЕНИЯ БРОНИРОВАНИЯ ПО ID =====
 
     @Test
     void getBookingById_ShouldReturnBooking() throws Exception {
@@ -312,19 +302,17 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBookingById_WithInvalidIdFormat_ShouldReturnBadRequest() throws Exception {
+    void getBookingById_WithInvalidIdFormat() throws Exception {
         mockMvc.perform(get("/bookings/not-a-number")
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void getBookingById_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void getBookingById_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(get("/bookings/{bookingId}", bookingId))
                 .andExpect(status().isInternalServerError());
     }
-
-    // ===== ТЕСТЫ ПОЛУЧЕНИЯ БРОНИРОВАНИЙ ПОЛЬЗОВАТЕЛЯ =====
 
     @Test
     void getAllBookingByBookerId_ShouldReturnBookings() throws Exception {
@@ -386,13 +374,11 @@ class BookingControllerTest {
     }
 
     @Test
-    void getAllBookingByBookerId_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void getAllBookingByBookerId_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(get("/bookings")
                         .param("state", "ALL"))
                 .andExpect(status().isInternalServerError());
     }
-
-    // ===== ТЕСТЫ ПОЛУЧЕНИЯ БРОНИРОВАНИЙ ВЛАДЕЛЬЦА =====
 
     @Test
     void getAllBookingByOwnerId_ShouldReturnBookings() throws Exception {
@@ -454,19 +440,16 @@ class BookingControllerTest {
     }
 
     @Test
-    void getAllBookingByOwnerId_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+    void getAllBookingByOwnerId_WithoutUserIdHeader() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .param("state", "ALL"))
                 .andExpect(status().isInternalServerError());
     }
 
-    // ===== ДОПОЛНИТЕЛЬНЫЕ ТЕСТЫ ДЛЯ РАЗЛИЧНЫХ СОСТОЯНИЙ =====
-
     @Test
     void getAllBookingByBookerId_WithDifferentStates_ShouldReturnBookings() throws Exception {
         List<BookingDto> bookings = List.of(bookingDto);
 
-        // Тестируем разные состояния
         when(bookingService.getAllBookingByBookerId(eq(bookerId), eq(State.CURRENT))).thenReturn(bookings);
 
         mockMvc.perform(get("/bookings")

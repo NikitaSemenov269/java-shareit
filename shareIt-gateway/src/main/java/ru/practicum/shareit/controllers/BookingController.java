@@ -30,7 +30,6 @@ public class BookingController {
             return gatewayServiceClient.createBooking(bookingRequestDto, bookerId);
 
         } catch (FeignException.NotFound e) {
-            // Сервер вернул 404 - пробрасываем клиенту
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

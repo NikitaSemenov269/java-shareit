@@ -229,7 +229,6 @@ class RequestServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
-    // ДОБАВЛЕН тест для проверки пагинации (хотя в репозитории она не реализована)
     @Test
     void getOtherUserRequests_WithPagination_ShouldCallRepository() {
         User otherUser = createUser(otherUserId);
@@ -305,7 +304,6 @@ class RequestServiceImplTest {
         assertFalse(result.isEmpty());
     }
 
-    // ДОБАВЛЕН тест для проверки исключения при получении запроса по ID
     @Test
     void getRequestById_WhenUserDoesNotExist_ShouldThrowProperException() {
         when(userRepository.existsById(userId)).thenReturn(false);

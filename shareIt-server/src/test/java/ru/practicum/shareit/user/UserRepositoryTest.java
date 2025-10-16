@@ -120,6 +120,7 @@ class UserRepositoryTest {
             userRepository.saveAndFlush(user);
         });
     }
+
     @Test
     @Transactional
     void save_ShouldThrowException_WhenEmailAlreadyExists() {

@@ -18,8 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class RequestRepositoryTest {
 
-    @Autowired private TestEntityManager entityManager;
-    @Autowired private RequestRepository requestRepository;
+    @Autowired
+    private TestEntityManager entityManager;
+    @Autowired
+    private RequestRepository requestRepository;
 
     @Test
     void findByRequesterId_ShouldReturnUserRequests() {

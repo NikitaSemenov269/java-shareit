@@ -59,7 +59,6 @@ class BookingServiceImplUnitTest {
 
     @Test
     void createBooking_ShouldCreateBookingSuccessfully() {
-        // Arrange
         User booker = new User();
         booker.setId(bookerId);
 
@@ -90,10 +89,8 @@ class BookingServiceImplUnitTest {
         when(bookingRepository.save(booking)).thenReturn(booking);
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // Act
         BookingDto result = bookingService.createBooking(bookerId, requestDto);
 
-        // Assert
         assertNotNull(result);
         verify(bookingRepository).save(booking);
         verify(mapper).toDto(booking);
@@ -101,7 +98,6 @@ class BookingServiceImplUnitTest {
 
     @Test
     void createBooking_ShouldThrowException_WhenItemNotFound() {
-        // Arrange
         BookingRequestDto requestDto = new BookingRequestDto(
                 itemId,
                 LocalDateTime.now().plusDays(1),
@@ -112,14 +108,12 @@ class BookingServiceImplUnitTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
         doNothing().when(bookingValidator).existsByUserId(bookerId);
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () ->
                 bookingService.createBooking(bookerId, requestDto));
     }
 
     @Test
     void createBooking_ShouldThrowException_WhenItemNotAvailable() {
-        // Arrange
         User owner = new User();
         owner.setId(ownerId);
 
@@ -138,14 +132,12 @@ class BookingServiceImplUnitTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         doNothing().when(bookingValidator).existsByUserId(bookerId);
 
-        // Act & Assert
         assertThrows(ValidationException.class, () ->
                 bookingService.createBooking(bookerId, requestDto));
     }
 
     @Test
     void createBooking_ShouldThrowException_WhenOwnerBooksOwnItem() {
-        // Arrange
         User owner = new User();
         owner.setId(bookerId);
 
@@ -164,14 +156,12 @@ class BookingServiceImplUnitTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         doNothing().when(bookingValidator).existsByUserId(bookerId);
 
-        // Act & Assert
         assertThrows(ValidationException.class, () ->
                 bookingService.createBooking(bookerId, requestDto));
     }
 
     @Test
     void updateAvailableStatusBooking_ShouldApproveBooking() {
-        // Arrange
         User owner = new User();
         owner.setId(ownerId);
 
@@ -189,10 +179,8 @@ class BookingServiceImplUnitTest {
         when(bookingRepository.findByIdWithItemAndOwner(bookingId)).thenReturn(Optional.of(booking));
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // Act
         BookingDto result = bookingService.updateAvailableStatusBooking(ownerId, bookingId, true);
 
-        // Assert
         assertNotNull(result);
         assertEquals(APPROVED, booking.getStatus());
         verify(itemService).updateItemAvailable(item.getId(), false);
@@ -200,7 +188,6 @@ class BookingServiceImplUnitTest {
 
     @Test
     void updateAvailableStatusBooking_ShouldRejectBooking() {
-        // Arrange
         User owner = new User();
         owner.setId(ownerId);
 
@@ -218,10 +205,8 @@ class BookingServiceImplUnitTest {
         when(bookingRepository.findByIdWithItemAndOwner(bookingId)).thenReturn(Optional.of(booking));
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // Act
         BookingDto result = bookingService.updateAvailableStatusBooking(ownerId, bookingId, false);
 
-        // Assert
         assertNotNull(result);
         assertEquals(REJECTED, booking.getStatus());
         verify(itemService).updateItemAvailable(item.getId(), true);
@@ -229,7 +214,6 @@ class BookingServiceImplUnitTest {
 
     @Test
     void updateAvailableStatusBooking_ShouldThrowException_WhenUserNotOwner() {
-        // Arrange
         User owner = new User();
         owner.setId(999L);
 
@@ -241,14 +225,12 @@ class BookingServiceImplUnitTest {
 
         when(bookingRepository.findByIdWithItemAndOwner(bookingId)).thenReturn(Optional.of(booking));
 
-        // Act & Assert
         assertThrows(ValidationException.class, () ->
                 bookingService.updateAvailableStatusBooking(ownerId, bookingId, true));
     }
 
     @Test
     void canceledBookingById_ShouldCancelApprovedBooking() {
-        // Arrange
         User booker = new User();
         booker.setId(bookerId);
 
@@ -264,17 +246,14 @@ class BookingServiceImplUnitTest {
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findByIdAndBooker(bookingId, bookerId)).thenReturn(Optional.of(booking));
 
-        // Act
         bookingService.canceledBookingById(bookerId, bookingId);
 
-        // Assert
         assertEquals(CANCELED, booking.getStatus());
         verify(itemService).updateItemAvailable(itemId, true);
     }
 
     @Test
     void getBookingById_ShouldReturnBooking() {
-        // Arrange
         Booking booking = new Booking();
         BookingDto expectedDto = new BookingDto();
 
@@ -282,143 +261,117 @@ class BookingServiceImplUnitTest {
         when(bookingRepository.findByIdForAuthorOrOwner(bookingId, bookerId)).thenReturn(Optional.of(booking));
         when(mapper.toDto(booking)).thenReturn(expectedDto);
 
-        // Act
         BookingDto result = bookingService.getBookingById(bookerId, bookingId);
 
-        // Assert
         assertNotNull(result);
         verify(mapper).toDto(booking);
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnAllBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.ALL);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnCurrentBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllCurrentBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.CURRENT);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnPastBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllPastBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.PAST);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnFutureBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllFutureBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.FUTURE);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnWaitingBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllWaitingBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.WAITING);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByBookerId_ShouldReturnRejectedBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(bookerId);
         when(bookingRepository.findAllRejectedBookingByBookerId(bookerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByBookerId(bookerId, State.REJECTED);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByOwnerId_ShouldReturnAllBookings() {
-        // Arrange
         BookingDto bookingDto = new BookingDto();
         Collection<BookingDto> expected = Arrays.asList(bookingDto);
 
         doNothing().when(bookingValidator).existsByUserId(ownerId);
         when(bookingRepository.findAllBookingByOwnerId(ownerId)).thenReturn(expected);
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByOwnerId(ownerId, State.ALL);
 
-        // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void getAllBookingByOwnerId_ShouldReturnEmpty_WhenNoBookings() {
-        // Arrange
         doNothing().when(bookingValidator).existsByUserId(ownerId);
         when(bookingRepository.findAllBookingByOwnerId(ownerId)).thenReturn(Arrays.asList());
 
-        // Act
         Collection<BookingDto> result = bookingService.getAllBookingByOwnerId(ownerId, State.ALL);
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }

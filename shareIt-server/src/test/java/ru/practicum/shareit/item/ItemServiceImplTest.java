@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ItemServiceImpTest {
+class ItemServiceImplTest {
 
     @Mock
     private ItemValidation itemValidation;
@@ -87,11 +87,10 @@ class ItemServiceImpTest {
         return item;
     }
 
-    // Тесты для createItem - ИСПРАВЛЕННЫЕ!
     @Test
     void createItem_ShouldCreateItemSuccessfully() {
         ItemRequestDto requestDto = new ItemRequestDto("Test Item", "Test Description", true, null);
-        Item item = new Item(); // создаем новый item, а не используем createItem()
+        Item item = new Item();
         item.setName("Test Item");
         item.setDescription("Test Description");
         item.setAvailable(true);
@@ -99,7 +98,7 @@ class ItemServiceImpTest {
 
         when(userRepository.findById(eq(userId))).thenReturn(Optional.of(createUser(userId)));
         when(itemMapper.toItem(eq(requestDto))).thenReturn(item);
-        when(itemRepository.save(any(Item.class))).thenReturn(createItem()); // возвращаем item с ID
+        when(itemRepository.save(any(Item.class))).thenReturn(createItem());
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(expectedDto);
 
         ItemDto result = itemService.createItem(userId, requestDto);
@@ -142,7 +141,6 @@ class ItemServiceImpTest {
 
         assertThrows(NotFoundException.class, () -> itemService.createItem(userId, requestDto));
 
-        // Убедимся, что mapper не вызывался
         verify(itemMapper, never()).toItem(any());
         verify(itemRepository, never()).save(any());
     }
@@ -153,7 +151,6 @@ class ItemServiceImpTest {
 
         assertThrows(ValidationException.class, () -> itemService.createItem(userId, requestDto));
 
-        // Убедимся, что репозитории не вызывались
         verify(userRepository, never()).findById(any());
         verify(itemRepository, never()).save(any());
     }
@@ -161,18 +158,17 @@ class ItemServiceImpTest {
     @Test
     void createItem_WhenRequestNotFound_ShouldThrowException() {
         ItemRequestDto requestDto = new ItemRequestDto("Test Item", "Test Description", true, requestId);
-        Item item = new Item(); // создаем item для mapper
+        Item item = new Item();
         item.setName("Test Item");
         item.setDescription("Test Description");
         item.setAvailable(true);
 
         when(userRepository.findById(eq(userId))).thenReturn(Optional.of(createUser(userId)));
         when(requestRepository.findById(eq(requestId))).thenReturn(Optional.empty());
-        when(itemMapper.toItem(eq(requestDto))).thenReturn(item); // mapper должен вернуть item
+        when(itemMapper.toItem(eq(requestDto))).thenReturn(item);
 
         assertThrows(NotFoundException.class, () -> itemService.createItem(userId, requestDto));
 
-        // Убедимся, что save не вызывался
         verify(itemRepository, never()).save(any());
     }
 
@@ -198,7 +194,6 @@ class ItemServiceImpTest {
 
     @Test
     void updateItem_WithPartialData_ShouldUpdateOnlyProvidedFields() {
-        // Only update name
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setName("New Name");
         Item existingItem = createItem();
@@ -213,7 +208,6 @@ class ItemServiceImpTest {
 
         assertNotNull(result);
         assertEquals("New Name", result.getName());
-        // Original values should remain
         assertEquals("Test Description", result.getDescription());
         assertEquals(true, result.getAvailable());
     }
@@ -229,7 +223,6 @@ class ItemServiceImpTest {
         assertThrows(NotFoundException.class, () -> itemService.updateItem(itemId, ownerId, requestDto));
     }
 
-    // Тесты для deleteItem
     @Test
     void deleteItem_ShouldDeleteItemSuccessfully() {
         doNothing().when(itemValidation).existsByUserId(eq(ownerId));
@@ -240,7 +233,6 @@ class ItemServiceImpTest {
         verify(itemRepository).deleteById(eq(itemId));
     }
 
-    // Тесты для getItemById
     @Test
     void getItemById_ShouldReturnItemWithBookingsForOwner() {
         Item item = createItem();
@@ -292,7 +284,6 @@ class ItemServiceImpTest {
         assertThrows(NotFoundException.class, () -> itemService.getItemById(itemId, userId));
     }
 
-    // Тесты для searchItemDtoByText
     @Test
     void searchItemDtoByText_ShouldReturnItems() {
         ItemDto itemDto = new ItemDto(itemId, ownerId, "Test Item", "Test Description", true, null);
@@ -332,7 +323,6 @@ class ItemServiceImpTest {
         assertTrue(result.isEmpty());
     }
 
-    // Тесты для searchAllItemOfOwnerById
     @Test
     void searchAllItemOfOwnerById_ShouldReturnItems() {
         Item item = createItem();
@@ -360,7 +350,6 @@ class ItemServiceImpTest {
         assertTrue(result.isEmpty());
     }
 
-    // Тесты для updateItemAvailable
     @Test
     void updateItemAvailable_ShouldUpdateAvailability() {
         Item item = createItem();
@@ -378,7 +367,7 @@ class ItemServiceImpTest {
     @Test
     void updateItemAvailable_WhenStatusSame_ShouldNotSave() {
         Item item = createItem();
-        Boolean sameAvailability = true; // same as initial
+        Boolean sameAvailability = true;
 
         when(itemRepository.findById(eq(itemId))).thenReturn(Optional.of(item));
 
@@ -399,7 +388,6 @@ class ItemServiceImpTest {
         assertThrows(ValidationException.class, () -> itemService.updateItemAvailable(itemId, null));
     }
 
-    // Тесты для addComment
     @Test
     void addComment_ShouldAddCommentSuccessfully() {
         String commentText = "Great item!";
