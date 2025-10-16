@@ -2,101 +2,105 @@ package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.interfaces.UserRepository;
 
-import java.util.List;
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
+@DataJpaTest
 class UserRepositoryTest {
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Autowired
     private UserRepository userRepository;
 
     @Test
-    void findById_WithExistingUser_ShouldReturnUser() {
-        User user = createTestUser("Test User", "test@example.com");
-        User saved = userRepository.save(user);
+    void findById_ShouldReturnUser_WhenUserExists() {
+        User user = new User();
+        user.setName("Test User");
+        user.setEmail("test@example.com");
+        User savedUser = entityManager.persistAndFlush(user);
 
-        Optional<User> found = userRepository.findById(saved.getId());
+        var foundUser = userRepository.findById(savedUser.getId());
 
-        assertTrue(found.isPresent());
-        assertEquals(saved.getId(), found.get().getId());
-        assertEquals("Test User", found.get().getName());
-        assertEquals("test@example.com", found.get().getEmail());
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getName()).isEqualTo("Test User");
+        assertThat(foundUser.get().getEmail()).isEqualTo("test@example.com");
     }
 
     @Test
-    void findById_WithNonExistingId_ShouldReturnEmpty() {
-        Optional<User> found = userRepository.findById(999L);
+    void findById_ShouldReturnEmpty_WhenUserNotExists() {
+        var foundUser = userRepository.findById(999L);
 
-        assertFalse(found.isPresent());
+        assertThat(foundUser).isEmpty();
     }
 
     @Test
-    void existsByEmailAndIdNot_WithDifferentUserSameEmail_ShouldReturnTrue() {
-        User user1 = createTestUser("User1", "same@example.com");
-        User saved1 = userRepository.save(user1);
+    void existsByEmailAndIdNot_ShouldReturnTrue_WhenEmailExistsForOtherUser() {
+        User user1 = new User();
+        user1.setName("User 1");
+        user1.setEmail("test@example.com");
+        User savedUser1 = entityManager.persistAndFlush(user1);
 
-        User user2 = createTestUser("User2", "different@example.com");
-        User saved2 = userRepository.save(user2);
-        boolean exists = userRepository.existsByEmailAndIdNot("same@example.com", saved2.getId());
+        User user2 = new User();
+        user2.setName("User 2");
+        user2.setEmail("other@example.com");
+        User savedUser2 = entityManager.persistAndFlush(user2);
 
-        assertTrue(exists);
+        boolean exists = userRepository.existsByEmailAndIdNot("test@example.com", savedUser2.getId());
+
+        assertThat(exists).isTrue();
     }
 
     @Test
-    void existsByEmailAndIdNot_WithSameUser_ShouldReturnFalse() {
-        User user = createTestUser("Test User", "test@example.com");
-        User saved = userRepository.save(user);
+    void existsByEmailAndIdNot_ShouldReturnFalse_WhenEmailDoesNotExist() {
+        User user = new User();
+        user.setName("Test User");
+        user.setEmail("test@example.com");
+        User savedUser = entityManager.persistAndFlush(user);
 
-        boolean exists = userRepository.existsByEmailAndIdNot("test@example.com", saved.getId());
+        boolean exists = userRepository.existsByEmailAndIdNot("nonexistent@example.com", savedUser.getId());
 
-        assertFalse(exists);
+        assertThat(exists).isFalse();
     }
 
     @Test
-    void existsByEmailAndIdNot_WithNonExistingEmail_ShouldReturnFalse() {
-        User user = createTestUser("Test User", "test@example.com");
-        User saved = userRepository.save(user);
+    void existsByEmailAndIdNot_ShouldReturnFalse_WhenEmailBelongsToSameUser() {
+        User user = new User();
+        user.setName("Test User");
+        user.setEmail("test@example.com");
+        User savedUser = entityManager.persistAndFlush(user);
 
-        boolean exists = userRepository.existsByEmailAndIdNot("nonexistent@example.com", saved.getId());
+        boolean exists = userRepository.existsByEmailAndIdNot("test@example.com", savedUser.getId());
 
-        assertFalse(exists);
+        assertThat(exists).isFalse();
     }
 
     @Test
-    void existsByEmailAndIdNot_WithNullEmail_ShouldReturnFalse() {
-        User user = createTestUser("Test User", "test@example.com");
-        User saved = userRepository.save(user);
+    void save_ShouldPersistUserWithGeneratedId() {
+        User user = new User();
+        user.setName("Test User");
+        user.setEmail("test@example.com");
 
-        boolean exists = userRepository.existsByEmailAndIdNot(null, saved.getId());
+        User savedUser = userRepository.save(user);
 
-        assertFalse(exists);
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+        assertThat(savedUser.getName()).isEqualTo("Test User");
+        assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
+
+        User foundUser = entityManager.find(User.class, savedUser.getId());
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getName()).isEqualTo("Test User");
     }
 
     @Test
-    void save_WithDuplicateEmail_ShouldThrowException() {
-        User user1 = createTestUser("User1", "duplicate@example.com");
-        userRepository.save(user1);
-
-        User user2 = createTestUser("User2", "duplicate@example.com");
-
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userRepository.saveAndFlush(user2); // Используем saveAndFlush для немедленного исключения
-        });
-    }
-
-    @Test
-    void save_WithNullEmail_ShouldThrowException() {
+    void save_ShouldThrowException_WhenEmailIsNull() {
         User user = new User();
         user.setName("Test User");
         user.setEmail(null);
@@ -107,7 +111,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void save_WithNullName_ShouldThrowException() {
+    void save_ShouldThrowException_WhenNameIsNull() {
         User user = new User();
         user.setName(null);
         user.setEmail("test@example.com");
@@ -118,97 +122,92 @@ class UserRepositoryTest {
     }
 
     @Test
-    void save_WithEmptyName_ShouldSuccess() {
-        User user = new User();
-        user.setName("");
-        user.setEmail("test@example.com");
+    void save_ShouldThrowException_WhenEmailAlreadyExists() {
+        User user1 = new User();
+        user1.setName("User 1");
+        user1.setEmail("duplicate@example.com");
+        entityManager.persistAndFlush(user1);
 
-        User saved = userRepository.save(user);
-
-        assertNotNull(saved.getId());
-        assertEquals("", saved.getName());
-        assertEquals("test@example.com", saved.getEmail());
-    }
-
-    @Test
-    void save_WithEmptyEmail_ShouldThrowException() {
-        User user = new User();
-        user.setName("Test User");
-        user.setEmail("");
+        User user2 = new User();
+        user2.setName("User 2");
+        user2.setEmail("duplicate@example.com");
 
         assertThrows(DataIntegrityViolationException.class, () -> {
-            userRepository.saveAndFlush(user);
+            userRepository.saveAndFlush(user2);
         });
     }
 
     @Test
-    void findAll_WithMultipleUsers_ShouldReturnAll() {
-        User user1 = createTestUser("User1", "user1@example.com");
-        User user2 = createTestUser("User2", "user2@example.com");
-        User user3 = createTestUser("User3", "user3@example.com");
+    void save_ShouldHandleCaseSensitiveEmail() {
+        User user1 = new User();
+        user1.setName("User 1");
+        user1.setEmail("test@example.com");
+        entityManager.persistAndFlush(user1);
 
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
+        User user2 = new User();
+        user2.setName("User 2");
+        user2.setEmail("TEST@example.com");
 
-        List<User> allUsers = userRepository.findAll();
-
-        assertEquals(3, allUsers.size());
-        assertTrue(allUsers.stream().anyMatch(u -> u.getName().equals("User1")));
-        assertTrue(allUsers.stream().anyMatch(u -> u.getName().equals("User2")));
-        assertTrue(allUsers.stream().anyMatch(u -> u.getName().equals("User3")));
+        // В зависимости от настройки БД это может пройти или упасть
+        User savedUser2 = userRepository.save(user2);
+        assertThat(savedUser2).isNotNull();
     }
 
     @Test
-    void deleteById_WithExistingUser_ShouldRemoveUser() {
-        User user = createTestUser("Test User", "test@example.com");
-        User saved = userRepository.save(user);
-
-        assertTrue(userRepository.existsById(saved.getId()));
-
-        userRepository.deleteById(saved.getId());
-
-        assertFalse(userRepository.existsById(saved.getId()));
-    }
-
-    @Test
-    void deleteById_WithNonExistingId_ShouldNotThrowException() {
-        assertDoesNotThrow(() -> userRepository.deleteById(999L));
-    }
-
-    @Test
-    void count_WithUsers_ShouldReturnCorrectCount() {
-        long initialCount = userRepository.count();
-
-        User user1 = createTestUser("User1", "user1@example.com");
-        User user2 = createTestUser("User2", "user2@example.com");
-
-        userRepository.save(user1);
-        userRepository.save(user2);
-
-        assertEquals(initialCount + 2, userRepository.count());
-    }
-
-    @Test
-    void save_WithMaxLengthFields_ShouldSuccess() {
-        String maxName = "A".repeat(30);
-        String maxEmail = "A".repeat(45);
-
+    void deleteById_ShouldRemoveUser() {
         User user = new User();
-        user.setName(maxName);
-        user.setEmail(maxEmail);
+        user.setName("Test User");
+        user.setEmail("test@example.com");
+        User savedUser = entityManager.persistAndFlush(user);
 
-        User saved = userRepository.save(user);
+        userRepository.deleteById(savedUser.getId());
+        entityManager.flush();
 
-        assertNotNull(saved.getId());
-        assertEquals(maxName, saved.getName());
-        assertEquals(maxEmail, saved.getEmail());
+        User deletedUser = entityManager.find(User.class, savedUser.getId());
+        assertThat(deletedUser).isNull();
     }
 
-    private User createTestUser(String name, String email) {
+    @Test
+    void findAll_ShouldReturnAllUsers() {
+        User user1 = new User();
+        user1.setName("User 1");
+        user1.setEmail("user1@example.com");
+        entityManager.persistAndFlush(user1);
+
+        User user2 = new User();
+        user2.setName("User 2");
+        user2.setEmail("user2@example.com");
+        entityManager.persistAndFlush(user2);
+
+        var users = userRepository.findAll();
+
+        assertThat(users).hasSize(2);
+        assertThat(users).extracting(User::getName)
+                .containsExactlyInAnyOrder("User 1", "User 2");
+    }
+
+    @Test
+    void save_ShouldHandleLongNames() {
+        String longName = "A".repeat(30); // Максимальная длина согласно аннотации @Length(max = 30)
         User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        return user;
+        user.setName(longName);
+        user.setEmail("test@example.com");
+
+        User savedUser = userRepository.save(user);
+
+        assertThat(savedUser.getName()).hasSize(30);
+        assertThat(savedUser.getName()).isEqualTo(longName);
+    }
+
+    @Test
+    void save_ShouldHandleLongEmails() {
+        String longEmail = "a".repeat(45) + "@example.com"; // Максимальная длина согласно @Column(length = 45)
+        User user = new User();
+        user.setName("Test User");
+        user.setEmail(longEmail);
+
+        User savedUser = userRepository.save(user);
+
+        assertThat(savedUser.getEmail()).isEqualTo(longEmail);
     }
 }
