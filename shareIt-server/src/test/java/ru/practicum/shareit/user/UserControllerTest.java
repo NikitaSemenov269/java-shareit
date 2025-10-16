@@ -50,7 +50,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_WithValidData_ShouldReturnUser() throws Exception {
+    void createUser_WithValidData() throws Exception {
         when(userService.createUser(any(UserRequestDto.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
@@ -65,7 +65,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_WithDuplicateEmail_ShouldReturnInternalServerError() throws Exception {
+    void createUser_WithDuplicateEmail() throws Exception {
         when(userService.createUser(any(UserRequestDto.class)))
                 .thenThrow(new EmailAlreadyExistsException("Пользователь с таким email уже существует."));
 
@@ -79,7 +79,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserById_WithExistingId_ShouldReturnUser() throws Exception {
+    void getUserById_WithExistingId() throws Exception {
         when(userService.getUserDtoById(1L)).thenReturn(userDto);
 
         mockMvc.perform(get("/users/1"))
@@ -92,7 +92,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+    void getUserById_WithNonExistingId() throws Exception {
         when(userService.getUserDtoById(999L))
                 .thenThrow(new NotFoundException("Пользователь с ID: 999 не найден"));
         mockMvc.perform(get("/users/999"))
@@ -103,7 +103,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_WithValidData_ShouldReturnUpdatedUser() throws Exception {
+    void updateUser_WithValidData() throws Exception {
         UserDto updatedUser = new UserDto(1L, "Updated User", "updated@example.com");
         when(userService.updateUser(eq(1L), any(UserRequestDto.class))).thenReturn(updatedUser);
 
@@ -120,7 +120,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_WithPartialData_ShouldReturnUpdatedUser() throws Exception {
+    void updateUser_WithPartialData() throws Exception {
         UserDto updatedUser = new UserDto(1L, "Updated User", "test@example.com");
         when(userService.updateUser(eq(1L), any(UserRequestDto.class))).thenReturn(updatedUser);
 
@@ -136,7 +136,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+    void updateUser_WithNonExistingId() throws Exception {
         when(userService.updateUser(eq(999L), any(UserRequestDto.class)))
                 .thenThrow(new NotFoundException("Пользователь с 999 не существует"));
 
@@ -150,7 +150,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_WithDuplicateEmail_ShouldReturnInternalServerError() throws Exception {
+    void updateUser_WithDuplicateEmail() throws Exception {
         when(userService.updateUser(eq(1L), any(UserRequestDto.class)))
                 .thenThrow(new EmailAlreadyExistsException("Email уже занят другим пользователем."));
 
@@ -164,7 +164,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_WithExistingId_ShouldReturnNoContent() throws Exception {
+    void deleteUser_WithExistingId() throws Exception {
         doNothing().when(userService).deleteUser(1L);
 
         mockMvc.perform(delete("/users/1"))
@@ -174,7 +174,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+    void deleteUser_WithNonExistingId() throws Exception {
         doThrow(new NotFoundException("Пользователь не найден")).when(userService).deleteUser(999L);
 
         mockMvc.perform(delete("/users/999"))
@@ -216,7 +216,7 @@ class UserControllerTest {
 
     // Дополнительные тесты для покрытия edge cases
     @Test
-    void createUser_WithServiceException_ShouldReturnInternalServerError() throws Exception {
+    void createUser_WithServiceException() throws Exception {
         when(userService.createUser(any(UserRequestDto.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
@@ -230,7 +230,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_WithServiceException_ShouldReturnInternalServerError() throws Exception {
+    void updateUser_WithServiceException() throws Exception {
         when(userService.updateUser(eq(1L), any(UserRequestDto.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 

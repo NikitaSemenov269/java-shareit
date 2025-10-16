@@ -1,9 +1,10 @@
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ActiveProfiles;
+import ru.practicum.shareit.ShareItServerApp;
 
-@SpringBootTest
-@ComponentScan(basePackages = "ru.practicum.shareit")
+@SpringBootTest(classes = ShareItServerApp.class)
+@ActiveProfiles("test")
 class ShareItTests {
 
     @Test
