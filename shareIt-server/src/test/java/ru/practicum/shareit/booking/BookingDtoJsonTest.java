@@ -1,99 +1,132 @@
-/*
 package ru.practicum.shareit.booking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import ru.practicum.DTO.BookingDto;
 import ru.practicum.DTO.BookingRequestDto;
-import ru.practicum.DTO.SimpleItemDto;
-import ru.practicum.DTO.SimpleUserDto;
-import ru.practicum.enums.BookingStatus;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.practicum.enums.BookingStatus.WAITING;
 
-@JsonTest
 class BookingDtoJsonTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    @BeforeEach
-    void setUp() {
-        // Регистрируем модуль для работы с Java Time
-        objectMapper.registerModule(new JavaTimeModule());
+    @Test
+    void bookingRequestDtoValidation_ShouldFail_WhenNullFields() {
+        // Arrange
+        BookingRequestDto invalidDto = new BookingRequestDto(
+                null, // @NotNull violation
+                null, // @NotNull + @FutureOrPresent violation
+                null, // @NotNull + @Future violation
+                null  // status has default value, so no violation
+        );
+
+        // Act
+        Set<ConstraintViolation<BookingRequestDto>> violations = validator.validate(invalidDto);
+
+        // Assert - статус не обязателен, так как есть значение по умолчанию WAITING
+        assertThat(violations).hasSize(3);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("itemId"));
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("start"));
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("end"));
     }
 
     @Test
-    void bookingRequestDto_Serialization_ShouldIncludeAllFields() throws JsonProcessingException {
-        BookingRequestDto dto = new BookingRequestDto();
-        dto.setItemId(1L);
-        LocalDateTime start = LocalDateTime.of(2024, 1, 1, 10, 0);
-        LocalDateTime end = LocalDateTime.of(2024, 1, 2, 10, 0);
-        dto.setStart(start);
-        dto.setEnd(end);
+    void bookingRequestDtoValidation_ShouldFail_WhenInvalidDates() {
+        // Arrange
+        BookingRequestDto invalidDto = new BookingRequestDto(
+                1L,
+                LocalDateTime.now().minusDays(1), // @FutureOrPresent violation
+                LocalDateTime.now().minusDays(2), // @Future violation
+                WAITING
+        );
 
-        String json = objectMapper.writeValueAsString(dto);
+        // Act
+        Set<ConstraintViolation<BookingRequestDto>> violations = validator.validate(invalidDto);
 
-        assertThat(json).contains("\"itemId\":1");
-        assertThat(json).contains("\"start\"");
-        assertThat(json).contains("\"end\"");
+        // Assert
+        assertThat(violations).hasSize(2);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("start"));
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("end"));
     }
 
     @Test
-    void bookingRequestDto_Deserialization_ShouldCreateValidObject() throws JsonProcessingException {
-        String json = "{\"itemId\":1,\"start\":\"2024-01-01T10:00:00\",\"end\":\"2024-01-02T10:00:00\"}";
+    void bookingRequestDtoValidation_ShouldPass_WhenValid() {
+        // Arrange
+        BookingRequestDto validDto = new BookingRequestDto(
+                1L,
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                WAITING
+        );
 
-        BookingRequestDto dto = objectMapper.readValue(json, BookingRequestDto.class);
+        // Act
+        Set<ConstraintViolation<BookingRequestDto>> violations = validator.validate(validDto);
 
-        assertThat(dto.getItemId()).isEqualTo(1L);
-        assertThat(dto.getStart()).isEqualTo(LocalDateTime.of(2024, 1, 1, 10, 0));
-        assertThat(dto.getEnd()).isEqualTo(LocalDateTime.of(2024, 1, 2, 10, 0));
+        // Assert
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    void bookingDto_Serialization_ShouldIncludeAllFields() throws JsonProcessingException {
-        SimpleItemDto item = new SimpleItemDto(1L, "Test Item");
-        SimpleUserDto booker = new SimpleUserDto(2L);
+    void bookingDtoDeserializationTest() throws Exception {
+        // Arrange
+        String jsonContent = """
+            {
+                "id": 1,
+                "start": "2023-12-01T10:00:00",
+                "end": "2023-12-02T10:00:00",
+                "status": "WAITING",
+                "item": {
+                    "id": 1,
+                    "name": "Test Item"
+                },
+                "booker": {
+                    "id": 1
+                }
+            }
+            """;
 
-        // Предполагаем, что BookingDto имеет конструктор или сеттеры
-        BookingDto dto = new BookingDto();
-        dto.setId(1L);
-        dto.setStart(LocalDateTime.of(2024, 1, 1, 10, 0));
-        dto.setEnd(LocalDateTime.of(2024, 1, 2, 10, 0));
-        dto.setStatus(BookingStatus.WAITING);
-        dto.setItem(item);
-        dto.setBooker(booker);
+        // Act
+        BookingDto result = objectMapper.readValue(jsonContent, BookingDto.class);
 
-        String json = objectMapper.writeValueAsString(dto);
-
-        assertThat(json).contains("\"id\":1");
-        assertThat(json).contains("\"item\"");
-        assertThat(json).contains("\"booker\"");
+        // Assert
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getStart()).isEqualTo(LocalDateTime.of(2023, 12, 1, 10, 0));
+        assertThat(result.getEnd()).isEqualTo(LocalDateTime.of(2023, 12, 2, 10, 0));
+        assertThat(result.getStatus()).isEqualTo(WAITING);
+        assertThat(result.getItem().getId()).isEqualTo(1L);
+        assertThat(result.getItem().getName()).isEqualTo("Test Item");
+        assertThat(result.getBooker().getId()).isEqualTo(1L);
     }
 
     @Test
-    void simpleItemDto_Serialization_ShouldIncludeIdAndName() throws JsonProcessingException {
-        SimpleItemDto dto = new SimpleItemDto(1L, "Test Item");
+    void bookingRequestDtoDeserializationTest() throws Exception {
+        // Arrange
+        String jsonContent = """
+            {
+                "itemId": 1,
+                "start": "2023-12-01T10:00:00",
+                "end": "2023-12-02T10:00:00",
+                "status": "WAITING"
+            }
+            """;
 
-        String json = objectMapper.writeValueAsString(dto);
+        // Act
+        BookingRequestDto result = objectMapper.readValue(jsonContent, BookingRequestDto.class);
 
-        assertThat(json).contains("\"id\":1");
-        assertThat(json).contains("\"name\":\"Test Item\"");
+        // Assert
+        assertThat(result.getItemId()).isEqualTo(1L);
+        assertThat(result.getStart()).isEqualTo(LocalDateTime.of(2023, 12, 1, 10, 0));
+        assertThat(result.getEnd()).isEqualTo(LocalDateTime.of(2023, 12, 2, 10, 0));
+        assertThat(result.getStatus()).isEqualTo(WAITING);
     }
-
-    @Test
-    void simpleUserDto_Serialization_ShouldIncludeOnlyId() throws JsonProcessingException {
-        SimpleUserDto dto = new SimpleUserDto(1L);
-
-        String json = objectMapper.writeValueAsString(dto);
-
-        assertThat(json).isEqualTo("{\"id\":1}");
-    }
-}*/
+}
