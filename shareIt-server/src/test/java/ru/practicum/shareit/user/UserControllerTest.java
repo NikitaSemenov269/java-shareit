@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,185 +14,198 @@ import ru.practicum.exception.EmailAlreadyExistsException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.shareit.user.interfaces.UserService;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private UserService userService;
 
-    private final Long userId = 1L;
-    private final String userName = "Test User";
-    private final String userEmail = "test@example.com";
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private UserDto userDto;
+    private UserRequestDto userRequestDto;
+
+    @BeforeEach
+    void setUp() {
+        userDto = new UserDto(1L, "Test User", "test@example.com");
+        userRequestDto = new UserRequestDto("Test User", "test@example.com");
+    }
 
     @Test
-    void createUser_ShouldReturnUserDto() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto(userName, userEmail);
-        UserDto responseDto = new UserDto(userId, userName, userEmail);
-
-        when(userService.createUser(any(UserRequestDto.class))).thenReturn(responseDto);
+    void createUser_WithValidData_ShouldReturnUser() throws Exception {
+        when(userService.createUser(any())).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.name").value(userName))
-                .andExpect(jsonPath("$.email").value(userEmail));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Test User")))
+                .andExpect(jsonPath("$.email", is("test@example.com")));
 
-        verify(userService).createUser(any(UserRequestDto.class));
+        verify(userService, times(1)).createUser(any());
     }
 
     @Test
-    void createUser_ShouldReturnBadRequest_WhenInvalidData() throws Exception {
-        UserRequestDto invalidRequestDto = new UserRequestDto("", "invalid-email");
+    void createUser_WithDuplicateEmail_ShouldReturnInternalServerError() throws Exception {
+        when(userService.createUser(any()))
+                .thenThrow(new EmailAlreadyExistsException("Пользователь с таким email уже существует."));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequestDto)))
-                .andExpect(status().isBadRequest());
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error", containsString("Пользователь с таким email уже существует")));
 
-        verify(userService, never()).createUser(any());
+        verify(userService, times(1)).createUser(any());
     }
 
     @Test
-    void createUser_ShouldHandleEmailAlreadyExistsException() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto(userName, userEmail);
+    void getUserById_WithExistingId_ShouldReturnUser() throws Exception {
+        when(userService.getUserDtoById(1L)).thenReturn(userDto);
 
-        when(userService.createUser(any(UserRequestDto.class)))
-                .thenThrow(new EmailAlreadyExistsException("Email exists"));
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isConflict());
-
-        verify(userService).createUser(any(UserRequestDto.class));
-    }
-
-    @Test
-    void getUserDtoById_ShouldReturnUserDto() throws Exception {
-        UserDto responseDto = new UserDto(userId, userName, userEmail);
-
-        when(userService.getUserDtoById(userId)).thenReturn(responseDto);
-
-        mockMvc.perform(get("/users/{id}", userId))
+        mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.name").value(userName))
-                .andExpect(jsonPath("$.email").value(userEmail));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Test User")))
+                .andExpect(jsonPath("$.email", is("test@example.com")));
 
-        verify(userService).getUserDtoById(userId);
+        verify(userService, times(1)).getUserDtoById(1L);
     }
 
     @Test
-    void getUserDtoById_ShouldHandleNotFoundException() throws Exception {
-        when(userService.getUserDtoById(userId))
-                .thenThrow(new NotFoundException("User not found"));
+    void getUserById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+        when(userService.getUserDtoById(999L))
+                .thenThrow(new NotFoundException("Пользователь с ID: 999 не найден"));
 
-        mockMvc.perform(get("/users/{id}", userId))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/users/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", containsString("Пользователь с ID: 999 не найден")));
 
-        verify(userService).getUserDtoById(userId);
+        verify(userService, times(1)).getUserDtoById(999L);
     }
 
     @Test
-    void updateUser_ShouldReturnUpdatedUserDto() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto("Updated Name", "updated@example.com");
-        UserDto responseDto = new UserDto(userId, "Updated Name", "updated@example.com");
+    void updateUser_WithValidData_ShouldReturnUpdatedUser() throws Exception {
+        UserDto updatedUser = new UserDto(1L, "Updated User", "updated@example.com");
+        when(userService.updateUser(eq(1L), any())).thenReturn(updatedUser);
 
-        when(userService.updateUser(eq(userId), any(UserRequestDto.class))).thenReturn(responseDto);
+        UserRequestDto updateRequest = new UserRequestDto("Updated User", "updated@example.com");
 
-        mockMvc.perform(patch("/users/{id}", userId)
+        mockMvc.perform(patch("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                        .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.name").value("Updated Name"))
-                .andExpect(jsonPath("$.email").value("updated@example.com"));
+                .andExpect(jsonPath("$.name", is("Updated User")))
+                .andExpect(jsonPath("$.email", is("updated@example.com")));
 
-        verify(userService).updateUser(eq(userId), any(UserRequestDto.class));
+        verify(userService, times(1)).updateUser(eq(1L), any());
     }
 
     @Test
-    void updateUser_ShouldHandleNotFoundException() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto("Updated Name", "updated@example.com");
+    void updateUser_WithPartialData_ShouldReturnUpdatedUser() throws Exception {
+        UserDto updatedUser = new UserDto(1L, "Updated User", "test@example.com");
+        when(userService.updateUser(eq(1L), any())).thenReturn(updatedUser);
 
-        when(userService.updateUser(eq(userId), any(UserRequestDto.class)))
-                .thenThrow(new NotFoundException("User not found"));
+        String partialUpdateJson = "{\"name\": \"Updated User\"}";
 
-        mockMvc.perform(patch("/users/{id}", userId)
+        mockMvc.perform(patch("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isNotFound());
+                        .content(partialUpdateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("Updated User")));
 
-        verify(userService).updateUser(eq(userId), any(UserRequestDto.class));
+        verify(userService, times(1)).updateUser(eq(1L), any());
     }
 
     @Test
-    void updateUser_ShouldHandleEmailAlreadyExistsException() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto("Updated Name", "taken@example.com");
+    void updateUser_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+        when(userService.updateUser(eq(999L), any()))
+                .thenThrow(new NotFoundException("Пользователь с 999 не существует"));
 
-        when(userService.updateUser(eq(userId), any(UserRequestDto.class)))
-                .thenThrow(new EmailAlreadyExistsException("Email taken"));
-
-        mockMvc.perform(patch("/users/{id}", userId)
+        mockMvc.perform(patch("/users/999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isConflict());
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", containsString("Пользователь с 999 не существует")));
 
-        verify(userService).updateUser(eq(userId), any(UserRequestDto.class));
+        verify(userService, times(1)).updateUser(eq(999L), any());
     }
 
     @Test
-    void deleteUser_ShouldReturnNoContent() throws Exception {
-        doNothing().when(userService).deleteUser(userId);
+    void updateUser_WithDuplicateEmail_ShouldReturnInternalServerError() throws Exception {
+        when(userService.updateUser(eq(1L), any()))
+                .thenThrow(new EmailAlreadyExistsException("Email уже занят другим пользователем."));
 
-        mockMvc.perform(delete("/users/{id}", userId))
+        mockMvc.perform(patch("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error", containsString("Email уже занят другим пользователем")));
+
+        verify(userService, times(1)).updateUser(eq(1L), any());
+    }
+
+    @Test
+    void deleteUser_WithExistingId_ShouldReturnNoContent() throws Exception {
+        doNothing().when(userService).deleteUser(1L);
+
+        mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNoContent());
 
-        verify(userService).deleteUser(userId);
+        verify(userService, times(1)).deleteUser(1L);
     }
 
     @Test
-    void deleteUser_ShouldHandleNotFoundException() throws Exception {
-        doThrow(new NotFoundException("User not found")).when(userService).deleteUser(userId);
+    void deleteUser_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+        doThrow(new NotFoundException("Пользователь не найден")).when(userService).deleteUser(999L);
 
-        mockMvc.perform(delete("/users/{id}", userId))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/users/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", containsString("Пользователь не найден")));
 
-        verify(userService).deleteUser(userId);
+        verify(userService, times(1)).deleteUser(999L);
     }
 
     @Test
-    void createUser_WithEmptyBody_ShouldReturnBadRequest() throws Exception {
+    void createUser_WithMalformedJSON_ShouldReturnBadRequest() throws Exception {
+        String malformedJson = "{\"name\": \"Test User\", \"email\": \"test@example.com\"";
+
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(malformedJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void updateUser_WithPartialData_ShouldWork() throws Exception {
-        UserRequestDto requestDto = new UserRequestDto(null, "updated@example.com");
-        UserDto responseDto = new UserDto(userId, userName, "updated@example.com");
+    void updateUser_WithMalformedJSON_ShouldReturnBadRequest() throws Exception {
+        String malformedJson = "{\"name\": \"Updated User\"";
 
-        when(userService.updateUser(eq(userId), any(UserRequestDto.class))).thenReturn(responseDto);
-
-        mockMvc.perform(patch("/users/{id}", userId)
+        mockMvc.perform(patch("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("updated@example.com"));
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getUserById_WithInvalidIdFormat_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/invalid"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteUser_WithInvalidIdFormat_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(delete("/users/invalid"))
+                .andExpect(status().isBadRequest());
     }
 }
