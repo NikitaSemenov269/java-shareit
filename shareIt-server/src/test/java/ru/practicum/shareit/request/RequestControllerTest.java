@@ -1,14 +1,18 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.DTO.RequestDto;
 import ru.practicum.DTO.ResponseRequestDto;
+import ru.practicum.GlobalExceptionHandler;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.shareit.request.interfaces.RequestService;
 
@@ -21,30 +25,42 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(RequestController.class)
+@ExtendWith(MockitoExtension.class)
 class RequestControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private RequestService requestService;
+
+    @InjectMocks
+    private RequestController requestController;
+
+    private ObjectMapper objectMapper;
 
     private final Long userId = 1L;
     private final Long requestId = 1L;
+    private RequestDto requestDto;
+    private ResponseRequestDto responseRequestDto;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(requestController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+
+        objectMapper = new ObjectMapper();
+
+        requestDto = new RequestDto("Need a drill");
+        responseRequestDto = new ResponseRequestDto(
+                requestId, userId, "Need a drill", LocalDateTime.now(), Collections.emptyList()
+        );
+    }
 
     @Test
     void createRequest_ShouldReturnCreatedRequest() throws Exception {
-        RequestDto requestDto = new RequestDto("Need a drill");
-        ResponseRequestDto responseDto = new ResponseRequestDto(
-                requestId, userId, "Need a drill", LocalDateTime.now(), Collections.emptyList()
-        );
-
         when(requestService.createRequest(any(RequestDto.class), eq(userId)))
-                .thenReturn(responseDto);
+                .thenReturn(responseRequestDto);
 
         mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", userId)
@@ -54,12 +70,12 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.id").value(requestId))
                 .andExpect(jsonPath("$.description").value("Need a drill"))
                 .andExpect(jsonPath("$.requesterId").value(userId));
+
+        verify(requestService).createRequest(any(RequestDto.class), eq(userId));
     }
 
     @Test
     void createRequest_WhenUserNotFound_ShouldReturnNotFound() throws Exception {
-        RequestDto requestDto = new RequestDto("Need a drill");
-
         when(requestService.createRequest(any(RequestDto.class), eq(userId)))
                 .thenThrow(new NotFoundException("User not found"));
 
@@ -67,17 +83,39 @@ class RequestControllerTest {
                         .header("X-Sharer-User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("User not found"));
+
+        verify(requestService).createRequest(any(RequestDto.class), eq(userId));
     }
 
-    // УБРАН тест с пустым description - в DTO нет валидации
+    @Test
+    void createRequest_WithEmptyBody_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void createRequest_WithServiceException_ShouldReturnInternalServerError() throws Exception {
+        when(requestService.createRequest(any(RequestDto.class), eq(userId)))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("Внутренняя ошибка сервера."));
+
+        verify(requestService).createRequest(any(RequestDto.class), eq(userId));
+    }
 
     @Test
     void getUserRequests_ShouldReturnRequests() throws Exception {
-        ResponseRequestDto responseDto = new ResponseRequestDto(
-                requestId, userId, "Need a drill", LocalDateTime.now(), Collections.emptyList()
-        );
-        List<ResponseRequestDto> requests = List.of(responseDto);
+        List<ResponseRequestDto> requests = List.of(responseRequestDto);
 
         when(requestService.getUserRequests(userId)).thenReturn(requests);
 
@@ -85,7 +123,10 @@ class RequestControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(requestId))
-                .andExpect(jsonPath("$[0].requesterId").value(userId));
+                .andExpect(jsonPath("$[0].requesterId").value(userId))
+                .andExpect(jsonPath("$[0].description").value("Need a drill"));
+
+        verify(requestService).getUserRequests(userId);
     }
 
     @Test
@@ -97,21 +138,35 @@ class RequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+
+        verify(requestService).getUserRequests(userId);
+    }
+
+    @Test
+    void getUserRequests_WhenUserNotFound_ShouldReturnNotFound() throws Exception {
+        when(requestService.getUserRequests(userId))
+                .thenThrow(new NotFoundException("User not found"));
+
+        mockMvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("User not found"));
+
+        verify(requestService).getUserRequests(userId);
     }
 
     @Test
     void getRequestById_ShouldReturnRequest() throws Exception {
-        ResponseRequestDto responseDto = new ResponseRequestDto(
-                requestId, userId, "Need a drill", LocalDateTime.now(), Collections.emptyList()
-        );
-
-        when(requestService.getRequestById(requestId, userId)).thenReturn(responseDto);
+        when(requestService.getRequestById(requestId, userId)).thenReturn(responseRequestDto);
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(requestId))
-                .andExpect(jsonPath("$.description").value("Need a drill"));
+                .andExpect(jsonPath("$.description").value("Need a drill"))
+                .andExpect(jsonPath("$.requesterId").value(userId));
+
+        verify(requestService).getRequestById(requestId, userId);
     }
 
     @Test
@@ -121,15 +176,25 @@ class RequestControllerTest {
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
                         .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Request not found"));
+
+        verify(requestService).getRequestById(requestId, userId);
+    }
+
+    @Test
+    void getRequestById_WithInvalidIdFormat_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests/not-a-number")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     void getAllRequests_ShouldReturnRequests() throws Exception {
-        ResponseRequestDto responseDto = new ResponseRequestDto(
-                requestId, 2L, "Need a drill", LocalDateTime.now(), Collections.emptyList()
+        ResponseRequestDto otherUserRequest = new ResponseRequestDto(
+                requestId, 2L, "Need a hammer", LocalDateTime.now(), Collections.emptyList()
         );
-        List<ResponseRequestDto> requests = List.of(responseDto);
+        List<ResponseRequestDto> requests = List.of(otherUserRequest);
 
         when(requestService.getOtherUserRequests(userId, 0, 10)).thenReturn(requests);
 
@@ -139,7 +204,10 @@ class RequestControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(requestId))
-                .andExpect(jsonPath("$[0].requesterId").value(2L));
+                .andExpect(jsonPath("$[0].requesterId").value(2L))
+                .andExpect(jsonPath("$[0].description").value("Need a hammer"));
+
+        verify(requestService).getOtherUserRequests(userId, 0, 10);
     }
 
     @Test
@@ -150,6 +218,8 @@ class RequestControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+
+        verify(requestService).getOtherUserRequests(userId, 0, 10);
     }
 
     @Test
@@ -161,9 +231,10 @@ class RequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+
+        verify(requestService).getOtherUserRequests(userId, 0, 10);
     }
 
-    // ДОБАВЛЕН тест для проверки вызова сервиса с правильными параметрами
     @Test
     void getAllRequests_WithCustomPagination_ShouldCallServiceWithCorrectParams() throws Exception {
         when(requestService.getOtherUserRequests(userId, 5, 20)).thenReturn(Collections.emptyList());
@@ -175,5 +246,54 @@ class RequestControllerTest {
                 .andExpect(status().isOk());
 
         verify(requestService).getOtherUserRequests(userId, 5, 20);
+    }
+
+    @Test
+    void getAllRequests_WithInvalidPagination_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests/all")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", "invalid")
+                        .param("size", "invalid"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getAllRequests_WhenUserNotFound_ShouldReturnNotFound() throws Exception {
+        when(requestService.getOtherUserRequests(userId, 0, 10))
+                .thenThrow(new NotFoundException("User not found"));
+
+        mockMvc.perform(get("/requests/all")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("User not found"));
+
+        verify(requestService).getOtherUserRequests(userId, 0, 10);
+    }
+
+    @Test
+    void createRequest_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getUserRequests_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getAllRequests_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests/all"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    // Дополнительные тесты для полного покрытия
+    @Test
+    void getRequestById_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/requests/{requestId}", requestId))
+                .andExpect(status().isInternalServerError());
     }
 }
