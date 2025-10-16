@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class Validation {
 
-    void userIdValidation(Long userId) {
+    public void userIdValidation(Long userId) {
         if (userId == null) {
             throw new ValidationException("ID пользователя не может быть null");
         }
@@ -19,7 +19,7 @@ public class Validation {
         }
     }
 
-    void requestIdValidation(Long userId) {
+    public void requestIdValidation(Long userId) {
         if (userId == null) {
             throw new ValidationException("ID запроса не может быть null");
         }
@@ -28,7 +28,7 @@ public class Validation {
         }
     }
 
-    void itemIdValidation(Long itemId) {
+    public void itemIdValidation(Long itemId) {
         if (itemId == null) {
             throw new ValidationException("ID предмета не может быть null");
         }
@@ -37,7 +37,7 @@ public class Validation {
         }
     }
 
-    void bookingIdValidation(Long bookingId) {
+    public void bookingIdValidation(Long bookingId) {
         if (bookingId == null) {
             throw new ValidationException("ID заявки не может быть null");
         }
@@ -46,19 +46,19 @@ public class Validation {
         }
     }
 
-    void userEmailValidation(String email) {
+    public void userEmailValidation(String email) {
         if (email == null || email.isBlank()) {
             throw new ValidationException("Email не может быть пустой строкой, или null");
         }
     }
 
-    void userNameValidation(String name) {
+    public void userNameValidation(String name) {
         if (name == null || name.isBlank()) {
             throw new ValidationException("Имя не может быть пустой строкой, или null");
         }
     }
 
-    void dateValidation(LocalDateTime start, LocalDateTime end) {
+    public void dateValidation(LocalDateTime start, LocalDateTime end) {
         if (start == null) {
             throw new ru.practicum.exception.ValidationException("Время начала аренды не может быть null.");
         }

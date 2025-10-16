@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controllers;
+package ru.practicum.shareit.booking;
 
 import feign.FeignException;
 import jakarta.validation.Valid;
