@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
@@ -101,4 +100,4 @@ class ItemRepositoryTest {
         entityManager.flush();
         return comment;
     }
-}*/
+}

@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -228,4 +227,3 @@ class UserControllerTest {
         verify(userService).updateUser(eq(1L), any(UserRequestDto.class));
     }
 }
-*/

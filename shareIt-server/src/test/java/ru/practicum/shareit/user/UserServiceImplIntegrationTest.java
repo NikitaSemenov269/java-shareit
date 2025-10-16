@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-class aUserServiceImplIntegrationTest {
+class UserServiceImplIntegrationTest {
 
     @Autowired
     private UserServiceImpl userService;
@@ -280,4 +279,3 @@ class aUserServiceImplIntegrationTest {
         });
     }
 }
-*/

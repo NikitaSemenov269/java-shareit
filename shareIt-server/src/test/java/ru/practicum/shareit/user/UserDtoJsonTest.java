@@ -1,5 +1,4 @@
-/*
-package ru.practicum.DTO;
+package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import ru.practicum.DTO.SimpleUserDto;
+import ru.practicum.DTO.UserDto;
+import ru.practicum.DTO.UserRequestDto;
 
 import java.io.IOException;
 import java.util.Set;
@@ -254,4 +256,4 @@ class UserDtoJsonTest {
         assertThat(json).extractingJsonPathStringValue("$.email")
                 .isEqualTo("test+filter@example.com");
     }
-}*/
+}

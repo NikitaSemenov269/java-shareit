@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Test;
@@ -80,4 +79,4 @@ class UserMapperTest {
         assertEquals("", user.getName());
         assertEquals("", user.getEmail());
     }
-}*/
+}

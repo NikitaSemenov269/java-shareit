@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.Test;
@@ -77,4 +76,4 @@ class RequestRepositoryTest {
         entityManager.flush();
         return request;
     }
-}*/
+}

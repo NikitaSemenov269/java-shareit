@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
@@ -46,4 +45,4 @@ class ItemMapperTest {
         assertThat(item.getDescription()).isEqualTo("Test Description");
         assertThat(item.getAvailable()).isTrue();
     }
-}*/
+}

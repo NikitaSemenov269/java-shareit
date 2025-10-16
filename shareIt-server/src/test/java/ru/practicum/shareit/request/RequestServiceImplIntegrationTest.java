@@ -1,4 +1,3 @@
-/*
 package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -228,4 +227,4 @@ class RequestServiceImplIntegrationTest {
         item.setRequest(request);
         return itemRepository.save(item);
     }
-}*/
+}
