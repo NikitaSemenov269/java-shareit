@@ -1,0 +1,13 @@
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import ru.practicum.shareit.ShareItServerApp;
+
+@SpringBootTest(classes = ShareItServerApp.class)
+@ActiveProfiles("test")
+class ShareItTests {
+
+    @Test
+    void contextLoads() {
+    }
+}
